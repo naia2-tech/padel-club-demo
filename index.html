@@ -121,6 +121,8 @@ const ic = PC.ic, esc = PC.esc;
 let S = PC.S;
 const st = { mode: 'completo', menu: false, mo: null, step: 0, ui: { app: {}, panel: {} }, done: {}, intro: true };
 try { const v = localStorage.getItem('pcdemo.shell.mode'); if (v) st.mode = v; if (localStorage.getItem('pcdemo.shell.introSeen')) st.intro = false; } catch (e) {}
+if (/nointro/.test(location.search)) st.intro = false;
+const qm = location.search.match(/mode=(movil|panel|completo)/); if (qm) st.mode = qm[1];
 const $ = (id) => document.getElementById(id);
 const fApp = $('fApp'), fPanel = $('fPanel');
 const send = (frame, msg) => { const f = frame === 'app' ? fApp : fPanel; try { f.contentWindow.postMessage({ ...msg, frame }, '*'); } catch (e) {} };
