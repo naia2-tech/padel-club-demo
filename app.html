@@ -1,0 +1,958 @@
+<!doctype html>
+<html lang="es" data-brand="doss">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#1d5ae6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>App del club · Demo</title>
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders:wght@700;800;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&display=swap">
+<link rel="stylesheet" href="assets/ui.css">
+<style>
+html, body { height: 100%; }
+body { overflow: hidden; background: var(--bg); }
+#app { height: 100%; display: flex; flex-direction: column; position: relative; overflow: hidden; }
+.sbar { height: 44px; flex: none; background: var(--head); color: #fff; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 26px 6px 30px; font-size: 14px; font-weight: 600; }
+.sbar .r { display: flex; gap: 6px; align-items: center; }
+.sbar .bat { width: 24px; height: 11px; border: 1.5px solid rgb(255 255 255 / .9); border-radius: 3px; position: relative; }
+.sbar .bat::after { content: ''; position: absolute; inset: 1.5px; right: 5px; background: #fff; border-radius: 1px; }
+.top { flex: none; background: var(--head); color: #fff; display: flex; align-items: center; gap: 10px; padding: 8px 14px 12px 16px; }
+.top .logo .wm { font-size: 22px; }
+.top .act { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+.iconbtn { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: rgb(255 255 255 / .1); color: #fff; position: relative; }
+.iconbtn .badge { position: absolute; top: -3px; right: -3px; border: 2px solid var(--head); }
+.me-btn { width: 40px; height: 40px; border-radius: 50%; background: rgb(255 255 255 / .14); color: #fff; font-weight: 700; font-size: 13px; display: grid; place-items: center; }
+main { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 14px 14px 112px; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
+main > * + * { margin-top: 16px; }
+.tabbar { position: absolute; left: 12px; right: 12px; bottom: 14px; height: 66px; background: var(--head); border-radius: 26px; display: grid; grid-template-columns: repeat(5, 1fr); padding: 6px; box-shadow: 0 18px 40px -14px rgb(7 15 36 / .6); z-index: 20; }
+.tabbar button { border-radius: 20px; color: rgb(255 255 255 / .78); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 11px; font-weight: 600; position: relative; }
+.tabbar button.on { background: rgb(255 255 255 / .15); color: var(--ball); }
+.tabbar .badge { position: absolute; top: 4px; right: 14px; }
+.hero { border-radius: 26px; padding: 18px 18px 16px; color: #fff; position: relative; overflow: hidden; background: linear-gradient(155deg, rgb(29 90 230 / .9) 10%, rgb(11 26 58 / .94) 95%), var(--photo) center / cover; box-shadow: var(--shadow); }
+[data-brand="oarso"] .hero { background: linear-gradient(155deg, rgb(10 71 184 / .82) 0%, rgb(6 22 52 / .96) 85%), var(--photo) center / cover; }
+.hero .eyebrow { color: var(--ball); }
+.hero h1 { font-size: 46px; margin: 6px 0 12px; }
+.hero .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.sec-h { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+.sec-h h2 { font-family: var(--f-display); font-weight: 800; text-transform: uppercase; font-size: 24px; line-height: 1; color: var(--brand-deep); }
+.subnav { display: flex; gap: 6px; overflow-x: auto; margin: 0 -14px; padding: 2px 14px 4px; }
+.todo { display: flex; gap: 12px; align-items: center; padding: 13px 14px; border-radius: 18px; background: #fff; border: 1px solid var(--line); box-shadow: var(--shadow); }
+.todo .ti { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; background: var(--brand-soft); color: var(--brand); flex: none; }
+.todo.hot { border: 2px solid var(--ball); }
+.todo.hot .ti { background: var(--ball); color: var(--ball-ink); }
+.todo b { display: block; font-size: 14px; line-height: 1.25; }
+.todo small { display: block; color: var(--muted); font-size: 12.5px; margin-top: 2px; }
+.mc { padding: 14px 16px 0; overflow: hidden; }
+.mc.mine { border: 2px solid var(--ball); }
+.mc .mh { display: flex; justify-content: space-between; align-items: center; font-size: 10.5px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.mc .tr { display: flex; align-items: center; gap: 10px; padding: 8px 0; }
+.mc .tr .nm { flex: 1; min-width: 0; }
+.mc .tr .nm b { display: block; font-size: 15px; line-height: 1.2; }
+.mc .tr .nm small { display: block; color: var(--muted); font-size: 12px; line-height: 1.3; }
+.mc .tr.lost .nm b { color: var(--muted); font-weight: 600; }
+.mc .vs { display: flex; align-items: center; gap: 10px; color: var(--faint); font-size: 11px; font-weight: 700; }
+.mc .vs::before, .mc .vs::after { content: ''; height: 1px; background: var(--line); flex: 1; }
+.mc .mf { display: flex; justify-content: space-between; align-items: center; gap: 8px; border-top: 1px solid var(--line-2); margin: 6px -16px 0; padding: 10px 16px; font-size: 12.5px; color: var(--muted); background: #fafbfe; }
+.mc .tags { display: flex; gap: 6px; flex-wrap: wrap; padding: 2px 0 10px; }
+.yours { display: inline-block; margin-top: 4px; background: var(--ball); color: var(--ball-ink); font-size: 10px; font-weight: 800; letter-spacing: .06em; padding: 2px 7px; border-radius: 6px; }
+.teamcard { background: var(--brand); color: #fff; border-radius: 24px; padding: 16px; box-shadow: var(--shadow); }
+[data-brand="oarso"] .teamcard { background: linear-gradient(160deg, var(--brand-2), var(--brand-deep)); }
+.teamcard .eyebrow { color: var(--ball); }
+.teamcard h2 { font-size: 34px; margin: 4px 0 12px; }
+.plist { display: grid; gap: 8px; }
+.prow { display: flex; align-items: center; gap: 10px; background: rgb(255 255 255 / .1); border-radius: 14px; padding: 8px 10px; }
+.prow .avatar { background: rgb(255 255 255 / .16); color: #fff; }
+.stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 12px; }
+.stats div { background: rgb(255 255 255 / .1); border-radius: 12px; padding: 8px 4px; text-align: center; }
+.stats b { display: block; font: 700 18px var(--f-score); }
+.stats span { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; opacity: .75; }
+.list { padding: 4px 0; }
+.li { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-top: 1px solid var(--line-2); }
+.li:first-child { border-top: 0; }
+.li b { font-size: 14px; display: block; line-height: 1.25; }
+.li small { color: var(--muted); font-size: 12.5px; display: block; }
+.li .ti { width: 36px; height: 36px; border-radius: 11px; background: var(--brand-soft); color: var(--brand); display: grid; place-items: center; flex: none; }
+.pad { padding: 16px; }
+.rule { display: flex; gap: 12px; padding: 14px 16px; border-top: 1px solid var(--line-2); }
+.rule:first-child { border-top: 0; }
+.rule .ti { width: 38px; height: 38px; border-radius: 12px; background: var(--brand-deep); color: var(--ball); display: grid; place-items: center; flex: none; }
+.rule b { display: block; font-size: 14px; }
+.rule p { color: var(--muted); font-size: 12.8px; margin-top: 2px; }
+.rule .pill { margin-top: 6px; }
+.bar { height: 8px; border-radius: 99px; background: var(--line-2); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--brand); border-radius: 99px; }
+.mates { display: flex; }
+.mates .avatar { border: 2px solid #fff; margin-left: -8px; }
+.mates .avatar:first-child { margin-left: 0; }
+.idcard { border-radius: 24px; padding: 18px; color: #fff; background: radial-gradient(120% 90% at 100% 0%, rgb(220 255 61 / .26), transparent 55%), linear-gradient(150deg, var(--brand) 0%, var(--brand-deep) 100%); box-shadow: var(--shadow-lg); position: relative; overflow: hidden; }
+.idcard .qr { width: 104px; height: 104px; background: #fff; border-radius: 14px; padding: 8px; flex: none; }
+.radar text { font-size: 9.5px; fill: var(--muted); font-family: var(--f-body); font-weight: 600; }
+.badges { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.bdg { border-radius: 16px; padding: 12px 8px; text-align: center; background: #fff; border: 1px solid var(--line); font-size: 11.5px; font-weight: 600; line-height: 1.25; }
+.bdg .bi { width: 44px; height: 44px; margin: 0 auto 6px; border-radius: 50%; display: grid; place-items: center; background: var(--ball); color: var(--ball-ink); }
+.bdg.part .bi { background: conic-gradient(var(--brand) calc(var(--p) * 1%), var(--line) 0); color: var(--brand); }
+.bdg.lock { color: var(--faint); }
+.bdg.lock .bi { background: var(--line-2); color: var(--faint); }
+.note { background: #fff; border-radius: 16px; border: 1px solid var(--line); padding: 12px 14px; }
+.note .by { display: flex; gap: 8px; align-items: center; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+.video { border-radius: 18px; overflow: hidden; position: relative; aspect-ratio: 16 / 9; background: linear-gradient(0deg, rgb(7 15 36 / .65), transparent 60%), url('assets/img/pala.jpg') center / cover; color: #fff; display: flex; align-items: flex-end; padding: 12px 14px; }
+.video .play { position: absolute; inset: 0; margin: auto; width: 54px; height: 54px; border-radius: 50%; background: var(--ball); color: var(--ball-ink); display: grid; place-items: center; }
+/* hojas */
+.sheet-bg { position: absolute; inset: 0; background: rgb(7 15 36 / .5); z-index: 50; animation: fade .2s; display: flex; align-items: flex-end; }
+@keyframes fade { from { opacity: 0 } }
+.sheet { width: 100%; max-height: 90%; overflow-y: auto; background: var(--bg); border-radius: 26px 26px 0 0; padding: 8px 16px 26px; animation: up .28s cubic-bezier(.2, .9, .3, 1); }
+@keyframes up { from { transform: translateY(40%); opacity: .4 } }
+.sheet .grab { width: 40px; height: 5px; border-radius: 9px; background: #cbd5e1; margin: 2px auto 10px; }
+.sheet .sh { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+.sheet .sh h3 { font-family: var(--f-display); font-weight: 800; text-transform: uppercase; font-size: 26px; line-height: .95; color: var(--brand-deep); }
+.sheet .sh .x { margin-left: auto; width: 34px; height: 34px; border-radius: 50%; background: #e2e8f0; display: grid; place-items: center; color: var(--ink-2); flex: none; }
+.sheet > * + * { margin-top: 12px; }
+.days { display: flex; gap: 6px; overflow-x: auto; margin: 0 -16px; padding: 2px 16px 4px; }
+.day { flex: none; width: 54px; border-radius: 14px; padding: 7px 0; background: #fff; border: 1px solid var(--line); text-align: center; }
+.day small { display: block; font-size: 10.5px; text-transform: uppercase; color: var(--muted); font-weight: 700; letter-spacing: .06em; }
+.day b { display: block; font: 700 18px var(--f-score); }
+.day.on { background: var(--brand); color: #fff; border-color: var(--brand); }
+.day.on small { color: rgb(255 255 255 / .8); }
+.day.off { background: repeating-linear-gradient(-45deg, #f1f5f9 0 6px, #e8edf4 6px 12px); color: var(--faint); border-style: dashed; }
+.day.has::after { content: ''; display: block; width: 6px; height: 6px; border-radius: 50%; background: var(--ball-dark); margin: 3px auto 0; }
+.slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.slot { border-radius: 14px; padding: 9px 6px; background: #fff; border: 1px solid var(--line); text-align: center; }
+.slot b { display: block; font: 700 16px var(--f-score); }
+.slot small { font-size: 10.5px; color: var(--ok); font-weight: 700; }
+.slot.full { opacity: .5; }
+.slot.full small { color: var(--bad); }
+.slot.sel { background: var(--ball); border-color: var(--ball-dark); color: var(--ball-ink); }
+.slot.sel small { color: var(--ball-ink); }
+.opt { display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: #fff; border: 1.5px solid var(--line); border-radius: 16px; width: 100%; text-align: left; }
+.opt.on { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-100); }
+.opt .radio { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #cbd5e1; flex: none; display: grid; place-items: center; }
+.opt.on .radio { border-color: var(--brand); }
+.opt.on .radio::after { content: ''; width: 11px; height: 11px; border-radius: 50%; background: var(--brand); }
+.opt.dis { opacity: .5; }
+.steps { display: flex; gap: 6px; }
+.steps span { flex: 1; height: 5px; border-radius: 9px; background: var(--line); }
+.steps span.on { background: var(--brand); }
+.timeline { display: grid; gap: 0; }
+.tl { display: flex; gap: 10px; align-items: flex-start; position: relative; padding-bottom: 12px; }
+.tl:not(:last-child)::before { content: ''; position: absolute; left: 11px; top: 24px; bottom: 0; width: 2px; background: var(--line); }
+.tl .c { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--line); background: #fff; display: grid; place-items: center; flex: none; color: #fff; }
+.tl.done .c { background: var(--ok); border-color: var(--ok); }
+.tl.now .c { border-color: var(--brand); box-shadow: 0 0 0 4px var(--brand-100); }
+.tl b { font-size: 13.5px; display: block; }
+.tl small { color: var(--muted); font-size: 12px; }
+.setgrid { display: grid; grid-template-columns: 1fr repeat(3, 62px); gap: 8px; align-items: center; }
+.setgrid .h { font-size: 10.5px; color: var(--faint); font-weight: 700; letter-spacing: .1em; text-transform: uppercase; text-align: center; }
+.stepper { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.stepper button { width: 36px; height: 24px; border-radius: 8px; background: #e2e8f0; display: grid; place-items: center; color: var(--ink-2); }
+.stepper .tile { width: 44px; height: 42px; font-size: 20px; }
+.cand { display: flex; gap: 10px; align-items: center; padding: 11px 12px; border-radius: 16px; background: #fff; border: 1.5px solid var(--line); width: 100%; text-align: left; }
+.cand.on { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-100); }
+.cand.no { opacity: .55; background: #f8fafc; }
+.lvl { font: 700 13px var(--f-score); background: var(--brand-deep); color: var(--ball); border-radius: 8px; padding: 4px 7px; }
+.timer { border-radius: 26px; padding: 22px 18px; text-align: center; color: #fff; background: var(--brand-deep); transition: background .4s; }
+.timer.late { background: var(--ball); color: var(--ball-ink); }
+.timer .big { font: 700 64px/1 var(--f-score); letter-spacing: -.02em; margin: 6px 0; }
+.payok { text-align: center; padding: 18px 0 6px; }
+.payok .ok { width: 78px; height: 78px; border-radius: 50%; margin: 0 auto 12px; background: var(--ok); color: #fff; display: grid; place-items: center; animation: pop .45s; }
+.spin { width: 22px; height: 22px; border-radius: 50%; border: 3px solid rgb(255 255 255 / .35); border-top-color: #fff; animation: rot .8s linear infinite; }
+@keyframes rot { to { transform: rotate(360deg) } }
+.att { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 16px; background: #fff; border: 1px solid var(--line); }
+.att .tg { display: flex; gap: 6px; margin-left: auto; }
+.att .tg button { width: 40px; height: 38px; border-radius: 11px; background: var(--line-2); color: var(--muted); display: grid; place-items: center; font-size: 11px; font-weight: 700; }
+.att .tg button.yes.on { background: var(--ok); color: #fff; }
+.att .tg button.no.on { background: var(--bad); color: #fff; }
+.att .tg button.exc.on { background: var(--warn-soft); color: var(--warn); }
+.range { width: 100%; accent-color: var(--brand); }
+.skill { display: grid; grid-template-columns: 96px 1fr 26px; gap: 10px; align-items: center; font-size: 13px; }
+.skill b { font: 700 14px var(--f-score); text-align: right; }
+.notif { display: flex; gap: 12px; padding: 12px 14px; border-radius: 16px; background: #fff; border: 1px solid var(--line); width: 100%; text-align: left; }
+.notif.unread { border-color: var(--brand-200); background: #f7f9ff; }
+.notif .ti { width: 36px; height: 36px; border-radius: 11px; background: var(--brand-soft); color: var(--brand); display: grid; place-items: center; flex: none; }
+.notif b { display: block; font-size: 13.5px; line-height: 1.3; }
+.notif p { color: var(--ink-2); font-size: 12.8px; margin-top: 2px; }
+.notif small { color: var(--faint); font-size: 11.5px; }
+.empty { text-align: center; padding: 22px 16px; color: var(--muted); }
+.ptc { display: flex; gap: 12px; align-items: center; padding: 14px; border-radius: 20px; background: var(--brand-deep); color: #fff; }
+.ptc .ti { width: 42px; height: 42px; border-radius: 13px; background: var(--ball); color: var(--ball-ink); display: grid; place-items: center; flex: none; }
+.ptc small { color: rgb(255 255 255 / .7); display: block; font-size: 12px; }
+.evt { flex: none; width: 210px; border-radius: 20px; padding: 14px; background: #fff; border: 1px solid var(--line); box-shadow: var(--shadow); }
+.hscroll { display: flex; gap: 10px; overflow-x: auto; margin: 0 -14px; padding: 2px 14px 8px; }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 13px; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; font-weight: 600; text-align: right; }
+.persona { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 16px; background: #fff; border: 1.5px solid var(--line); width: 100%; text-align: left; }
+.persona.on { border-color: var(--brand); box-shadow: 0 0 0 3px var(--brand-100); }
+.toasts { top: 10px; }
+.flashrow td { animation: flash 2.2s ease-out; }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<script src="assets/core.js" data-frame="app"></script>
+<script>
+(function () {
+'use strict';
+const L = PC.L, T = PC.T, ic = PC.ic, esc = PC.esc;
+const EMBED = /embed/.test(location.search);
+let S = PC.S;
+const ui = { tab: 'home', sub: { liga: 'equipo', escuela: 'grupo', club: 'carnet' }, sheet: null, ligaGroup: null, flashTeam: null };
+let cueIds = [];
+let seen = new Set();
+const resetSeen = () => { seen = new Set(PC.notifsFor(S.persona).map((n) => n.id)); };
+
+/* ---------- utilidades de interfaz ---------- */
+const P = () => PC.persona();
+const myTeam = () => (P().team ? PC.team(P().team) : null);
+const isCap = () => P().role === 'captain';
+const brand = () => PC.brand();
+function toast(title, body, icon = 'check', app) {
+  const box = document.getElementById('toasts');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.innerHTML = `<div class="ti">${ic(icon, 18)}</div><div>${app ? `<div class="tapp">${esc(app)}</div>` : ''}<b>${esc(title)}</b>${body ? `<span>${esc(body)}</span>` : ''}</div>`;
+  box.appendChild(el);
+  setTimeout(() => { el.style.transition = 'opacity .4s, transform .4s'; el.style.opacity = '0'; el.style.transform = 'translateY(-10px)'; }, 4200);
+  setTimeout(() => el.remove(), 4700);
+}
+function banner(n) {
+  const kindIc = { change: 'swap', ok: 'check', warn: 'alert', result: 'trophy', school: 'school', pay: 'euro', msg: 'msg', sub: 'sub', trophy: 'trophy', info: 'info' }[n.kind] || 'bell';
+  toast(T(n.title), T(n.body), kindIc, `${brand().w1} ${brand().w2} · ${L('ahora', 'orain')}`);
+}
+function checkNew() {
+  PC.notifsFor(S.persona).forEach((n) => {
+    if (!seen.has(n.id)) { seen.add(n.id); if (!n.read[S.persona]) banner(n); }
+  });
+}
+const post = (msg) => { try { if (window.parent !== window) window.parent.postMessage(msg, '*'); } catch (e) {} };
+
+/* ---------- piezas comunes ---------- */
+function tileRow(m, k) {
+  if (m.st === 'played' && m.np) return `<span class="tile ${m.np === k ? '' : 'win'}" style="width:auto;padding:0 8px;font-size:13px">${m.np === k ? 'NP' : 'W.O.'}</span>`;
+  const sets = m.st === 'played' ? m.sets : m.st === 'awaiting' ? m.pending.sets : null;
+  if (!sets) return `<span class="tile idle">–</span><span class="tile idle">–</span>`;
+  return sets.map((s) => { const mine = k === 'a' ? s[0] : s[1], oth = k === 'a' ? s[1] : s[0]; return `<span class="tile ${mine > oth ? 'win' : ''} ${m.st === 'awaiting' ? 'live' : ''}">${String(mine).padStart(2, '0')}</span>`; }).join('');
+}
+function statusOf(m) {
+  if (m.st === 'played') return { t: L('Finalizado', 'Amaituta'), c: '' };
+  if (m.st === 'awaiting') return { t: L('Por confirmar', 'Berresteko'), c: 'warn' };
+  if (m.st === 'disputed') return { t: L('En revisión', 'Berrikusten'), c: 'warn' };
+  if (m.resultDue) return { t: L('Resultado pendiente', 'Emaitza falta'), c: 'bad' };
+  if (m.at.slice(0, 10) === PC.TODAY) return { t: L('Hoy', 'Gaur') + ' ' + PC.time(m.at), c: 'ball' };
+  return { t: PC.fDay(m.at), c: 'brand' };
+}
+function matchCard(m, opt = {}) {
+  const me = myTeam();
+  const A = PC.team(m.a), B = PC.team(m.b);
+  const o = m.st === 'played' ? PC.outcome(m) : null;
+  const st = statusOf(m);
+  const mine = me && (m.a === me.id || m.b === me.id);
+  const row = (k, t) => {
+    const lost = o && o[k] !== 'W' && o[k] !== 'T';
+    const ps = PC.teamPlayers(t).map((p) => (m.sub && m.sub[p.id] ? S.players[m.sub[p.id]].name + ' *' : p.name)).join(' · ');
+    return `<div class="tr ${lost ? 'lost' : ''}"><div class="nm"><b>${esc(t.name)}</b><small>${esc(ps)}</small>${me && t.id === me.id ? `<span class="yours">${L('TU EQUIPO', 'ZURE TALDEA')}</span>` : ''}</div><div class="tiles">${tileRow(m, k)}</div></div>`;
+  };
+  const tags = [];
+  if (m.chg) tags.push(`<span class="pill dark">${ic('swap', 12)} ${L('Cambiado', 'Aldatuta')} ${m.chg}/${PC.RULES.changesPerMatch}</span>`);
+  const ch = m.chgReq && S.changes.find((c) => c.id === m.chgReq);
+  if (ch) tags.push(`<span class="pill warn">${ic('swap', 12)} ${ch.st === 'proposed' ? L('Cambio propuesto', 'Aldaketa proposatuta') : L('Cambio acordado · falta el club', 'Aldaketa adostuta · klubaren zain')}</span>`);
+  if (m.st === 'scheduled' && m.pact && (m.pact.a || m.pact.b)) {
+    const agreed = m.pact.a && m.pact.a === m.pact.b;
+    tags.push(`<span class="pill ${agreed ? 'ok' : ''}">${ic('timer', 12)} ${agreed ? L('Pacto 20′: ', '20′ ituna: ') + pactName(m.pact.a) : L('Pacto 20′ pendiente', '20′ ituna zain')}</span>`);
+  }
+  const sp = S.subs.find((s) => s.m === m.id && s.st === 'pending');
+  if (sp) tags.push(`<span class="pill warn">${ic('sub', 12)} ${L('Sustituto por aprobar', 'Ordezkoa onartzeko')}</span>`);
+  if (m.sub) tags.push(`<span class="pill ok">${ic('sub', 12)} ${L('Sustituto aprobado', 'Ordezkoa onartuta')}</span>`);
+  return `<button class="card mc ${mine && opt.hl !== false ? 'mine' : ''}" style="width:100%;text-align:left;display:block" data-a="openMatch" data-id="${m.id}" data-cue="match-${m.id}">
+    <div class="mh"><span>${L('Grupo', 'Taldea')} ${m.g}${opt.label ? ' · ' + opt.label : ''}</span><span class="pill ${st.c}">${st.t}</span></div>
+    ${row('a', A)}<div class="vs">VS</div>${row('b', B)}
+    ${tags.length ? `<div class="tags">${tags.join('')}</div>` : ''}
+    <div class="mf"><span>${ic('pin', 14)}</span><span class="grow">${esc(brand().venue)} · ${L('Pista', 'Pista')} ${m.court}</span><span class="tnum">${PC.fDay(m.at)} · ${PC.time(m.at)}</span></div>
+  </button>`;
+}
+const pactName = (v) => (v === 'stb' ? L('supertiebreak a 11', 'supertiebreak 11ra') : L('tercer set', 'hirugarren seta'));
+function standTable(g, opt = {}) {
+  const rows = PC.standings(g);
+  const me = myTeam();
+  return `<table class="stand"><thead><tr><th></th><th>${L('Equipo', 'Taldea')}</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>Sets</th><th>PTS</th></tr></thead><tbody>
+  ${rows.map((r) => {
+    const z = PC.zone(g, r.pos, rows.length);
+    const isMe = me && r.t.id === me.id;
+    return `<tr class="${z} ${isMe ? 'me' : ''} ${ui.flashTeam === r.t.id ? 'flashrow' : ''}"><td><span class="pos">${r.pos}</span></td><td class="tn"><span class="ellipsis" style="display:block;max-width:${opt.narrow ? 110 : 128}px">${esc(r.t.name)}</span>${r.np ? `<small style="color:var(--bad);font-weight:600">${r.np} NP</small>` : ''}</td><td>${r.pj}</td><td>${r.w}</td><td>${r.e}</td><td>${r.l}</td><td class="mono" style="font-size:12px">${r.sf}-${r.sc}</td><td><span class="ptsb">${r.pts}</span></td></tr>`;
+  }).join('')}</tbody></table>`;
+}
+function radar(e, size = 270) {
+  const c = size / 2, r = size / 2 - 42, n = PC.SKILLS.length;
+  const pt = (i, v) => { const a = -Math.PI / 2 + (i * 2 * Math.PI) / n; return [c + Math.cos(a) * r * (v / 10), c + Math.sin(a) * r * (v / 10)]; };
+  const poly = (vals) => PC.SKILLS.map(([k], i) => pt(i, vals[k]).map((x) => x.toFixed(1)).join(',')).join(' ');
+  let rings = '';
+  [2.5, 5, 7.5, 10].forEach((v) => { rings += `<polygon points="${PC.SKILLS.map((_, i) => pt(i, v).join(',')).join(' ')}" fill="none" stroke="#e2e8f0"/>`; });
+  const axes = PC.SKILLS.map((_, i) => { const [x, y] = pt(i, 10); return `<line x1="${c}" y1="${c}" x2="${x}" y2="${y}" stroke="#e2e8f0"/>`; }).join('');
+  const labels = PC.SKILLS.map(([k, es, eu], i) => { const [x, y] = pt(i, 12.6); return `<text x="${x}" y="${y + 3}" text-anchor="middle">${esc(L(es, eu))} · ${e.cur[k]}</text>`; }).join('');
+  return `<svg class="radar" viewBox="0 0 ${size} ${size}" width="100%" style="max-width:${size}px;display:block;margin:0 auto">${rings}${axes}
+    <polygon points="${poly(e.start)}" fill="rgb(148 163 184 / .14)" stroke="#94a3b8" stroke-dasharray="4 3" stroke-width="1.5"/>
+    <polygon points="${poly(e.cur)}" fill="color-mix(in srgb, var(--brand) 22%, transparent)" stroke="var(--brand)" stroke-width="2.4" stroke-linejoin="round"/>
+    ${PC.SKILLS.map(([k], i) => { const [x, y] = pt(i, e.cur[k]); return `<circle cx="${x}" cy="${y}" r="3.6" fill="var(--ball)" stroke="var(--brand-deep)" stroke-width="1.5"/>`; }).join('')}
+    ${labels}</svg>`;
+}
+function qrSvg(seed) {
+  const R = PC.rng(seed); const n = 25; let cells = '';
+  const finder = (x, y) => `<rect x="${x}" y="${y}" width="7" height="7" fill="#0b1a3a"/><rect x="${x + 1}" y="${y + 1}" width="5" height="5" fill="#fff"/><rect x="${x + 2}" y="${y + 2}" width="3" height="3" fill="#0b1a3a"/>`;
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+    if ((x < 8 && y < 8) || (x > n - 9 && y < 8) || (x < 8 && y > n - 9)) continue;
+    if (R() < 0.48) cells += `<rect x="${x}" y="${y}" width="1" height="1"/>`;
+  }
+  return `<svg viewBox="0 0 ${n} ${n}" width="100%" height="100%" shape-rendering="crispEdges"><g fill="#0b1a3a">${cells}</g>${finder(0, 0)}${finder(n - 7, 0)}${finder(0, n - 7)}</svg>`;
+}
+const subnav = (key, items) => `<div class="subnav hide-sb">${items.map(([id, label]) => `<button class="chip ${ui.sub[key] === id ? 'on' : ''}" data-a="sub" data-k="${key}" data-v="${id}" data-cue="sub-${key}-${id}">${label}</button>`).join('')}</div>`;
+const secH = (title, right = '') => `<div class="sec-h"><h2>${title}</h2>${right}</div>`;
+const todo = (o) => `<button class="todo ${o.hot ? 'hot' : ''}" style="width:100%;text-align:left" data-a="${o.a}" ${o.id ? `data-id="${o.id}"` : ''} data-cue="${o.cue || ''}"><div class="ti">${ic(o.icon, 20)}</div><div class="grow"><b>${o.title}</b><small>${o.sub}</small></div>${o.btn ? `<span class="btn btn-sm ${o.hot ? 'btn-ball' : 'btn-ghost'}">${o.btn}</span>` : ic('chev', 18, 'faint')}</button>`;
+
+/* ---------- inicio ---------- */
+function heroCard(chips, eyebrowExtra) {
+  const d = PC.NOW;
+  return `<section class="hero enter"><div class="eyebrow">${PC.fLong(PC.TODAY + 'T00:00')} · ${esc(eyebrowExtra || brand().league)}</div><h1 class="display">${L('Kaixo', 'Kaixo')}, ${esc(P().first)}</h1><div class="chips">${chips.map((c) => `<span class="chip ${c.ball ? 'ball' : 'glass'}">${c.icon ? ic(c.icon, 14) : ''}${c.t}</span>`).join('')}</div></section>`;
+}
+function captainTodos() {
+  const me = myTeam(); const out = [];
+  PC.matchesOf(me.id).forEach((m) => {
+    const rival = PC.team(PC.vs(m, me.id));
+    if (m.resultDue && m.st === 'scheduled') out.push({ hot: true, icon: 'ball', title: L(`Resultado contra ${rival.name}`, `Emaitza: ${rival.name}`), sub: L(`Jugasteis ${PC.fDay(m.at)}. Lo introduces tú y ${rival.name} lo confirma.`, `${PC.fDay(m.at)} jokatu zenuten. Zuk sartu eta ${rival.name} taldeak berretsiko du.`), btn: L('Introducir', 'Sartu'), a: 'openResult', id: m.id, cue: 'todo-result' });
+    if (m.st === 'awaiting') out.push({ icon: 'clock', title: L(`Esperando a ${rival.name}`, `${rival.name} taldearen zain`), sub: L('Tienen que confirmar el resultado que habéis enviado.', 'Bidali duzuen emaitza berretsi behar dute.'), a: 'openMatch', id: m.id });
+    if (m.chgReq) {
+      const c = S.changes.find((x) => x.id === m.chgReq);
+      if (c && c.st === 'proposed' && c.by !== me.id) out.push({ hot: true, icon: 'swap', title: L(`${PC.team(c.by).name} propone cambiar el partido`, `${PC.team(c.by).name} taldeak partida aldatu nahi du`), sub: L(`Del ${PC.fDay(m.at, false)} a las ${PC.time(m.at)}. Te ofrece ${c.opts.length} horarios.`, `${PC.fDay(m.at, false)}, ${PC.time(m.at)}. ${c.opts.length} ordutegi eskaintzen dizkizu.`), btn: L('Elegir', 'Aukeratu'), a: 'openAnswer', id: c.id, cue: 'todo-answer' });
+      if (c && c.st === 'proposed' && c.by === me.id) out.push({ icon: 'clock', title: L(`Esperando a ${rival.name}`, `${rival.name} taldearen zain`), sub: L(`Les has propuesto ${c.opts.length} horarios. El partido sigue en su fecha hasta que elijan.`, `${c.opts.length} ordutegi proposatu dizkiezu. Partidak bere data mantentzen du aukeratu arte.`), a: 'openMatch', id: m.id });
+      if (c && c.st === 'accepted') out.push({ icon: 'shield', title: L('Cambio acordado · falta el OK del club', 'Aldaketa adostuta · klubaren onespena falta da'), sub: L(`Nueva fecha: ${PC.fDay(c.pick, false)}, ${PC.time(c.pick)}.`, `Data berria: ${PC.fDay(c.pick, false)}, ${PC.time(c.pick)}.`), a: 'openMatch', id: m.id });
+    }
+    if (m.st === 'scheduled' && m.pact) {
+      const side = PC.side(m, me.id), other = side === 'a' ? 'b' : 'a';
+      if (m.pact[other] && !m.pact[side]) out.push({ icon: 'timer', title: L('Confirma el pacto de los últimos 20 minutos', 'Berretsi azken 20 minutuetako ituna'), sub: L(`${rival.name} propone ${pactName(m.pact[other])}.`, `${rival.name} taldeak ${pactName(m.pact[other])} proposatzen du.`), btn: L('Ver', 'Ikusi'), a: 'openMatch', id: m.id, cue: 'todo-pact' });
+    }
+  });
+  return out;
+}
+function homeCaptain() {
+  const me = myTeam(); const pos = PC.posOf(me.id);
+  const next = PC.nextMatch(me.id);
+  const todos = captainTodos();
+  const msgs = PC.notifsFor(S.persona).filter((n) => n.kind === 'msg').slice(0, 2);
+  return `${heroCard([{ t: esc(me.name), ball: true }, { t: L('Grupo', 'Taldea') + ' ' + me.g }, { t: `${pos.pos}º · ${pos.pts} ${L('puntos', 'puntu')}`, icon: 'trophy' }])}
+  ${todos.length ? `<section>${secH(L('Te toca', 'Zure txanda'))}<div class="col">${todos.map(todo).join('')}</div></section>` : ''}
+  ${next ? `<section>${secH(L('Próximo partido', 'Hurrengo partida'), `<button class="link" data-a="tab" data-v="liga">${L('Calendario', 'Egutegia')} ${ic('chev', 14)}</button>`)}${matchCard(next)}</section>` : ''}
+  <section class="ptc"><div class="ti">${ic('court', 22)}</div><div class="grow"><b>${L('¿Un partido con amigos?', 'Lagunekin partida bat?')}</b><small>${L('Las pistas se siguen reservando en Playtomic, como siempre.', 'Pistak Playtomic-en erreserbatzen jarraitzen dira, beti bezala.')}</small></div><a class="btn btn-ball btn-sm" href="${PC.PLAYTOMIC}" target="_blank" rel="noopener">Playtomic ${ic('ext', 14)}</a></section>
+  ${msgSection(msgs)}
+  ${eventsStrip()}`;
+}
+function msgSection(msgs) {
+  if (!msgs.length) return '';
+  return `<section>${secH(L('Avisos del club', 'Klubaren oharrak'), `<button class="link" data-a="openNotifs">${L('Ver todos', 'Denak ikusi')} ${ic('chev', 14)}</button>`)}<div class="col">${msgs.map((n) => `<div class="note"><div class="by">${ic('msg', 14)} ${esc(brand().short)} · ${PC.fAgo(n.ts)}</div><b>${esc(T(n.title))}</b><p class="muted" style="font-size:13px;margin-top:3px">${esc(T(n.body))}</p></div>`).join('')}</div></section>`;
+}
+function eventsStrip() {
+  return `<section>${secH(L('En el club', 'Klubean'))}<div class="hscroll hide-sb">${S.events.filter((e) => !e.soon).map((e) => `<button class="evt" style="text-align:left" data-a="openEvent" data-id="${e.id}"><div class="eyebrow" style="color:var(--brand)">${PC.fDay(e.when, false)} · ${PC.time(e.when)}</div><b style="display:block;font-size:15px;margin:4px 0 6px;line-height:1.2">${esc(e.name)}</b><div class="row" style="gap:6px"><span class="pill">${L('Nivel', 'Maila')} ${esc(e.lvl)}</span><span class="pill ${e.n >= e.cap ? 'bad' : 'ok'}">${e.n}/${e.cap}</span></div><div class="faint" style="font-size:11.5px;margin-top:8px">${e.where === 'playtomic' ? L('Inscripción en Playtomic', 'Izena Playtomic-en') : L('Inscripción en la app', 'Izena aplikazioan')}</div></button>`).join('')}</div></section>`;
+}
+function nextClassOf(sid) {
+  const st = PC.student(sid), g = PC.group(st.group);
+  const dates = PC.classDates(g, PC.TODAY, PC.T1.to).filter((d) => !PC.isFestivo(d) && PC.parse(d).getTime() + 3600000 > PC.NOW.getTime());
+  return { g, d: dates[0], dates };
+}
+function classCard(sid, opt = {}) {
+  const st = PC.student(sid);
+  const { g, d } = nextClassOf(sid);
+  const co = PC.coach(g.coach);
+  const occ = PC.occupancy(g.id, d);
+  const absent = S.absences.some((a) => a.student === sid && a.date === d);
+  const mates = PC.groupStudents(g.id).filter((x) => x.id !== sid);
+  return `<div class="card pad" data-cue="class-card">
+    <div class="row between"><span class="eyebrow">${g.kind === 'kids' ? L('Escuela infantil', 'Haurren eskola') : L('Escuela adultos', 'Helduen eskola')}</span><span class="pill ${d.slice(0, 10) === PC.TODAY ? 'ball' : 'brand'}">${PC.fDay(d)} · ${g.time}</span></div>
+    <div class="display" style="font-size:30px;margin:8px 0 2px;color:var(--brand-deep)">${esc(L(g.lvl, g.lvlEu))}</div>
+    <div class="muted">${PC.DOW_ES[g.dow] && L(PC.DOW_ES[g.dow], '')} ${g.time}–${String(+g.time.slice(0, 2) + 1).padStart(2, '0')}${g.time.slice(2)} · ${L('Pista', 'Pista')} ${g.court} · ${esc(co.name)}</div>
+    <div class="row" style="margin-top:12px"><div class="mates">${mates.map((m) => `<span class="avatar sm">${PC.ini(m.name)}</span>`).join('')}</div><span class="muted grow" style="font-size:12.5px">${occ}/${g.cap} ${L('en el grupo', 'taldean')}</span>
+    ${absent ? `<span class="pill warn">${L('Avisado: no vienes', 'Abisatuta: ez zatoz')}</span>` : opt.absenceBtn ? `<button class="btn btn-ghost btn-sm" data-a="absence" data-sid="${sid}" data-d="${d}" data-cue="btn-absence-next">${L('No podré ir', 'Ezin naiz joan')}</button>` : ''}</div>
+  </div>`;
+}
+function homeStudent() {
+  const sid = P().student; const st = PC.student(sid); const { g, d } = nextClassOf(sid); const e = S.evals[sid];
+  const cr = PC.credits(sid);
+  const todos = [];
+  if (d.slice(0, 10) === PC.TODAY && !S.absences.some((a) => a.student === sid && a.date === d)) todos.push({ hot: true, icon: 'school', title: L(`Hoy a las ${g.time} con ${PC.coach(g.coach).short}`, `Gaur ${g.time}etan ${PC.coach(g.coach).short}rekin`), sub: L('Si no puedes venir, avísalo y recuperas la clase otro día.', 'Ezin bazara etorri, abisatu eta beste egun batean berreskuratu.'), btn: L('Gestionar', 'Kudeatu'), a: 'goSchool' });
+  if (cr) todos.push({ hot: true, icon: 'swap', title: L(`Tienes ${cr} clase${cr > 1 ? 's' : ''} por recuperar`, `${cr} klase berreskuratzeko`), sub: L('Hay huecos en otros grupos de tu nivel.', 'Zure mailako beste talde batzuetan tokia dago.'), btn: L('Elegir', 'Aukeratu'), a: 'goSchool', cue: 'todo-makeup' });
+  const t2 = S.pay.find((r) => r.student === sid && r.t === 'T2');
+  if (t2) todos.push({ icon: 'euro', title: L('Cuota del 2º trimestre', '2. hiruhilekoko kuota'), sub: t2.st === 'sepa' ? L(`${PC.eur(t2.amount)} · se domicilia el 13 de enero`, `${PC.eur(t2.amount)} · urtarrilaren 13an helbideratuko da`) : PC.eur(t2.amount), a: 'goPagos' });
+  return `${heroCard([{ t: esc(L(g.lvl, g.lvlEu)), ball: true }, { t: `${L(PC.DOW_ES[g.dow], ['igandea','astelehena','asteartea','asteazkena','osteguna','ostirala','larunbata'][g.dow])} ${g.time}` }, { t: esc(PC.coach(g.coach).short), icon: 'whistle' }], brand().school)}
+  ${todos.length ? `<section>${secH(L('Te toca', 'Zure txanda'))}<div class="col">${todos.map(todo).join('')}</div></section>` : ''}
+  <section>${secH(L('Tu próxima clase', 'Zure hurrengo klasea'))}${classCard(sid, { absenceBtn: true })}</section>
+  <section>${secH(L('Tu evolución', 'Zure bilakaera'), `<button class="link" data-a="goEvol">${L('Ver', 'Ikusi')} ${ic('chev', 14)}</button>`)}<div class="card pad">${radar(e, 250)}<div class="note" style="margin-top:8px;background:var(--brand-soft);border:0"><div class="by">${ic('whistle', 14)} ${esc(PC.coach(e.notes[0].by).name)} · ${PC.fDay(e.notes[0].ts)}</div>${esc(e.notes[0].text)}</div></div></section>
+  ${msgSection(PC.notifsFor(S.persona).filter((n) => n.kind === 'msg').slice(0, 2))}`;
+}
+function homeFamily() {
+  const sid = P().child; const st = PC.student(sid); const { g, d } = nextClassOf(sid); const e = S.evals[sid];
+  const todos = [];
+  const t2 = S.pay.find((r) => r.student === sid && r.t === 'T2');
+  if (t2 && t2.st === 'pending') todos.push({ hot: true, icon: 'euro', title: L(`Cuota del 2º trimestre de ${st.name.split(' ')[0]}`, `${st.name.split(' ')[0]}ren 2. hiruhilekoko kuota`), sub: L(`${PC.eur(t2.amount)} · precio socio · vence el 13 de enero`, `${PC.eur(t2.amount)} · bazkide prezioa · urtarrilaren 13an`), btn: L('Pagar', 'Ordaindu'), a: 'openPay', id: t2.id, cue: 'todo-pay' });
+  if (t2 && t2.st === 'paid') todos.push({ icon: 'check', title: L('2º trimestre pagado', '2. hiruhilekoa ordainduta'), sub: L(`${PC.eur(t2.amount)} con ${t2.method}. El recibo está en Club.`, `${PC.eur(t2.amount)} ${t2.method} bidez. Ordainagiria Kluban dago.`), a: 'goPagos' });
+  return `${heroCard([{ t: esc(st.name.split(' ')[0]), ball: true }, { t: `${L('Infantil', 'Haurrak')} · ${esc(L(g.lvl, g.lvlEu))}` }, { t: `${L(PC.DOW_ES[g.dow], ['igandea','astelehena','asteartea','asteazkena','osteguna','ostirala','larunbata'][g.dow])} ${g.time}`, icon: 'cal' }], brand().school)}
+  ${todos.length ? `<section>${secH(L('Te toca', 'Zure txanda'))}<div class="col">${todos.map(todo).join('')}</div></section>` : ''}
+  <section>${secH(L(`Próxima clase de ${st.name.split(' ')[0]}`, `${st.name.split(' ')[0]}ren hurrengo klasea`))}${classCard(sid, { absenceBtn: true })}</section>
+  <section>${secH(L('Sus insignias', 'Bere intsigniak'), `<button class="link" data-a="goEvol">${L('Ver', 'Ikusi')} ${ic('chev', 14)}</button>`)}${badgesHtml(e)}<div class="note" style="margin-top:10px"><div class="by">${ic('whistle', 14)} ${esc(PC.coach(e.notes[0].by).name)} · ${PC.fDay(e.notes[0].ts)}</div>${esc(e.notes[0].text)}</div></section>
+  ${msgSection(PC.notifsFor(S.persona).filter((n) => n.kind === 'msg').slice(0, 2))}`;
+}
+function badgesHtml(e) {
+  const tr = { 'Saque por abajo': 'Azpitiko sakea', '10 voleas seguidas': '10 bolea jarraian', 'Primer globo': 'Lehen globoa', 'Salida de pared': 'Hormatik irtetea', 'Bandeja': 'Bandeja' };
+  return `<div class="badges">${e.badges.map(([n, p]) => `<div class="bdg ${p >= 1 ? '' : p > 0 ? 'part' : 'lock'}" style="--p:${Math.round(p * 100)}"><div class="bi">${p >= 1 ? ic('medal', 22) : p > 0 ? `<b style="font-size:11px">${Math.round(p * 100)}%</b>` : ic('lock', 18)}</div>${esc(L(n, tr[n]))}</div>`).join('')}</div>`;
+}
+function coachClassesToday() {
+  return S.groups.filter((g) => g.coach === P().coach && g.dow === PC.NOW.getDay()).sort((a, b) => a.time.localeCompare(b.time));
+}
+function homeCoach() {
+  const groups = coachClassesToday();
+  const mine = S.groups.filter((g) => g.coach === P().coach);
+  const alerts = Object.values(S.students).filter((s) => s.streak >= 3 && mine.some((g) => g.id === s.group));
+  return `${heroCard([{ t: L(`${groups.length} clases hoy`, `${groups.length} klase gaur`), ball: true }, { t: `${PC.coach(P().coach).hours} h/${L('semana', 'aste')}`, icon: 'clock' }, { t: `${mine.length} ${L('grupos', 'talde')}` }], brand().school)}
+  <section>${secH(L('Hoy', 'Gaur'))}<div class="col">${groups.map((g) => coachClassCard(g, PC.TODAY + 'T' + g.time)).join('')}</div></section>
+  ${alerts.length ? `<section>${secH(L('Ojo', 'Kontuz'))}${alerts.map((s) => `<div class="todo"><div class="ti" style="background:var(--warn-soft);color:var(--warn)">${ic('alert', 20)}</div><div class="grow"><b>${esc(s.name)} ${L('lleva 3 faltas seguidas', 'hiru aldiz jarraian falta da')}</b><small>${L('Escríbele antes de que lo deje. Asistencia del trimestre: ', 'Idatzi utzi baino lehen. Hiruhilekoko asistentzia: ')}${Math.round(s.att * 100)}%</small></div><button class="btn btn-ghost btn-sm" data-a="coachWrite" data-sid="${s.id}">${L('Escribir', 'Idatzi')}</button></div>`).join('')}</section>` : ''}
+  ${msgSection(PC.notifsFor(S.persona).filter((n) => n.kind === 'school').slice(0, 2).map((n) => ({ ...n })))}`;
+}
+function coachClassCard(g, d) {
+  const a = PC.attendees(g.id, d);
+  const k = g.id + '|' + d.slice(0, 10);
+  const closed = S.closed[k];
+  return `<div class="card pad"><div class="row between"><span class="pill ${closed ? 'ok' : 'ball'}">${closed ? L('Lista pasada', 'Zerrenda pasatuta') : g.time + ' · ' + L('Pista', 'Pista') + ' ' + g.court}</span><span class="muted" style="font-size:12.5px">${a.list.filter((x) => !x.absent).length}/${g.cap}</span></div>
+  <div class="display" style="font-size:28px;margin:8px 0 6px;color:var(--brand-deep)">${esc(L(g.lvl, g.lvlEu))}</div>
+  <div class="col" style="gap:6px">${a.list.map((x) => `<div class="row" style="gap:8px"><span class="avatar sm">${PC.ini(x.s.name)}</span><span class="grow" style="font-size:13.5px;${x.absent ? 'color:var(--faint);text-decoration:line-through' : ''}">${esc(x.s.name)}</span>${x.absent ? `<span class="pill warn">${L('Avisó', 'Abisatu du')}</span>` : ''}${x.kind === 'makeup' ? `<span class="pill brand">${L('Recupera', 'Berreskuratzen')}</span>` : ''}${S.students[x.s.id] && S.students[x.s.id].info ? `<span class="pill bad">${ic('heart', 11)}</span>` : ''}</div>`).join('')}</div>
+  ${closed ? '' : `<button class="btn btn-primary btn-block" style="margin-top:12px" data-a="openRoll" data-g="${g.id}" data-d="${d}" data-cue="btn-roll-${g.id}">${ic('check', 18)} ${L('Pasar lista', 'Zerrenda pasatu')}</button>`}</div>`;
+}
+
+/* ---------- liga ---------- */
+function ligaTab() {
+  const me = myTeam();
+  if (!me) return ligaPublic();
+  const items = [['equipo', L('Mi equipo', 'Nire taldea')], ['clasif', L('Clasificación', 'Sailkapena')], ['cal', L('Calendario', 'Egutegia')], ['norma', L('Normativa', 'Araudia')]];
+  let body = '';
+  const sub = ui.sub.liga;
+  if (sub === 'equipo') {
+    const pos = PC.posOf(me.id);
+    const ms = PC.matchesOf(me.id);
+    body = `<section class="teamcard enter"><div class="eyebrow">${esc(brand().league)} · ${L('Fase I', 'I. fasea')} · ${L('Grupo', 'Taldea')} ${me.g}</div><h2 class="display">${esc(me.name)}</h2>
+      <div class="plist">${PC.teamPlayers(me).map((p) => `<div class="prow"><span class="avatar">${PC.ini(p.name)}</span><div class="grow"><b style="font-size:14px">${esc(p.name)}</b> ${me.cap === p.id ? `<span class="pill ball" style="margin-left:4px">C</span>` : ''}<div style="font-size:12px;opacity:.75">${p.socio ? L('Socio', 'Bazkidea') : L('No socio', 'Ez bazkidea')}</div></div><span class="lvl">${PC.lvl(p.lvl)}</span></div>`).join('')}</div>
+      <div class="stats"><div><b>${pos.pos}º</b><span>${L('Pos', 'Post')}</span></div><div><b>${pos.pts}</b><span>PTS</span></div><div><b>${pos.w}-${pos.e}-${pos.l}</b><span>G-E-P</span></div><div><b>${pos.sf}-${pos.sc}</b><span>Sets</span></div><div><b>${ms.filter((m) => m.st !== 'played').length}</b><span>${L('Faltan', 'Falta')}</span></div></div>
+      <div class="row" style="margin-top:12px;gap:8px;flex-wrap:wrap"><span class="chip glass">${ic('check', 14)} ${L('Matrícula y partidos pagados', 'Matrikula eta partidak ordainduta')}</span>${isCap() ? `<button class="chip ball" data-a="openSub" data-cue="btn-sub">${ic('sub', 14)} ${L('Pedir sustituto', 'Ordezkoa eskatu')}</button>` : ''}</div></section>
+      <section>${secH(L('Partidos de la fase', 'Fasearen partidak'))}<div class="col">${ms.map((m) => matchCard(m, { hl: false })).join('')}</div></section>`;
+  } else if (sub === 'clasif') {
+    const g = ui.ligaGroup || me.g;
+    body = `<div class="subnav hide-sb">${[1, 2, 3, 4, 5, 6, 7].map((x) => `<button class="chip ${x === g ? 'on' : ''}" data-a="ligaGroup" data-v="${x}">${L('Grupo', 'Taldea')} ${x}</button>`).join('')}</div>
+      <section class="card" style="padding:6px 10px 10px" data-cue="standings">${standTable(g)}</section>
+      <div class="zone-legend"><span><i style="background:var(--brand)"></i>${L('Suben', 'Igo')} ${PC.RULES.upDown}</span><span><i style="background:#fecaca"></i>${L('Bajan', 'Jaitsi')} ${PC.RULES.upDown}</span><span>${L('Desempate: enfrentamiento directo, luego sets ganados', 'Berdinketa: aurrez aurrekoa, gero irabazitako setak')}</span></div>
+      <div class="muted" style="font-size:12px">${L('Se recalcula sola en cuanto ambos capitanes confirman un resultado.', 'Bi kapitainek emaitza berresten dutenean, berez kalkulatzen da.')}</div>`;
+  } else if (sub === 'cal') {
+    const ms = S.matches.filter((m) => m.g === me.g).sort((a, b) => a.at.localeCompare(b.at));
+    let lastW = '';
+    body = `<div class="col">${ms.map((m) => {
+      const d = PC.parse(m.at); const mon = new Date(d); mon.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+      const wk = PC.iso(mon).slice(0, 10);
+      const head = wk !== lastW ? `<div class="eyebrow" style="margin-top:6px">${L('Semana del', 'Astea:')} ${PC.fDay(wk + 'T00:00', false)}</div>` : '';
+      lastW = wk;
+      const mine = m.a === me.id || m.b === me.id;
+      const o = m.st === 'played' ? PC.outcome(m) : null;
+      return `${head}<button class="card" style="padding:10px 14px;display:flex;gap:10px;align-items:center;text-align:left;width:100%;${mine ? 'border:2px solid var(--ball)' : ''}" data-a="openMatch" data-id="${m.id}"><div style="width:62px" class="tnum"><b style="font-size:13px;display:block">${PC.fDay(m.at)}</b><small class="muted">${PC.time(m.at)} · P${m.court}</small></div><div class="grow" style="font-size:13px;line-height:1.3"><div style="${o && o.a !== 'W' ? 'color:var(--muted)' : 'font-weight:600'}">${esc(PC.team(m.a).name)}</div><div style="${o && o.b !== 'W' ? 'color:var(--muted)' : 'font-weight:600'}">${esc(PC.team(m.b).name)}</div></div><span class="mono" style="font-size:12px;color:var(--muted)">${m.st === 'played' ? PC.scoreText(m) : m.chg ? `<span class="pill dark">${L('cambiado', 'aldatuta')}</span>` : ''}</span></button>`;
+    }).join('')}</div>`;
+  } else {
+    body = rulesHtml();
+  }
+  return `${subnav('liga', items)}${body}`;
+}
+function rulesHtml() {
+  const R = PC.RULES;
+  const rules = [
+    ['trophy', L('Puntuación', 'Puntuazioa'), L(`Victoria ${R.pts.W} · empate ${R.pts.T} · derrota ${R.pts.L} · no presentado ${R.pts.NP}.`, `Garaipena ${R.pts.W} · berdinketa ${R.pts.T} · porrota ${R.pts.L} · ez aurkeztua ${R.pts.NP}.`)],
+    ['timer', L('90 minutos y punto de oro', '90 minutu eta urrezko puntua'), L('El resultado es el que hay al acabar el tiempo. Las bolas las pone el club.', 'Emaitza denbora amaitzean dagoena da. Pilotak klubak jartzen ditu.')],
+    ['clock', L('Los últimos 20 minutos', 'Azken 20 minutuak'), L('Antes del partido, los capitanes pactan en la app: supertiebreak a 11 o tercer set.', 'Partidaren aurretik, kapitainek aplikazioan adosten dute: supertiebreak 11ra edo hirugarren seta.')],
+    ['cal', L('Días de liga', 'Liga egunak'), L('Lunes, martes, viernes, sábado y domingo. Miércoles y jueves, pistas para el resto de clientes.', 'Astelehena, asteartea, ostirala, larunbata eta igandea. Asteazkena eta osteguna, gainerako bezeroentzat.')],
+    ['swap', L('Un cambio por partido', 'Aldaketa bat partida bakoitzeko'), L('Se propone con fecha alternativa, el rival elige y el club valida. Después ya no se puede mover.', 'Ordezko datarekin proposatzen da, aurkariak aukeratzen du eta klubak baliozkotzen du. Gero ezin da mugitu.')],
+    ['sub', L('Sustitutos', 'Ordezkoak'), L('De igual o menor nivel, con el OK del club. La app solo te deja elegir a quien cumple.', 'Maila bereko edo txikiagokoa, klubaren onespenarekin. Aplikazioak betetzen dutenak bakarrik uzten dizu aukeratzen.')],
+    ['alert', L('No presentados', 'Ez aurkeztuak'), L(`${R.pts.NP} puntos. Con ${R.npLimit} en la misma fase, el equipo no juega la siguiente.`, `${R.pts.NP} puntu. Fase berean ${R.npLimit} badira, taldeak ez du hurrengoa jokatzen.`)],
+    ['up', L('Ascensos y descensos', 'Igoerak eta jaitsierak'), L(`Al final de cada fase suben los ${R.upDown} primeros y bajan los ${R.upDown} últimos.`, `Fase bakoitzaren amaieran lehen ${R.upDown}ak igo eta azken ${R.upDown}ak jaisten dira.`)],
+  ];
+  return `<section class="card">${rules.map(([i, t, d]) => `<div class="rule"><div class="ti">${ic(i, 19)}</div><div><b>${t}</b><p>${d}</p><span class="pill ok">${ic('check', 11)} ${L('La app lo aplica sola', 'Aplikazioak berez aplikatzen du')}</span></div></div>`).join('')}</section>`;
+}
+function ligaPublic() {
+  const g = ui.ligaGroup || 3;
+  return `<section class="hero"><div class="eyebrow">${esc(brand().leagueLong)}</div><h1 class="display" style="font-size:38px">${L('La liga del club', 'Klubeko liga')}</h1><p style="opacity:.85;font-size:13.5px">${L('46 equipos en 7 grupos. Fase II desde el 12 de enero.', '46 talde 7 taldetan. II. fasea urtarrilaren 12tik.')}</p><button class="btn btn-ball btn-sm" style="margin-top:12px" data-a="joinLeague">${ic('plus', 16)} ${L('Apuntar un equipo', 'Talde bat izena eman')}</button></section>
+  <div class="subnav hide-sb">${[1, 2, 3, 4, 5, 6, 7].map((x) => `<button class="chip ${x === g ? 'on' : ''}" data-a="ligaGroup" data-v="${x}">${L('Grupo', 'Taldea')} ${x}</button>`).join('')}</div>
+  <section class="card" style="padding:6px 10px 10px">${standTable(g)}</section>`;
+}
+
+/* ---------- escuela ---------- */
+function escuelaTab() {
+  const role = P().role;
+  if (role !== 'student' && role !== 'family') return escuelaPublic();
+  const sid = role === 'student' ? P().student : P().child;
+  const st = PC.student(sid); const first = st.name.split(' ')[0];
+  const items = role === 'family' ? [['grupo', esc(first)], ['evol', L('Evolución', 'Bilakaera')], ['pagos', L('Pagos', 'Ordainketak')], ['permisos', L('Autorizaciones', 'Baimenak')]] : [['grupo', L('Mi clase', 'Nire klasea')], ['evol', L('Evolución', 'Bilakaera')], ['pagos', L('Pagos', 'Ordainketak')]];
+  const sub = ui.sub.escuela === 'permisos' && role !== 'family' ? 'grupo' : ui.sub.escuela;
+  let body = '';
+  if (sub === 'grupo') {
+    const { g, dates } = nextClassOf(sid);
+    const all = PC.classDates(g, PC.TODAY, PC.T1.to);
+    const cr = PC.credits(sid);
+    const opts = cr ? PC.makeupOptions(sid) : [];
+    const booked = S.makeups.filter((u) => u.student === sid && u.st === 'booked' && u.date >= PC.TODAY);
+    body = `${classCard(sid)}
+    <section>${secH(L('Próximas clases', 'Hurrengo klaseak'))}<div class="card list">${all.slice(0, 5).map((d) => {
+      if (PC.isFestivo(d)) return `<div class="li"><div class="ti" style="background:#f1f5f9;color:var(--faint)">${ic('sun', 18)}</div><div class="grow"><b>${PC.fDay(d, false)}</b><small>${L('Festivo · no hay clase (el trimestre mantiene sus 12)', 'Jaieguna · ez dago klaserik (hiruhilekoak 12ak mantentzen ditu)')}</small></div></div>`;
+      const ab = S.absences.find((a) => a.student === sid && a.date === d);
+      const past = PC.parse(d).getTime() + 3600000 < PC.NOW.getTime();
+      return `<div class="li"><div class="ti">${ic('cal', 18)}</div><div class="grow"><b>${PC.fDay(d)} · ${g.time}</b><small>${ab ? L('Avisado · ganas una recuperación', 'Abisatuta · berreskuratze bat irabazten duzu') : L('Asistirás', 'Etorriko zara')}</small></div>${past ? '' : ab ? `<button class="btn btn-ghost btn-sm" data-a="unabsence" data-sid="${sid}" data-d="${d}">${L('Deshacer', 'Desegin')}</button>` : `<button class="btn btn-ghost btn-sm" data-a="absence" data-sid="${sid}" data-d="${d}" data-cue="btn-absence-${d.slice(0, 10)}">${L('No podré ir', 'Ezin naiz joan')}</button>`}</div>`;
+    }).join('')}</div></section>
+    <section data-cue="makeups">${secH(L('Recuperaciones', 'Berreskuratzeak'), `<span class="pill ${cr ? 'ball' : ''}">${cr} ${L('disponibles', 'eskuragarri')}</span>`)}
+      ${booked.map((u) => { const gg = PC.group(u.group); return `<div class="todo" style="margin-bottom:8px"><div class="ti" style="background:var(--ok-soft);color:var(--ok)">${ic('check', 20)}</div><div class="grow"><b>${L('Recuperas', 'Berreskuratuko duzu')} ${PC.fDay(u.date)} · ${gg.time}</b><small>${esc(L(gg.lvl, gg.lvlEu))} · ${L('Pista', 'Pista')} ${gg.court} · ${esc(PC.coach(gg.coach).name)}</small></div></div>`; }).join('')}
+      ${cr ? `<div class="col">${opts.map((o, i) => `<div class="todo"><div class="ti">${ic('swap', 20)}</div><div class="grow"><b>${PC.fDay(o.date)} · ${o.group.time}</b><small>${esc(L(o.group.lvl, o.group.lvlEu))} · ${esc(PC.coach(o.group.coach).short)} · ${o.occ}/${o.group.cap} ${L('plazas', 'plaza')}</small></div><button class="btn btn-ball btn-sm" data-a="makeup" data-sid="${sid}" data-g="${o.group.id}" data-d="${o.date}" data-cue="btn-makeup-${i}">${L('Reservar', 'Erreserbatu')}</button></div>`).join('') || `<div class="empty">${L('Ahora mismo no hay huecos de tu nivel. Te avisamos en cuanto se libere uno.', 'Une honetan ez dago zure mailako tokirik. Libre geratzean abisatuko dizugu.')}</div>`}</div>` : `<div class="muted" style="font-size:13px">${L('Si avisas con antelación de que no puedes venir, recuperas la clase en otro grupo de tu nivel con plaza libre.', 'Aldez aurretik abisatzen baduzu, klasea berreskuratu dezakezu zure mailako beste talde batean.')}</div>`}
+    </section>
+    <section class="card pad"><div class="row between"><b>${L('Asistencia del trimestre', 'Hiruhilekoko asistentzia')}</b><span class="mono">${Math.round(st.att * 100)}%</span></div><div class="bar" style="margin-top:8px"><i style="width:${Math.round(st.att * 100)}%"></i></div></section>`;
+  } else if (sub === 'evol') {
+    const e = S.evals[sid];
+    body = `${role === 'family' && e.badges ? `<section>${secH(L('Insignias', 'Intsigniak'))}${badgesHtml(e)}</section>` : ''}
+    <section class="card pad" data-cue="radar"><div class="row between"><b>${L('Golpes', 'Kolpeak')}</b><span class="muted" style="font-size:12px">${L('Actualizado', 'Eguneratua')} ${PC.fDay(e.updated)}</span></div>${radar(e)}
+      <div class="zone-legend" style="justify-content:center"><span><i style="background:var(--brand)"></i>${L('Ahora', 'Orain')}</span><span><i style="background:#cbd5e1"></i>${L('Septiembre', 'Iraila')}</span></div></section>
+    <section class="ptc"><div class="ti">${ic('target', 22)}</div><div class="grow"><small>${L('Objetivo del trimestre', 'Hiruhilekoko helburua')}</small><b>${esc(e.goal)}</b></div></section>
+    <section>${secH(L('Notas del entrenador', 'Entrenatzailearen oharrak'))}<div class="col">${e.notes.map((n) => `<div class="note"><div class="by"><span class="avatar sm dark">${PC.ini(PC.coach(n.by).name)}</span>${esc(PC.coach(n.by).name)} · ${PC.fDay(n.ts)}</div>${esc(n.text)}</div>`).join('')}</div></section>
+    <section>${secH(L('Ejercicio de la semana', 'Asteko ariketa'))}<div class="video"><div class="play">${ic('play', 22)}</div><div><b>${role === 'family' ? L('Globo: 3 trucos para casa', 'Globoa: etxerako 3 trikimailu') : L('Bandeja: 3 claves', 'Bandeja: 3 gako')}</b><div style="font-size:12px;opacity:.8">1:12 · ${esc(PC.coach(e.notes[0].by).short)}</div></div></div></section>`;
+  } else if (sub === 'pagos') {
+    const rs = S.pay.filter((r) => r.student === sid).sort((a, b) => b.due.localeCompare(a.due));
+    const tar = PC.tarifaOf(st);
+    body = `<section class="card list">${rs.map((r) => `<div class="li" data-cue="pay-${r.t}"><div class="ti" style="${r.st === 'paid' ? 'background:var(--ok-soft);color:var(--ok)' : ''}">${ic(r.st === 'paid' ? 'check' : 'euro', 18)}</div><div class="grow"><b>${r.t === 'T2' ? L('2º trimestre', '2. hiruhilekoa') : L('1er trimestre', '1. hiruhilekoa')} · ${PC.eur(r.amount)}</b><small>${r.st === 'paid' ? L(`Pagado · ${r.method}`, `Ordainduta · ${r.method}`) : r.st === 'sepa' ? L('Se domicilia el 13 de enero', 'Urtarrilaren 13an helbideratuko da') : L('Pendiente · vence el 13 de enero', 'Ordaintzeko · urtarrilaren 13an')}</small></div>${r.st === 'pending' ? `<button class="btn btn-ball btn-sm" data-a="openPay" data-id="${r.id}" data-cue="btn-pay">${L('Pagar', 'Ordaindu')}</button>` : r.st === 'paid' ? `<button class="btn btn-ghost btn-sm" data-a="receipt">${ic('download', 15)}</button>` : ''}</div>`).join('')}
+      ${S.t2 === 'none' ? `<div class="li"><div class="ti" style="background:#f1f5f9;color:var(--faint)">${ic('clock', 18)}</div><div class="grow"><b>${L('2º trimestre', '2. hiruhilekoa')} · ${PC.eur(PC.priceOf(st))}</b><small>${L('Se emite a primeros de enero', 'Urtarrilaren hasieran igorriko da')}</small></div></div>` : ''}</section>
+    <section class="card pad"><div class="eyebrow">${L('Tu tarifa', 'Zure tarifa')}</div><div class="kv" style="margin-top:8px"><dt>${esc(PC.TARIFAS[tar].es)}</dt><dd>${PC.eur(PC.priceOf(st))} / ${L('trimestre', 'hiruhileko')}</dd><dt>${L('Precio de socio', 'Bazkide prezioa')}</dt><dd>${st.socio ? L('Sí, aplicado', 'Bai, aplikatuta') : L('No', 'Ez')}</dd><dt>${L('Forma de pago', 'Ordainbidea')}</dt><dd>${st.sepa ? L('Domiciliación ••4471', 'Helbideratzea ••4471') : L('Bizum o tarjeta', 'Bizum edo txartela')}</dd></div></section>`;
+  } else {
+    const info = st.info || {};
+    body = `<section class="card list">
+      <div class="li"><div class="ti">${ic('eye', 18)}</div><div class="grow"><b>${L('Fotos y vídeos en redes del club', 'Klubaren sareetako argazkiak eta bideoak')}</b><small>${L('Firmado el 14 sep · puedes cambiarlo cuando quieras', 'Irailaren 14an sinatuta · nahi duzunean alda dezakezu')}</small></div><span class="switch on"></span></div>
+      <div class="li"><div class="ti">${ic('users', 18)}</div><div class="grow"><b>${L('Personas autorizadas para recogerle', 'Jasotzeko baimena duten pertsonak')}</b><small>${esc(info.pickup || '')}</small></div></div>
+      <div class="li"><div class="ti" style="background:var(--bad-soft);color:var(--bad)">${ic('heart', 18)}</div><div class="grow"><b>${L('Información para la entrenadora', 'Entrenatzailearentzako informazioa')}</b><small>${esc(info.med || '')} · ${L('solo la ve Irati', 'Iratik bakarrik ikusten du')}</small></div></div>
+      <div class="li"><div class="ti">${ic('doc', 18)}</div><div class="grow"><b>${L('Protección de datos', 'Datuen babesa')}</b><small>${L('Aceptada · descargar copia', 'Onartuta · kopia deskargatu')}</small></div>${ic('download', 16, 'faint')}</div></section>`;
+  }
+  return `${subnav('escuela', items)}${body}`;
+}
+function escuelaPublic() {
+  const free = S.groups.filter((g) => PC.groupStudents(g.id).length < g.cap);
+  return `<section class="hero"><div class="eyebrow">${esc(brand().school)} · 2026-27</div><h1 class="display" style="font-size:38px">${L('Aprende o mejora', 'Ikasi edo hobetu')}</h1><p style="opacity:.85;font-size:13.5px">${L('Grupos reducidos de 3-4 adultos o 4-6 peques. Una hora a la semana, 12 clases por trimestre.', 'Talde txikiak: 3-4 heldu edo 4-6 txiki. Astean ordu bat, 12 klase hiruhilekoan.')}</p></section>
+  <section>${secH(L('Grupos con plaza', 'Tokia duten taldeak'))}<div class="col">${free.map((g) => `<div class="todo"><div class="ti">${ic(g.kind === 'kids' ? 'star' : 'school', 20)}</div><div class="grow"><b>${esc(L(g.lvl, g.lvlEu))} · ${g.kind === 'kids' ? L('infantil', 'haurrak') : L('adultos', 'helduak')}</b><small>${L(PC.DOW_ES[g.dow], '')} ${g.time} · ${esc(PC.coach(g.coach).short)} · ${PC.groupStudents(g.id).length}/${g.cap}</small></div><button class="btn btn-ghost btn-sm" data-a="askSpot">${L('Pedir plaza', 'Tokia eskatu')}</button></div>`).join('')}</div></section>
+  <section class="card pad"><div class="eyebrow">${L('Tarifas por trimestre', 'Hiruhilekoko tarifak')}</div><div class="kv" style="margin-top:8px">${Object.values(PC.TARIFAS).map((t) => `<dt>${esc(t.es)}</dt><dd>${PC.eur(t.socio)} ${L('socio', 'bazk.')} · ${PC.eur(t.no)}</dd>`).join('')}</div></section>`;
+}
+
+/* ---------- club ---------- */
+function clubTab() {
+  const items = [['carnet', L('Carnet', 'Txartela')], ['act', L('Actividades', 'Jarduerak')], ['recibos', L('Recibos', 'Ordainagiriak')], ['docs', L('Documentos', 'Dokumentuak')], ['info', L('El club', 'Kluba')]];
+  const sub = ui.sub.club; const p = P();
+  let body = '';
+  if (sub === 'carnet') {
+    if (p.member) body = `<section class="idcard enter"><div class="row between"><span class="logo" style="color:#fff">${PC.logo().replace('class="logo "', '')}</span></div>
+      <div class="row" style="margin-top:22px;align-items:flex-end"><div class="grow"><div class="eyebrow" style="color:var(--ball)">${L('Socio', 'Bazkidea')} · ${esc(p.member)}</div><div class="display" style="font-size:30px;margin-top:4px">${esc(p.name)}</div><div style="font-size:12.5px;opacity:.8;margin-top:6px">Nº ${p.id === 'mikel' ? '0427' : p.id === 'leire' ? '0311' : '0198'} · ${L('desde', 'noiztik:')} 2023 · ${L('al corriente', 'egunean')}</div></div><div class="qr">${qrSvg(p.id.length * 97)}</div></div></section>
+      <div class="muted" style="text-align:center;font-size:12.5px">${L('Enséñalo en recepción para los precios de socio y el 10 % en la tienda.', 'Erakutsi harreran bazkide prezioetarako eta dendako % 10erako.')}</div>
+      <section class="card list">${[[L('Precio reducido en pistas, escuela y bonos', 'Prezio murriztua pistetan, eskolan eta bonuetan'), 'euro'], [L('Prioridad y antelación al reservar', 'Lehentasuna eta aurrerapena erreserbatzean'), 'cal'], [L('Prioridad en inscripciones a eventos', 'Lehentasuna ekitaldietan izena ematean'), 'star'], [L('10 % en palas, paleteros y textil', '% 10 paletetan, poltsetan eta arropan'), 'racket']].map(([t, i]) => `<div class="li"><div class="ti">${ic(i, 18)}</div><div class="grow"><b style="font-weight:600">${t}</b></div></div>`).join('')}</section>`;
+    else {
+      const ms = PC.matchesOf(p.team).length;
+      const save = ms * (12 - 6.45);
+      body = `<section class="idcard" style="background:linear-gradient(150deg,#334155,#0f172a)"><div class="eyebrow" style="color:var(--ball)">${L('Aún no eres socio', 'Oraindik ez zara bazkide')}</div><div class="display" style="font-size:30px;margin:6px 0">${L('Esta temporada te habrías ahorrado', 'Denboraldi honetan aurreztuko zenuke')}</div><div class="mono" style="font-size:44px;color:var(--ball)">${PC.eur(save, true)}</div><div style="font-size:12.5px;opacity:.8;margin-top:6px">${L(`Solo en tus ${ms} partidos de liga de esta fase (90 min de tarde: 12 € frente a 6,45 €).`, `Fase honetako zure ${ms} liga partidetan bakarrik (arratsaldeko 90 min: 12 € vs 6,45 €).`)}</div><button class="btn btn-ball" style="margin-top:14px" data-a="beMember">${L('Hacerme socio · 30 €/mes', 'Bazkide egin · 30 €/hil')}</button></section>`;
+    }
+  } else if (sub === 'act') {
+    body = `<div class="col">${S.events.map((e) => {
+      const joined = e.joined && e.joined.includes(S.persona);
+      return `<div class="card pad"><div class="row between"><span class="eyebrow" style="color:var(--brand)">${PC.fDay(e.when, false)} · ${PC.time(e.when)}</span>${e.soon ? `<span class="pill">${L('Próximamente', 'Laster')}</span>` : `<span class="pill ${e.n >= e.cap ? 'bad' : 'ok'}">${e.n}/${e.cap}</span>`}</div><div class="display" style="font-size:24px;margin:6px 0 4px;color:var(--brand-deep)">${esc(e.name)}</div><div class="muted" style="font-size:13px">${L('Nivel', 'Maila')} ${esc(e.lvl)}${e.price ? ` · ${PC.eur(e.price)} ${L('socio', 'bazkide')} / ${PC.eur(e.priceNo)}` : e.soon ? '' : ` · ${L('gratis', 'doan')}`}</div>
+      <div style="margin-top:10px">${e.where === 'playtomic' ? `<a class="btn btn-ghost btn-sm" href="${PC.PLAYTOMIC}" target="_blank" rel="noopener">${L('Inscribirme en Playtomic', 'Playtomic-en izena eman')} ${ic('ext', 14)}</a>` : e.soon ? `<span class="muted" style="font-size:12.5px">${L('Para los campeones de cada fase', 'Fase bakoitzeko txapeldunentzat')}</span>` : joined ? `<span class="pill ok">${ic('check', 12)} ${L('Estás dentro', 'Barruan zaude')}</span>` : `<button class="btn btn-ball btn-sm" data-a="joinEvent" data-id="${e.id}">${L('Apuntarme', 'Izena eman')}</button>`}</div></div>`;
+    }).join('')}</div>`;
+  } else if (sub === 'recibos') {
+    const rs = [];
+    if (p.member) rs.push([L('Cuota de socio · noviembre', 'Bazkide kuota · azaroa'), p.member === 'Familiar' ? 50 : p.member === 'Pádel + Gym' ? 40 : 30, L('Domiciliado el 2 nov', 'Azaroaren 2an helbideratuta')], [L('Cuota de socio · octubre', 'Bazkide kuota · urria'), p.member === 'Familiar' ? 50 : p.member === 'Pádel + Gym' ? 40 : 30, L('Domiciliado el 2 oct', 'Urriaren 2an helbideratuta')]);
+    if (p.team) rs.push([L('Liga · matrícula y partidos Fase I', 'Liga · matrikula eta I. faseko partidak'), null, L('Pagado en recepción el 9 oct', 'Harreran ordainduta urriaren 9an')]);
+    S.pay.filter((r) => r.student === (p.student || p.child) && r.st === 'paid').forEach((r) => rs.push([r.concept, r.amount, L('Pagado', 'Ordainduta') + ' · ' + r.method]));
+    body = `<section class="card list">${rs.map(([t, a, s]) => `<div class="li"><div class="ti" style="background:var(--ok-soft);color:var(--ok)">${ic('check', 18)}</div><div class="grow"><b>${t}</b><small>${s}</small></div>${a ? `<b class="mono" style="font-size:14px">${PC.eur(a)}</b>` : ''}<button class="iconbtn" style="background:var(--line-2);color:var(--ink-2);width:34px;height:34px" data-a="receipt">${ic('download', 15)}</button></div>`).join('')}</section><div class="muted" style="font-size:12px;text-align:center">${L('Facturas con TicketBAI, descargables en PDF.', 'TicketBAI fakturak, PDFn deskargagarriak.')}</div>`;
+  } else if (sub === 'docs') {
+    const docs = [[L('Normativa de la liga 2026-27', 'Ligako araudia 2026-27'), p.team ? L('Aceptada al inscribiros', 'Izena ematean onartua') : L('Consultar', 'Kontsultatu')], [L('Protección de datos', 'Datuen babesa'), L('Aceptada', 'Onartua')], [L('Normas de uso de la instalación', 'Instalazioaren erabilera-arauak'), L('Consultar', 'Kontsultatu')], [L('Bases de la Americana de Navidad', 'Gabonetako americanaren oinarriak'), L('Consultar', 'Kontsultatu')]];
+    if (p.role === 'family') docs.splice(1, 0, [L('Autorización de imagen de Aimar', 'Aimarren irudi-baimena'), L('Firmada el 14 sep', 'Irailaren 14an sinatua')]);
+    body = `<section class="card list">${docs.map(([t, s]) => `<div class="li"><div class="ti">${ic('doc', 18)}</div><div class="grow"><b>${t}</b><small>${s}</small></div>${ic('chev', 16, 'faint')}</div>`).join('')}</section>`;
+  } else {
+    body = `<section class="card pad"><div class="display" style="font-size:26px;color:var(--brand-deep)">${esc(brand().name)}</div><div class="muted" style="margin-top:2px">${esc(brand().city)} · ${L('5 pistas panorámicas', '5 pista panoramiko')}</div>
+      <div class="kv" style="margin-top:12px"><dt>${L('Lunes a viernes', 'Astelehenetik ostiralera')}</dt><dd>9:30 – 22:30</dd><dt>${L('Fines de semana y festivos', 'Asteburuak eta jaiegunak')}</dt><dd>9:00 – 14:00 · 16:00 – 21:00</dd></div>
+      <div class="row wrap" style="margin-top:14px;gap:8px"><button class="btn btn-ghost btn-sm" data-a="noop">${ic('phonecall', 15)} ${L('Recepción', 'Harrera')}</button><button class="btn btn-ghost btn-sm" data-a="noop">${ic('pin', 15)} ${L('Cómo llegar', 'Nola iritsi')}</button><a class="btn btn-ball btn-sm" href="${PC.PLAYTOMIC}" target="_blank" rel="noopener">${ic('court', 15)} ${L('Reservar pista', 'Pista erreserbatu')}</a></div></section>`;
+  }
+  return `${subnav('club', items)}${body}`;
+}
+
+/* ---------- yo ---------- */
+function yoTab() {
+  const p = P();
+  const pl = p.player && S.players[p.player];
+  return `<section class="card pad row" style="gap:14px"><span class="avatar lg dark">${PC.ini(p.name)}</span><div class="grow"><b style="font-size:17px">${esc(p.name)}</b><div class="muted" style="font-size:13px">${esc(T(p.tag))}</div></div>${pl ? `<span class="lvl">${PC.lvl(pl.lvl)}</span>` : ''}</section>
+  <section class="card list">
+    <div class="li" data-cue="lang"><div class="ti">${ic('globe', 18)}</div><div class="grow"><b>${L('Idioma', 'Hizkuntza')}</b><small>${L('Toda la app y los avisos', 'Aplikazio osoa eta oharrak')}</small></div><div class="seg"><button class="${S.lang === 'es' ? 'on' : ''}" data-a="lang" data-v="es">ES</button><button class="${S.lang === 'eu' ? 'on' : ''}" data-a="lang" data-v="eu">EU</button></div></div>
+    <div class="li"><div class="ti">${ic('bell', 18)}</div><div class="grow"><b>${L('Avisos', 'Oharrak')}</b><small>${L('Lo mío y lo del club', 'Nirea eta klubarena')}</small></div><span class="switch on"></span></div>
+    <div class="li"><div class="ti">${ic('cal', 18)}</div><div class="grow"><b>${L('Sincronizar con mi calendario', 'Nire egutegiarekin sinkronizatu')}</b><small>${L('Google, Apple u Outlook: los cambios llegan solos', 'Google, Apple edo Outlook: aldaketak berez iristen dira')}</small></div><span class="switch on"></span></div>
+    <div class="li"><div class="ti">${ic('lock', 18)}</div><div class="grow"><b>${L('Privacidad', 'Pribatutasuna')}</b><small>${L('Tus datos, en servidores de la UE', 'Zure datuak, EBko zerbitzarietan')}</small></div>${ic('chev', 16, 'faint')}</div>
+  </section>
+  ${pl ? `<section class="card pad"><div class="eyebrow">${L('Tu historial', 'Zure historia')}</div><div class="kv" style="margin-top:8px"><dt>IV Liga · ${L('Fase III', 'III. fasea')}</dt><dd>${L('Grupo 4 · 1º, subisteis', '4. taldea · 1., igo zineten')}</dd><dt>IV Liga · ${L('Fase II', 'II. fasea')}</dt><dd>${L('Grupo 4 · 3º', '4. taldea · 3.')}</dd><dt>${L('Partidos jugados con el club', 'Klubarekin jokatutako partidak')}</dt><dd>41</dd></div></section>` : ''}
+  <section><div class="eyebrow" style="margin-bottom:8px">${L('Demo · ver la app como', 'Demoa · aplikazioa honela ikusi')}</div><div class="col">${Object.values(PC.PERSONAS).map((x) => `<button class="persona ${x.id === S.persona ? 'on' : ''}" data-a="persona" data-v="${x.id}"><span class="avatar">${PC.ini(x.name)}</span><div class="grow"><b style="font-size:14px">${esc(x.name)}</b><div class="muted" style="font-size:12.5px">${esc(T(x.tag))}</div></div></button>`).join('')}</div></section>`;
+}
+
+/* ---------- entrenador ---------- */
+function coachGroups() {
+  const gs = S.groups.filter((g) => g.coach === P().coach).sort((a, b) => a.dow - b.dow || a.time.localeCompare(b.time));
+  return `${secH(L('Mis grupos', 'Nire taldeak'), `<span class="pill">${gs.length}</span>`)}<div class="col">${gs.map((g) => { const n = PC.groupStudents(g.id).length; return `<div class="card pad row"><div style="width:58px;text-align:center"><b class="display" style="font-size:22px;color:var(--brand)">${['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'][g.dow]}</b><div class="mono" style="font-size:13px">${g.time}</div></div><div class="grow"><b style="font-size:15px">${esc(L(g.lvl, g.lvlEu))}</b><div class="muted" style="font-size:12.5px">${L('Pista', 'Pista')} ${g.court} · ${g.kind === 'kids' ? L('infantil', 'haurrak') : L('adultos', 'helduak')}</div><div class="bar" style="margin-top:7px"><i style="width:${(n / g.cap) * 100}%"></i></div></div><span class="pill ${n >= g.cap ? 'ok' : 'warn'}">${n}/${g.cap}</span></div>`; }).join('')}</div>`;
+}
+function coachStudents() {
+  const gs = S.groups.filter((g) => g.coach === P().coach);
+  const list = Object.values(S.students).filter((s) => gs.some((g) => g.id === s.group));
+  return `${secH(L('Alumnos', 'Ikasleak'), `<span class="pill">${list.length}</span>`)}<div class="card list">${list.map((s) => { const g = PC.group(s.group); return `<button class="li" style="width:100%;text-align:left" data-a="openEval" data-sid="${s.id}" data-cue="student-${s.id}"><span class="avatar">${PC.ini(s.name)}</span><div class="grow"><b>${esc(s.name)}</b><small>${esc(g.lvl)} · ${['dom','lun','mar','mié','jue','vie','sáb'][g.dow]} ${g.time}${S.evals[s.id] ? ' · ' + L('evaluado', 'ebaluatua') + ' ' + PC.fDay(S.evals[s.id].updated) : ''}</small></div>${s.streak >= 3 ? `<span class="pill warn">${ic('alert', 11)} 3</span>` : `<span class="mono muted" style="font-size:12px">${Math.round(s.att * 100)}%</span>`}</button>`; }).join('')}</div>`;
+}
+function coachMsgs() {
+  const gs = S.groups.filter((g) => g.coach === P().coach);
+  return `${secH(L('Escribir a un grupo', 'Talde bati idatzi'))}<section class="card pad col"><select class="input" id="cg">${gs.map((g) => `<option value="${g.id}">${esc(g.lvl)} · ${['dom','lun','mar','mié','jue','vie','sáb'][g.dow]} ${g.time}</option>`).join('')}</select>
+  <textarea class="input" id="cm">${L('El jueves hacemos la última media hora de partido: traed agua.', 'Ostegunean azken ordu erdia partida izango da: ekarri ura.')}</textarea>
+  <div class="muted" style="font-size:12px">${ic('globe', 13)} ${L('Les llega en el idioma que tenga cada uno.', 'Bakoitzari bere hizkuntzan iristen zaio.')}</div>
+  <button class="btn btn-primary" data-a="coachSend">${ic('send', 16)} ${L('Enviar', 'Bidali')}</button></section>
+  ${secH(L('Recibidos', 'Jasotakoak'))}<div class="col">${PC.notifsFor(S.persona).slice(0, 6).map(notifHtml).join('')}</div>`;
+}
+
+/* ---------- hojas ---------- */
+function sheetWrap(title, inner, sub) {
+  return `<div class="sheet-bg" data-a="closeSheet" data-self="1"><div class="sheet" role="dialog" aria-modal="true"><div class="grab"></div><div class="sh"><div class="grow">${sub ? `<div class="eyebrow" style="margin-bottom:4px">${sub}</div>` : ''}<h3>${title}</h3></div><button class="x" data-a="closeSheet" aria-label="${L('Cerrar', 'Itxi')}">${ic('x', 18)}</button></div>${inner}</div></div>`;
+}
+function notifHtml(n) {
+  const unread = !n.read[S.persona];
+  const kindIc = { change: 'swap', ok: 'check', warn: 'alert', result: 'trophy', school: 'school', pay: 'euro', msg: 'msg', sub: 'sub', trophy: 'trophy', info: 'info' }[n.kind] || 'bell';
+  return `<button class="notif ${unread ? 'unread' : ''}" data-a="notifGo" data-id="${n.id}"><div class="ti">${ic(kindIc, 18)}</div><div class="grow"><b>${esc(T(n.title))}</b><p>${esc(T(n.body))}</p><small>${n.from === 'club' ? esc(brand().short) + ' · ' : ''}${PC.fAgo(n.ts)}</small></div></button>`;
+}
+function renderSheet() {
+  const s = ui.sheet; if (!s) return '';
+  const me = myTeam();
+  if (s.type === 'notifs') {
+    const list = PC.notifsFor(S.persona);
+    return sheetWrap(L('Avisos', 'Oharrak'), `<div class="col">${list.map(notifHtml).join('') || `<div class="empty">${L('Nada nuevo', 'Ezer berririk ez')}</div>`}</div>`);
+  }
+  if (s.type === 'match') {
+    const m = PC.match(s.id); const A = PC.team(m.a), B = PC.team(m.b);
+    const mine = me && (m.a === me.id || m.b === me.id);
+    const side = mine ? PC.side(m, me.id) : null, other = side === 'a' ? 'b' : 'a';
+    const c = m.chgReq && S.changes.find((x) => x.id === m.chgReq);
+    const canChange = mine && isCap() && m.st === 'scheduled' && !m.resultDue && !c && (m.chg || 0) < PC.RULES.changesPerMatch;
+    let pact = '';
+    if (mine && m.st === 'scheduled' && !m.resultDue) {
+      const my = m.pact && m.pact[side], th = m.pact && m.pact[other];
+      pact = `<section class="card pad"><div class="row between"><b>${L('Si quedan menos de 20 minutos tras el 2º set', '2. setaren ondoren 20 minutu baino gutxiago geratzen badira')}</b></div>
+        <div class="row" style="margin-top:10px;gap:8px">${['stb', 'set'].map((v) => `<button class="opt ${my === v ? 'on' : ''}" style="flex:1;padding:10px" data-a="pact" data-id="${m.id}" data-v="${v}" data-cue="pact-${v}"><span class="radio"></span><span style="font-size:13px;font-weight:600">${v === 'stb' ? L('Supertiebreak a 11', 'Supertiebreak 11ra') : L('Tercer set', 'Hirugarren seta')}</span></button>`).join('')}</div>
+        <div class="muted" style="font-size:12.5px;margin-top:8px">${th ? (th === my ? `<span style="color:var(--ok);font-weight:600">${ic('check', 13)} ${L('Pactado por los dos capitanes. Nada que discutir en pista.', 'Bi kapitainek adostuta. Pistan ez dago eztabaidatzeko ezer.')}</span>` : L(`${PC.team(m[other]).name} ha elegido ${pactName(th)}.`, `${PC.team(m[other]).name} taldeak ${pactName(th)} aukeratu du.`)) : L(`Falta lo que elija ${PC.team(m[other]).name}.`, `${PC.team(m[other]).name} taldearen aukera falta da.`)}</div></section>`;
+    }
+    let chgBlock = '';
+    if (c) {
+      const steps = [[L('Propuesta enviada', 'Proposamena bidalita'), PC.team(c.by).name + ' · ' + PC.fAgo(c.ts), true], [L('El rival elige', 'Aurkariak aukeratzen du'), c.pick ? PC.fWhen(c.pick) : L(`${c.opts.length} opciones`, `${c.opts.length} aukera`), c.st === 'accepted'], [L('El club valida', 'Klubak baliozkotzen du'), L('y se actualiza el calendario', 'eta egutegia eguneratzen da'), false]];
+      const nowI = c.st === 'proposed' ? 1 : 2;
+      chgBlock = `<section class="card pad"><div class="eyebrow" style="margin-bottom:10px">${L('Cambio en curso', 'Aldaketa martxan')}</div><div class="timeline">${steps.map(([t, d, done], i) => `<div class="tl ${done ? 'done' : i === nowI ? 'now' : ''}"><span class="c">${done ? ic('check', 13) : ''}</span><div><b>${t}</b><small>${esc(d)}</small></div></div>`).join('')}</div>
+      ${c.st === 'proposed' ? `<div class="muted" style="font-size:12.5px">${L('Opciones:', 'Aukerak:')} ${c.opts.map((o) => PC.fWhen(o)).join(' · ')}</div>` : ''}
+      ${c.st === 'proposed' && c.by !== me.id ? `<button class="btn btn-ball btn-block" style="margin-top:10px" data-a="openAnswer" data-id="${c.id}">${L('Elegir horario', 'Ordutegia aukeratu')}</button>` : ''}</section>`;
+    }
+    const pend = S.subs.find((x) => x.m === m.id && x.st === 'pending');
+    return sheetWrap(`${esc(A.name)} <span style="color:var(--faint)">vs</span> ${esc(B.name)}`, `
+      <section class="card pad"><div class="kv"><dt>${L('Cuándo', 'Noiz')}</dt><dd>${PC.fLong(m.at)}, ${PC.time(m.at)}</dd><dt>${L('Dónde', 'Non')}</dt><dd>${esc(brand().venue)} · ${L('Pista', 'Pista')} ${m.court}</dd><dt>${L('Formato', 'Formatua')}</dt><dd>90′ · ${L('punto de oro', 'urrezko puntua')}</dd><dt>${L('Cambios', 'Aldaketak')}</dt><dd>${m.chg || 0} ${L('de', '/')} ${PC.RULES.changesPerMatch}${m.orig ? ` · ${L('antes', 'lehen')} ${PC.fDay(m.orig, false)} ${PC.time(m.orig)}` : ''}</dd>${pend ? `<dt>${L('Sustituto', 'Ordezkoa')}</dt><dd>${esc(S.players[pend.inn].name)} · ${L('por aprobar', 'onartzeko')}</dd>` : ''}${m.st === 'played' ? `<dt>${L('Resultado', 'Emaitza')}</dt><dd class="mono">${PC.scoreText(m)}${m.end === 'stb' ? ' (STB)' : m.end === 'time' ? ' (' + L('tiempo', 'denbora') + ')' : ''}</dd>` : ''}</div></section>
+      ${chgBlock}${pact}
+      <div class="col">
+        ${mine && m.resultDue && m.st === 'scheduled' && isCap() ? `<button class="btn btn-ball btn-block" data-a="openResult" data-id="${m.id}" data-cue="btn-result">${ic('ball', 18)} ${L('Introducir resultado', 'Emaitza sartu')}</button>` : ''}
+        ${canChange ? `<button class="btn btn-primary btn-block" data-a="openChange" data-id="${m.id}" data-cue="btn-change">${ic('swap', 18)} ${L('Cambiar fecha u hora', 'Data edo ordua aldatu')}</button>` : ''}
+        ${mine && isCap() && m.st === 'scheduled' && !m.resultDue && (m.chg || 0) >= PC.RULES.changesPerMatch ? `<div class="todo"><div class="ti" style="background:var(--warn-soft);color:var(--warn)">${ic('lock', 18)}</div><div class="grow"><b>${L('Este partido ya se cambió una vez', 'Partida hau behin aldatu da jada')}</b><small>${L('La normativa no permite moverlo de nuevo. Si falta alguien, pide un sustituto.', 'Araudiak ez du berriro mugitzen uzten. Norbait falta bada, eskatu ordezkoa.')}</small></div></div>` : ''}
+        ${mine && isCap() && m.st === 'scheduled' && !m.resultDue ? `<button class="btn btn-ghost btn-block" data-a="openSub" data-id="${m.id}" data-cue="btn-sub-sheet">${ic('sub', 18)} ${L('Pedir sustituto', 'Ordezkoa eskatu')}</button>` : ''}
+        ${m.st === 'scheduled' && !m.resultDue ? `<div class="row" style="gap:8px"><button class="btn btn-ghost grow" data-a="ics" data-id="${m.id}">${ic('cal', 16)} ${L('Al calendario', 'Egutegira')}</button><button class="btn btn-ghost grow" data-a="openTimer" data-id="${m.id}">${ic('timer', 16)} ${L('Reloj de partido', 'Partidaren erlojua')}</button></div>` : ''}
+      </div>`, `${L('Grupo', 'Taldea')} ${m.g} · ${esc(brand().league)}`);
+  }
+  if (s.type === 'change') {
+    const m = PC.match(s.id); const rival = PC.team(PC.vs(m, me.id));
+    const days = []; for (let i = 1; i <= 19; i++) days.push(PC.addDays(PC.TODAY + 'T00:00', i).slice(0, 10));
+    const day = s.day || days.find((d) => PC.isLeagueDay(d + 'T00:00'));
+    const teamDays = S.matches.filter((x) => x.id !== m.id && (x.a === m.a || x.b === m.a || x.a === m.b || x.b === m.b)).map((x) => x.at.slice(0, 10));
+    const slots = PC.slotsFor(day).map((t) => { const iso = day + 'T' + t; const stt = PC.slotState(iso, m.id); const busy = teamDays.includes(day); return { iso, t, ok: stt.ok && !busy, why: busy ? 'equipo' : stt.why, free: stt.free }; });
+    const sel = s.sel || [];
+    return sheetWrap(L('Proponer otro horario', 'Beste ordutegi bat proposatu'), `
+      <div class="steps"><span class="on"></span><span class="${sel.length ? 'on' : ''}"></span><span></span></div>
+      <div class="muted" style="font-size:13px">${L(`Elige hasta 3 opciones. ${rival.name} escogerá una y el club la validará.`, `Aukeratu 3 aukera arte. ${rival.name} taldeak bat hautatuko du eta klubak baliozkotuko du.`)}</div>
+      <div class="row wrap" style="gap:6px">${[[L('Lesión', 'Lesioa')], [L('Trabajo', 'Lana')], [L('Viaje', 'Bidaia')], [L('Otro', 'Beste bat')]].map(([r]) => `<button class="chip ${s.reason === r ? 'on' : ''}" data-a="chgReason" data-v="${esc(r)}">${r}</button>`).join('')}<button class="chip ball" data-a="suggest" data-cue="btn-suggest">${ic('sparkle', 14)} ${L('Sugerir 3 horarios', '3 ordutegi iradoki')}</button></div>
+      <div class="days hide-sb">${days.map((d) => { const off = !PC.isLeagueDay(d + 'T00:00'); const dd = PC.parse(d + 'T00:00'); return `<button class="day ${d === day ? 'on' : ''} ${off ? 'off' : ''} ${sel.some((x) => x.startsWith(d)) ? 'has' : ''}" ${off ? 'disabled' : ''} data-a="chgDay" data-v="${d}"><small>${off ? L('sin liga', 'ligarik ez') : L(PC.DOW_ES_S[dd.getDay()], PC.DOW_EU_S[dd.getDay()])}</small><b>${dd.getDate()}</b></button>`; }).join('')}</div>
+      <div class="slots">${slots.map((x) => `<button class="slot ${sel.includes(x.iso) ? 'sel' : ''} ${x.ok ? '' : 'full'}" ${x.ok || sel.includes(x.iso) ? '' : 'disabled'} data-a="chgSlot" data-v="${x.iso}"><b>${x.t}</b><small>${x.ok ? L(`${x.free} pista${x.free > 1 ? 's' : ''} de liga`, `${x.free} liga pista`) : x.why === 'equipo' ? L('ya jugáis', 'jokatzen duzue') : L('completo', 'beteta')}</small></button>`).join('')}</div>
+      <div class="muted" style="font-size:11.5px">${ic('info', 12)} ${L(`Máximo ${PC.RULES.maxLeagueCourts} pistas de liga por franja, para que el resto de clientes siga pudiendo reservar.`, `Gehienez ${PC.RULES.maxLeagueCourts} liga pista ordutegi bakoitzeko, gainerako bezeroek erreserbatu ahal izateko.`)}</div>
+      ${sel.length ? `<section class="card list">${sel.map((x, i) => `<div class="li"><span class="tile sm win">${i + 1}</span><div class="grow"><b>${PC.fLong(x)}</b><small>${PC.time(x)} · 90′</small></div><button class="iconbtn" style="background:var(--line-2);color:var(--ink-2);width:32px;height:32px" data-a="chgSlot" data-v="${x}">${ic('x', 14)}</button></div>`).join('')}</section>` : ''}
+      <div class="todo"><div class="ti" style="background:var(--warn-soft);color:var(--warn)">${ic('info', 18)}</div><div class="grow"><small style="color:var(--ink-2)">${L('Es el único cambio permitido para este partido. Hasta que el rival elija y el club valide, se mantiene la fecha original.', 'Partida honetarako baimendutako aldaketa bakarra da. Aurkariak aukeratu eta klubak baliozkotu arte, jatorrizko data mantentzen da.')}</small></div></div>
+      <button class="btn btn-primary btn-block" ${sel.length ? '' : 'disabled'} data-a="sendChange" data-cue="btn-send-change">${ic('send', 17)} ${L(`Enviar ${sel.length || ''} opciones a ${rival.name}`, `Bidali ${sel.length || ''} aukera ${rival.name}(r)i`)}</button>`, `${PC.team(m.a).name} – ${PC.team(m.b).name} · ${PC.fDay(m.at, false)} ${PC.time(m.at)}`);
+  }
+  if (s.type === 'answer') {
+    const c = S.changes.find((x) => x.id === s.id); const m = PC.match(c.m);
+    return sheetWrap(L('Elige el nuevo horario', 'Aukeratu ordutegi berria'), `
+      <div class="muted" style="font-size:13px">${L(`${PC.team(c.by).name} no puede el ${PC.fLong(m.at)} a las ${PC.time(m.at)}${c.reason ? ' (' + c.reason.toLowerCase() + ')' : ''}. Te propone:`, `${PC.team(c.by).name} taldeak ezin du ${PC.fLong(m.at)}, ${PC.time(m.at)}${c.reason ? ' (' + c.reason.toLowerCase() + ')' : ''}. Hau proposatzen dizu:`)}</div>
+      <div class="col">${c.opts.map((o, i) => `<button class="opt ${s.pick === o ? 'on' : ''}" data-a="pick" data-v="${o}" data-cue="opt-${i}"><span class="radio"></span><div class="grow"><b style="font-size:14.5px">${PC.fLong(o)}</b><div class="muted" style="font-size:12.5px">${PC.time(o)} · 90′ · ${L('pista la asigna el club', 'pista klubak esleitzen du')}</div></div></button>`).join('')}</div>
+      <button class="btn btn-primary btn-block" ${s.pick ? '' : 'disabled'} data-a="acceptChange" data-cue="btn-accept">${ic('check', 18)} ${L('Aceptar este horario', 'Ordutegi hau onartu')}</button>
+      <button class="btn btn-ghost btn-block" data-a="declineChange">${L('Ninguno me va', 'Bat ere ez zait egokitzen')}</button>`, L('Solicitud de cambio', 'Aldaketa eskaera'));
+  }
+  if (s.type === 'result') {
+    const m = PC.match(s.id); const A = PC.team(m.a), B = PC.team(m.b);
+    const sets = s.sets; const end = s.end;
+    const tmp = { ...m, sets: end === 'np' ? null : sets.slice(0, end === 'full' && sets[2][0] === 0 && sets[2][1] === 0 ? 2 : 3), end, np: end === 'np' ? (me.id === m.a ? 'b' : 'a') : null, st: 'played' };
+    if (end !== 'np' && tmp.sets.length === 3 && tmp.sets[2][0] === 0 && tmp.sets[2][1] === 0) tmp.sets = tmp.sets.slice(0, 2);
+    const o = PC.outcome(tmp); const myK = PC.side(m, me.id); const thK = myK === 'a' ? 'b' : 'a';
+    const P_ = PC.RULES.pts;
+    const res = { W: L('Ganáis', 'Irabazten duzue'), L: L('Perdéis', 'Galtzen duzue'), T: L('Empate', 'Berdinketa'), NP: L('No presentado', 'Ez aurkeztua') };
+    const stepper = (si, k) => `<div class="stepper"><button data-a="setInc" data-s="${si}" data-k="${k}" data-d="1">${ic('up', 14)}</button><span class="tile ${sets[si][k] > sets[si][1 - k] ? 'win' : ''}">${String(sets[si][k]).padStart(2, '0')}</span><button data-a="setInc" data-s="${si}" data-k="${k}" data-d="-1">${ic('down', 14)}</button></div>`;
+    return sheetWrap(L('Resultado', 'Emaitza'), `
+      <div class="seg" style="width:100%;display:grid;grid-template-columns:repeat(4,1fr)">${[['full', L('Completo', 'Osoa')], ['stb', 'STB 11'], ['time', L('Tiempo', 'Denbora')], ['np', 'NP']].map(([v, t]) => `<button class="${end === v ? 'on' : ''}" data-a="endType" data-v="${v}">${t}</button>`).join('')}</div>
+      ${end === 'np' ? `<div class="todo"><div class="ti" style="background:var(--bad-soft);color:var(--bad)">${ic('alert', 18)}</div><div class="grow"><b>${L(`${PC.team(m[thK]).name} no se presentó`, `${PC.team(m[thK]).name} ez zen aurkeztu`)}</b><small>${L(`${P_.NP} puntos para ellos. Con ${PC.RULES.npLimit} en la fase no juegan la siguiente.`, `${P_.NP} puntu haientzat. Fasean ${PC.RULES.npLimit} badira, ez dute hurrengoa jokatzen.`)}</small></div></div>` : `
+      <section class="card pad"><div class="setgrid"><span></span><span class="h">Set 1</span><span class="h">Set 2</span><span class="h">${end === 'stb' ? 'STB' : 'Set 3'}</span>
+        ${[['a', A], ['b', B]].map(([k, t]) => `<b style="font-size:14px;line-height:1.2">${esc(t.name)}${t.id === me.id ? `<br><span class="yours">${L('TU EQUIPO', 'ZURE TALDEA')}</span>` : ''}</b>${[0, 1, 2].map((si) => stepper(si, k === 'a' ? 0 : 1)).join('')}`).join('')}</div></section>
+      <div class="muted" style="font-size:12px">${end === 'stb' ? L('Supertiebreak a 11, como pactasteis antes del partido.', 'Supertiebreak 11ra, partidaren aurretik adostu bezala.') : end === 'time' ? L('Tercer set sin terminar: gana quien lleve más juegos; si van iguales, empate.', 'Hirugarren seta amaitu gabe: joko gehien dituenak irabazten du; berdin badoaz, berdinketa.') : L('Deja el tercer set a 0-0 si no se jugó.', 'Utzi hirugarren seta 0-0 jokatu ez bazen.')}</div>`}
+      <section class="ptc" data-cue="result-preview"><div class="ti">${ic('trophy', 22)}</div><div class="grow"><b>${res[o[myK]] || ''} · ${P_[o[myK]] > 0 ? '+' : ''}${P_[o[myK]]} ${L('puntos', 'puntu')}</b><small>${esc(PC.team(m[thK]).name)}: ${P_[o[thK]] > 0 ? '+' : ''}${P_[o[thK]]} · ${L('la app lo calcula con vuestra normativa', 'aplikazioak zuen araudiarekin kalkulatzen du')}</small></div></section>
+      <button class="btn btn-primary btn-block" data-a="sendResult" data-cue="btn-send-result">${ic('send', 17)} ${L(`Enviar para que ${PC.team(m[thK]).name} confirme`, `Bidali ${PC.team(m[thK]).name} taldeak berresteko`)}</button>`, `${A.name} – ${B.name} · ${PC.fDay(m.at, false)}`);
+  }
+  if (s.type === 'sub') {
+    const m = PC.match(s.id); const ps = PC.teamPlayers(me);
+    const out = s.out || ps[1].id; const outP = S.players[out];
+    const pool = S.pool.map((id) => S.players[id]).sort((a, b) => b.lvl - a.lvl);
+    return sheetWrap(L('Pedir sustituto', 'Ordezkoa eskatu'), `
+      <div class="muted" style="font-size:13px">${L('¿Quién no puede jugar?', 'Nork ezin du jokatu?')}</div>
+      <div class="row" style="gap:8px">${ps.map((p) => `<button class="opt ${p.id === out ? 'on' : ''}" style="flex:1;padding:10px" data-a="subOut" data-v="${p.id}"><span class="radio"></span><span style="font-size:13px;font-weight:600">${esc(p.name.split(' ')[0])} · ${PC.lvl(p.lvl)}</span></button>`).join('')}</div>
+      <div class="row between"><b>${L('Bolsa de sustitutos del club', 'Klubeko ordezkoen poltsa')}</b><span class="pill">${L('nivel ≤', 'maila ≤')} ${PC.lvl(outP.lvl)}</span></div>
+      <div class="col">${pool.map((p) => { const okL = p.lvl <= outP.lvl; return `<button class="cand ${s.inn === p.id ? 'on' : ''} ${okL ? '' : 'no'}" ${okL ? '' : 'disabled'} data-a="subIn" data-v="${p.id}" data-cue="cand-${p.id}"><span class="avatar">${PC.ini(p.name)}</span><div class="grow"><b style="font-size:14px">${esc(p.name)}</b><div class="muted" style="font-size:12px">${okL ? L('Disponible', 'Libre') + ': ' + esc(p.when) : L(`Nivel superior al de ${outP.name.split(' ')[0]}: la normativa no lo permite`, `${outP.name.split(' ')[0]} baino maila handiagoa: araudiak ez du uzten`)}</div></div><span class="lvl" style="${okL ? '' : 'background:#cbd5e1;color:#fff'}">${PC.lvl(p.lvl)}</span></button>`; }).join('')}</div>
+      <button class="btn btn-primary btn-block" ${s.inn ? '' : 'disabled'} data-a="sendSub" data-cue="btn-send-sub">${ic('send', 17)} ${L('Enviar al club para aprobar', 'Bidali klubari onartzeko')}</button>`, `${PC.team(m.a).name} – ${PC.team(m.b).name} · ${PC.fDay(m.at, false)} ${PC.time(m.at)}`);
+  }
+  if (s.type === 'timer') {
+    const m = PC.match(s.id); const pactV = m.pact && (m.pact.a === m.pact.b ? m.pact.a : m.pact.a || m.pact.b);
+    const left = Math.max(0, 90 * 60 - Math.floor((Date.now() - s.start) / 1000) - (s.skip || 0));
+    const late = left < 20 * 60;
+    return sheetWrap(L('Reloj de partido', 'Partidaren erlojua'), `
+      <div class="timer ${late ? 'late' : ''}"><div class="eyebrow" style="color:inherit;opacity:.8">${L('Quedan', 'Geratzen dira')}</div><div class="big tnum" id="tleft">${String(Math.floor(left / 60)).padStart(2, '0')}:${String(left % 60).padStart(2, '0')}</div><div style="font-size:13.5px;font-weight:600">${late ? L(`Si acabáis el 2º set ahora: ${pactName(pactV || 'stb')}, como pactasteis.`, `2. seta orain amaitzen baduzue: ${pactName(pactV || 'stb')}, adostu bezala.`) : L('Punto de oro siempre. Al llegar la hora, cuenta lo que haya en el marcador.', 'Urrezko puntua beti. Ordua iristean, markagailuan dagoena da.')}</div></div>
+      <button class="btn btn-ghost btn-block" data-a="skipTimer">${ic('timer', 16)} ${L('Simular: quedan 19 minutos', 'Simulatu: 19 minutu geratzen dira')}</button>`, `${PC.team(m.a).name} – ${PC.team(m.b).name}`);
+  }
+  if (s.type === 'pay') {
+    const r = S.pay.find((x) => x.id === s.id); const st = PC.student(r.student);
+    if (s.done) return sheetWrap(L('Pago completado', 'Ordainketa eginda'), `<div class="payok"><div class="ok">${ic('check', 40)}</div><b style="font-size:18px">${PC.eur(r.amount)}</b><div class="muted">${esc(r.concept)} · ${esc(st.name)}</div><div class="muted" style="font-size:12.5px;margin-top:8px">${L('El club ya lo ve como pagado. Recibo con TicketBAI en Club › Recibos.', 'Klubak ordainduta ikusten du jada. TicketBAI ordainagiria Kluba › Ordainagiriak atalean.')}</div></div><button class="btn btn-primary btn-block" data-a="closeSheet">${L('Hecho', 'Eginda')}</button>`);
+    return sheetWrap(L('Pagar cuota', 'Kuota ordaindu'), `
+      <section class="card pad"><div class="kv"><dt>${L('Concepto', 'Kontzeptua')}</dt><dd>${esc(r.concept)}</dd><dt>${L('Alumno', 'Ikaslea')}</dt><dd>${esc(st.name)}</dd><dt>${L('Tarifa', 'Tarifa')}</dt><dd>${esc(PC.TARIFAS[PC.tarifaOf(st)].es)} · ${st.socio ? L('socio', 'bazkidea') : L('no socio', 'ez bazkidea')}</dd><dt>${L('Importe', 'Zenbatekoa')}</dt><dd class="mono" style="font-size:18px">${PC.eur(r.amount)}</dd></div></section>
+      <div class="col">${[['Bizum', 'phone'], [L('Tarjeta', 'Txartela'), 'card'], ['Apple Pay', 'wallet']].map(([t, i]) => `<button class="opt ${(s.method || 'Bizum') === t ? 'on' : ''}" data-a="payMethod" data-v="${t}"><span class="radio"></span>${ic(i, 18)}<b style="font-size:14px">${t}</b></button>`).join('')}</div>
+      <button class="btn btn-ball btn-block" data-a="doPay" data-cue="btn-do-pay" style="min-height:50px;font-size:15px">${s.busy ? '<span class="spin" style="border-color:rgb(11 26 58 / .25);border-top-color:var(--ball-ink)"></span>' : `${L('Pagar', 'Ordaindu')} ${PC.eur(r.amount)}`}</button>
+      <div class="muted" style="font-size:11.5px;text-align:center">${L('Demo: no se realiza ningún cobro real.', 'Demoa: ez da benetako kobrantzarik egiten.')}</div>`);
+  }
+  if (s.type === 'roll') {
+    const g = PC.group(s.g); const a = PC.attendees(g.id, s.d);
+    const vals = s.vals;
+    return sheetWrap(L('Pasar lista', 'Zerrenda pasatu'), `
+      <div class="col">${a.list.map((x) => `<div class="att"><span class="avatar">${PC.ini(x.s.name)}</span><div class="grow"><b style="font-size:14px">${esc(x.s.name)}</b><div class="muted" style="font-size:11.5px">${x.absent ? L('Avisó con antelación', 'Aldez aurretik abisatu zuen') : x.kind === 'makeup' ? L('Recupera · viene de otro grupo', 'Berreskuratzen · beste talde batetik') : esc(L(g.lvl, g.lvlEu))}${x.s.info ? ' · ' + esc(x.s.info.med) : ''}</div></div><div class="tg"><button class="yes ${vals[x.s.id] === 'yes' ? 'on' : ''}" data-a="roll" data-sid="${x.s.id}" data-v="yes">${ic('check', 18)}</button><button class="no ${vals[x.s.id] === 'no' ? 'on' : ''}" data-a="roll" data-sid="${x.s.id}" data-v="no">${ic('x', 18)}</button>${x.absent ? `<button class="exc ${vals[x.s.id] === 'exc' ? 'on' : ''}" data-a="roll" data-sid="${x.s.id}" data-v="exc">${L('Avisó', 'Abis.')}</button>` : ''}</div></div>`).join('')}</div>
+      <button class="btn btn-primary btn-block" data-a="closeRoll" data-cue="btn-close-roll">${ic('check', 18)} ${L('Guardar asistencia', 'Asistentzia gorde')}</button>`, `${esc(L(g.lvl, g.lvlEu))} · ${g.time} · ${L('Pista', 'Pista')} ${g.court}`);
+  }
+  if (s.type === 'eval') {
+    const st = PC.student(s.sid);
+    const e = S.evals[s.sid] || (S.evals[s.sid] = { start: { der: 5, rev: 4, vol: 5, ban: 3, vib: 2, rem: 3, sr: 5, tac: 4 }, cur: { der: 5, rev: 4, vol: 5, ban: 3, vib: 2, rem: 3, sr: 5, tac: 4 }, notes: [], goal: '', updated: PC.nowIso() });
+    const v = s.vals;
+    return sheetWrap(esc(st.name), `
+      <section class="card pad col" style="gap:12px">${PC.SKILLS.map(([k, es, eu]) => `<label class="skill"><span>${L(es, eu)}</span><input class="range" type="range" min="1" max="10" value="${v[k]}" data-a="skill" data-k="${k}"><b>${v[k]}</b></label>`).join('')}</section>
+      <textarea class="input" id="evnote" placeholder="${L('Nota para el alumno', 'Oharra ikaslearentzat')}">${esc(s.note || '')}</textarea>
+      <input class="input" id="evgoal" value="${esc(e.goal || '')}" placeholder="${L('Objetivo del trimestre', 'Hiruhilekoko helburua')}">
+      <button class="btn btn-primary btn-block" data-a="saveEval" data-cue="btn-save-eval">${ic('send', 17)} ${L(`Guardar y enviar a ${st.name.split(' ')[0]}`, `Gorde eta ${st.name.split(' ')[0]}ri bidali`)}</button>`, L('Evolución', 'Bilakaera'));
+  }
+  if (s.type === 'event') {
+    const e = S.events.find((x) => x.id === s.id);
+    return sheetWrap(esc(e.name), `<section class="card pad"><div class="kv"><dt>${L('Cuándo', 'Noiz')}</dt><dd>${PC.fLong(e.when)}, ${PC.time(e.when)}</dd><dt>${L('Nivel', 'Maila')}</dt><dd>${esc(e.lvl)}</dd><dt>${L('Plazas', 'Plazak')}</dt><dd>${e.n}/${e.cap}</dd></div></section>${e.where === 'playtomic' ? `<a class="btn btn-ball btn-block" href="${PC.PLAYTOMIC}" target="_blank" rel="noopener">${L('Inscribirme en Playtomic', 'Playtomic-en izena eman')} ${ic('ext', 16)}</a><div class="muted" style="font-size:12px;text-align:center">${L('Los pozos siguen en Playtomic. La app solo te los recuerda.', 'Pozoak Playtomic-en jarraitzen dute. Aplikazioak gogorarazi besterik ez du egiten.')}</div>` : `<button class="btn btn-ball btn-block" data-a="joinEvent" data-id="${e.id}">${L('Apuntarme', 'Izena eman')}</button>`}`);
+  }
+  return '';
+}
+
+/* ---------- render ---------- */
+const TABS_MEMBER = [['home', 'home', () => L('Inicio', 'Hasiera')], ['liga', 'trophy', () => L('Liga', 'Liga')], ['escuela', 'school', () => L('Escuela', 'Eskola')], ['club', 'shield', () => L('Club', 'Kluba')], ['yo', 'user', () => L('Yo', 'Ni')]];
+const TABS_COACH = [['home', 'whistle', () => L('Hoy', 'Gaur')], ['grupos', 'grid', () => L('Grupos', 'Taldeak')], ['alumnos', 'users', () => L('Alumnos', 'Ikasleak')], ['avisos', 'msg', () => L('Avisos', 'Oharrak')], ['yo', 'user', () => L('Yo', 'Ni')]];
+function render() {
+  S = PC.S;
+  PC.applyBrand();
+  const app = document.getElementById('app');
+  const mainOld = app.querySelector('main');
+  const sc = mainOld ? mainOld.scrollTop : 0;
+  const sheetOld = app.querySelector('.sheet');
+  const ssc = sheetOld ? sheetOld.scrollTop : 0;
+  const coach = P().role === 'coach';
+  const tabs = coach ? TABS_COACH : TABS_MEMBER;
+  if (!tabs.some((t) => t[0] === ui.tab)) ui.tab = 'home';
+  let body = '';
+  if (ui.tab === 'home') body = coach ? homeCoach() : P().role === 'captain' ? homeCaptain() : P().role === 'student' ? homeStudent() : homeFamily();
+  else if (ui.tab === 'liga') body = ligaTab();
+  else if (ui.tab === 'escuela') body = escuelaTab();
+  else if (ui.tab === 'club') body = clubTab();
+  else if (ui.tab === 'yo') body = yoTab();
+  else if (ui.tab === 'grupos') body = coachGroups();
+  else if (ui.tab === 'alumnos') body = coachStudents();
+  else if (ui.tab === 'avisos') body = coachMsgs();
+  const unread = PC.unread(S.persona);
+  const hh = String(PC.now().getHours()).padStart(2, '0') + ':' + String(PC.now().getMinutes()).padStart(2, '0');
+  app.innerHTML = `${EMBED ? `<div class="sbar"><span class="tnum">${hh}</span><span class="r">${ic('bolt', 13)}<span style="font-size:12px">5G</span><span class="bat"></span></span></div>` : ''}
+  <header class="top">${PC.logo()}<div class="act"><button class="iconbtn" data-a="openNotifs" aria-label="${L('Avisos', 'Oharrak')}" data-cue="bell">${ic('bell', 20)}${unread ? `<span class="badge">${unread}</span>` : ''}</button><button class="me-btn" data-a="tab" data-v="yo" data-cue="me">${PC.ini(P().name)}</button></div></header>
+  <main id="main">${body}</main>
+  <nav class="tabbar">${tabs.map(([id, icn, lab]) => `<button class="${ui.tab === id ? 'on' : ''}" data-a="tab" data-v="${id}" data-cue="nav-${id}">${ic(icn, 21)}<span>${lab()}</span>${id === 'avisos' && unread ? `<span class="badge">${unread}</span>` : ''}</button>`).join('')}</nav>
+  ${renderSheet()}`;
+  const main = app.querySelector('main');
+  if (main && !ui.resetScroll) main.scrollTop = sc;
+  ui.resetScroll = false;
+  const sh = app.querySelector('.sheet');
+  if (sh && ui.keepSheetScroll) sh.scrollTop = ssc;
+  ui.keepSheetScroll = false;
+  applyCue();
+  post({ t: 'ui', frame: 'app', tab: ui.tab, sub: ui.sub, sheet: ui.sheet && ui.sheet.type, persona: S.persona });
+}
+function applyCue() {
+  document.querySelectorAll('.cue').forEach((e) => e.classList.remove('cue'));
+  if (!cueIds.length) return;
+  for (let i = cueIds.length - 1; i >= 0; i--) {
+    const el = document.querySelector(`[data-cue="${cueIds[i]}"]`);
+    if (el) { el.classList.add('cue'); if (i === cueIds.length - 1 && !ui.sheet) { try { el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {} } break; }
+  }
+}
+function go(tab, sub, resetScroll = true) {
+  ui.tab = tab;
+  if (sub) { if (tab === 'liga') ui.sub.liga = sub; if (tab === 'escuela') ui.sub.escuela = sub; if (tab === 'club') ui.sub.club = sub; }
+  ui.sheet = null; ui.resetScroll = resetScroll;
+  render();
+}
+function commit(what) { PC.commit(what); }
+
+/* ---------- acciones ---------- */
+const A = {
+  tab: (d) => go(d.v),
+  sub: (d) => { ui.sub[d.k] = d.v; ui.resetScroll = true; render(); },
+  ligaGroup: (d) => { ui.ligaGroup = +d.v; render(); },
+  closeSheet: (d, el, ev) => { if (d.self && ev.target !== el) return; ui.sheet = null; render(); },
+  openNotifs: () => { ui.sheet = { type: 'notifs' }; render(); PC.markRead(S.persona); PC.commit('read'); },
+  notifGo: (d) => { const n = S.notifs.find((x) => x.id === d.id); ui.sheet = null; if (n && n.go) { if (n.go.sheet === 'change-answer') { const c = S.changes.find((x) => x.id === n.go.id); if (c && c.st === 'proposed') { ui.tab = 'home'; ui.sheet = { type: 'answer', id: c.id }; render(); return; } } go(n.go.tab, n.go.sub); } else render(); },
+  openMatch: (d) => { ui.sheet = { type: 'match', id: d.id }; render(); },
+  openChange: (d) => { ui.sheet = { type: 'change', id: d.id, sel: [] }; render(); },
+  chgDay: (d) => { ui.sheet.day = d.v; ui.keepSheetScroll = true; render(); },
+  chgReason: (d) => { ui.sheet.reason = d.v; ui.keepSheetScroll = true; render(); },
+  chgSlot: (d) => { const s = ui.sheet; const i = s.sel.indexOf(d.v); if (i >= 0) s.sel.splice(i, 1); else if (s.sel.length < 3) s.sel.push(d.v); else toast(L('Máximo 3 opciones', 'Gehienez 3 aukera'), '', 'info'); s.sel.sort(); ui.keepSheetScroll = true; render(); },
+  suggest: () => {
+    const s = ui.sheet; const m = PC.match(s.id);
+    const teamDays = S.matches.filter((x) => x.id !== m.id && (x.a === m.a || x.b === m.a || x.a === m.b || x.b === m.b)).map((x) => x.at.slice(0, 10));
+    const pref = ['2026-11-23T20:30', '2026-11-24T19:00', '2026-11-28T12:00', '2026-11-22T12:00', '2026-11-27T19:00', '2026-11-23T19:00', '2026-11-29T10:30', '2026-11-24T20:30'];
+    const out = [];
+    pref.forEach((iso) => { if (out.length < 3 && PC.slotState(iso, m.id).ok && !teamDays.includes(iso.slice(0, 10)) && !out.some((o) => o.slice(0, 10) === iso.slice(0, 10))) out.push(iso); });
+    s.sel = out; s.day = out[0].slice(0, 10); s.reason = s.reason || L('Trabajo', 'Lana');
+    toast(L('3 horarios sugeridos', '3 ordutegi iradokita'), L('Franjas libres de liga en las que soléis jugar los dos equipos.', 'Bi taldeek jokatu ohi duzuen liga-ordutegi libreak.'), 'sparkle');
+    ui.keepSheetScroll = true; render();
+  },
+  sendChange: () => { const s = ui.sheet; const me = myTeam(); PC.proposeChange(s.id, me.id, s.sel.slice(), s.reason); ui.sheet = { type: 'match', id: s.id }; commit('change'); render(); toast(L('Propuesta enviada', 'Proposamena bidalita'), L(`${PC.team(PC.vs(PC.match(s.id), me.id)).name} elegirá uno de tus ${s.sel.length} horarios.`, `${PC.team(PC.vs(PC.match(s.id), me.id)).name} taldeak zure ${s.sel.length} ordutegietako bat aukeratuko du.`), 'send'); },
+  openAnswer: (d) => { ui.sheet = { type: 'answer', id: d.id }; render(); },
+  pick: (d) => { ui.sheet.pick = d.v; render(); },
+  acceptChange: () => { const s = ui.sheet; PC.acceptChange(s.id, s.pick); const c = S.changes.find((x) => x.id === s.id); ui.sheet = { type: 'match', id: c.m }; commit('change'); render(); toast(L('Horario aceptado', 'Ordutegia onartuta'), L('Lo hemos enviado al club para que lo valide. Sin llamadas ni mensajes privados.', 'Klubari bidali diogu baliozkotzeko. Deirik eta mezu pribaturik gabe.'), 'check'); },
+  declineChange: () => { PC.rejectChangeByRival(ui.sheet.id); ui.sheet = null; commit('change'); render(); toast(L('Respuesta enviada', 'Erantzuna bidalita'), L('El partido se queda en su fecha.', 'Partidak bere data mantentzen du.'), 'info'); },
+  pact: (d) => { const m = PC.match(d.id); const me = myTeam(); PC.setPact(m.id, PC.side(m, me.id), d.v); commit('pact'); ui.keepSheetScroll = true; render(); },
+  openResult: (d) => { ui.sheet = { type: 'result', id: d.id, sets: [[6, 4], [3, 6], [11, 8]], end: 'stb' }; render(); },
+  endType: (d) => { const s = ui.sheet; s.end = d.v; if (d.v === 'full' && s.sets[2][0] > 7) s.sets[2] = [0, 0]; if (d.v === 'stb' && s.sets[2][0] < 9 && s.sets[2][1] < 9) s.sets[2] = [11, 8]; if (d.v === 'time') s.sets[2] = [4, 3]; ui.keepSheetScroll = true; render(); },
+  setInc: (d) => { const s = ui.sheet; const v = s.sets[+d.s][+d.k] + +d.d; const max = s.end === 'stb' && +d.s === 2 ? 30 : 7; s.sets[+d.s][+d.k] = Math.max(0, Math.min(max, v)); ui.keepSheetScroll = true; render(); },
+  sendResult: () => {
+    const s = ui.sheet; const m = PC.match(s.id); const me = myTeam();
+    let sets = s.sets.map((x) => x.slice());
+    if (s.end !== 'np' && (s.end === 'full' || s.end === 'time') && sets[2][0] === 0 && sets[2][1] === 0) sets = sets.slice(0, 2);
+    const res = { sets: s.end === 'np' ? null : sets, end: s.end, np: s.end === 'np' ? (me.id === m.a ? 'b' : 'a') : null };
+    PC.submitResult(m.id, me.id, res); m.resultDue = false;
+    ui.sheet = null; commit('result'); render();
+    const rival = PC.team(PC.vs(m, me.id));
+    toast(L('Resultado enviado', 'Emaitza bidalita'), L(`${rival.name} tiene que confirmarlo. Si no coincide, lo revisa el club.`, `${rival.name} taldeak berretsi behar du. Bat ez badator, klubak berrikusiko du.`), 'send');
+    setTimeout(() => { PC.confirmResult(m.id); ui.flashTeam = me.id; PC.commit('result-confirmed'); toast(L(`${rival.name} ha confirmado el resultado`, `${rival.name} taldeak emaitza berretsi du`), '', 'check', `${brand().w1} ${brand().w2}`); render(); setTimeout(() => { ui.flashTeam = null; }, 2500); }, 3400);
+  },
+  openSub: (d) => { const me = myTeam(); const id = d.id || PC.nextMatch(me.id).id; ui.sheet = { type: 'sub', id }; render(); },
+  subOut: (d) => { ui.sheet.out = d.v; ui.sheet.inn = null; ui.keepSheetScroll = true; render(); },
+  subIn: (d) => { ui.sheet.inn = d.v; ui.keepSheetScroll = true; render(); },
+  sendSub: () => { const s = ui.sheet; const me = myTeam(); const out = s.out || PC.teamPlayers(me)[1].id; PC.requestSub(s.id, me.id, out, s.inn); ui.sheet = { type: 'match', id: s.id }; commit('sub'); render(); toast(L('Enviado al club', 'Klubari bidalita'), L('Ya cumple la normativa de nivel. Te avisamos en cuanto lo aprueben.', 'Maila-araua betetzen du. Onartzen dutenean abisatuko dizugu.'), 'send'); },
+  ics: (d) => {
+    const m = PC.match(d.id); const A_ = PC.team(m.a), B_ = PC.team(m.b);
+    const f = (iso) => iso.replace(/[-:]/g, '') + '00';
+    const end = PC.iso(new Date(PC.parse(m.at).getTime() + 90 * 60000));
+    const txt = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Ondora Studio//Demo//ES', 'BEGIN:VEVENT', `UID:${m.id}@demo-club`, 'DTSTAMP:20261117T184500', `DTSTART:${f(m.at)}`, `DTEND:${f(end)}`, `SUMMARY:${A_.name} – ${B_.name} (${brand().league})`, `LOCATION:${brand().venue} · Pista ${m.court}`, 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([txt], { type: 'text/calendar' })); a.download = 'partido-liga.ics'; document.body.appendChild(a); a.click(); a.remove();
+    toast(L('Añadido al calendario', 'Egutegira gehituta'), L('Si el partido cambia, tu calendario se actualiza solo.', 'Partida aldatzen bada, zure egutegia berez eguneratuko da.'), 'cal');
+  },
+  openTimer: (d) => { ui.sheet = { type: 'timer', id: d.id, start: Date.now(), skip: 0 }; render(); },
+  skipTimer: () => { const s = ui.sheet; s.skip = 90 * 60 - 19 * 60 - Math.floor((Date.now() - s.start) / 1000); render(); },
+  openPay: (d) => { ui.sheet = { type: 'pay', id: d.id, method: 'Bizum' }; render(); },
+  payMethod: (d) => { ui.sheet.method = d.v; render(); },
+  doPay: () => { const s = ui.sheet; if (s.busy) return; s.busy = true; render(); setTimeout(() => { PC.payReceipt(s.id, s.method || 'Bizum'); s.busy = false; s.done = true; commit('pay'); render(); }, 1300); },
+  absence: (d) => { PC.notifyAbsence(d.sid, d.d); commit('absence'); ui.sub.escuela = 'grupo'; if (ui.tab !== 'escuela') { ui.tab = 'escuela'; ui.resetScroll = true; } render(); toast(L('Avisado', 'Abisatuta'), L('Tu plaza queda libre para otra persona y ganas una recuperación.', 'Zure plaza beste norbaitentzat geratzen da eta berreskuratze bat irabazten duzu.'), 'check'); setTimeout(() => { const el = document.querySelector('[data-cue="makeups"]'); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 120); },
+  unabsence: (d) => { PC.cancelAbsence(d.sid, d.d); commit('absence'); render(); },
+  makeup: (d) => { PC.bookMakeup(d.sid, d.g, d.d); commit('makeup'); render(); toast(L('Recuperación reservada', 'Berreskuratzea erreserbatuta'), L('El entrenador ya te tiene en su lista.', 'Entrenatzaileak bere zerrendan zaitu jada.'), 'check'); },
+  goSchool: () => go('escuela', 'grupo'),
+  goEvol: () => go('escuela', 'evol'),
+  goPagos: () => go('escuela', 'pagos'),
+  openRoll: (d) => { const a = PC.attendees(d.g, d.d); const vals = {}; a.list.forEach((x) => (vals[x.s.id] = x.absent ? 'exc' : 'yes')); ui.sheet = { type: 'roll', g: d.g, d: d.d, vals }; render(); },
+  roll: (d) => { ui.sheet.vals[d.sid] = d.v; ui.keepSheetScroll = true; render(); },
+  closeRoll: () => { const s = ui.sheet; Object.entries(s.vals).forEach(([sid, v]) => PC.setAttendance(s.g, s.d, sid, v)); PC.closeClass(s.g, s.d); ui.sheet = null; commit('roll'); render(); toast(L('Asistencia guardada', 'Asistentzia gordeta'), L('El club la ve al momento en su panel.', 'Klubak berehala ikusten du bere panelean.'), 'check'); },
+  openEval: (d) => { const e = S.evals[d.sid]; const base = e ? { ...e.cur } : { der: 5, rev: 4, vol: 5, ban: 3, vib: 2, rem: 3, sr: 5, tac: 4 }; const vals = { ...base }; if (d.sid === 's-leire') { vals.ban = 6; vals.vib = 4; } ui.sheet = { type: 'eval', sid: d.sid, vals, note: d.sid === 's-leire' ? L('Bandeja mucho más controlada: ya no la conviertes en remate. Siguiente paso, la víbora.', 'Bandeja askoz kontrolatuagoa: jada ez duzu errematea bihurtzen. Hurrengo urratsa, bibora.') : '' }; render(); },
+  skill: (d, el) => { ui.sheet.vals[d.k] = +el.value; el.nextElementSibling.textContent = el.value; },
+  saveEval: () => { const s = ui.sheet; const note = document.getElementById('evnote').value.trim(); const goal = document.getElementById('evgoal').value.trim(); PC.evaluate(s.sid, s.vals, note, goal, P().coach); ui.sheet = null; commit('eval'); render(); toast(L('Evolución enviada', 'Bilakaera bidalita'), L('Le llega al móvil con la gráfica actualizada.', 'Mugikorrera iristen zaio grafiko eguneratuarekin.'), 'chart'); },
+  coachSend: () => { const gid = document.getElementById('cg').value; const g = PC.group(gid); const txt = document.getElementById('cm').value.trim(); if (!txt) return; PC.sendMessage(g.kind === 'kids' ? 'escuela-familias' : 'escuela-adultos', { es: `${PC.coach(g.coach).short} · ${g.lvl} ${g.time}`, eu: `${PC.coach(g.coach).short} · ${g.lvlEu} ${g.time}` }, { es: txt, eu: txt === 'El jueves hacemos la última media hora de partido: traed agua.' ? 'Ostegunean azken ordu erdia partida izango da: ekarri ura.' : txt }); commit('msg'); render(); toast(L('Enviado al grupo', 'Taldeari bidalita'), '', 'send'); },
+  coachWrite: () => toast(L('Mensaje preparado', 'Mezua prest'), L('Se abre un mensaje directo a Josu, sin dar tu teléfono personal.', 'Josuri mezu zuzena irekitzen zaio, zure telefono pertsonala eman gabe.'), 'msg'),
+  persona: (d) => { S.persona = d.v; ui.tab = 'home'; ui.sheet = null; ui.resetScroll = true; commit('persona'); resetSeen(); render(); },
+  lang: (d) => { S.lang = d.v; commit('lang'); render(); },
+  openEvent: (d) => { ui.sheet = { type: 'event', id: d.id }; render(); },
+  joinEvent: (d) => { const e = S.events.find((x) => x.id === d.id); e.joined = e.joined || []; if (!e.joined.includes(S.persona)) { e.joined.push(S.persona); e.n++; } PC.log(`${P().name} se apunta a ${e.name} (${e.n}/${e.cap})`, 'com', 'star'); ui.sheet = null; commit('event'); render(); toast(L('¡Dentro!', 'Barruan!'), L('Te recordamos el día antes. Pago en recepción o desde la app.', 'Egun bat lehenago gogoraraziko dizugu.'), 'star'); },
+  joinLeague: () => toast(L('Inscripción a la Fase II', 'II. faserako izen-ematea'), L('Formulario de equipo con nivel Playtomic y aceptación de la normativa.', 'Talde-formularioa Playtomic mailarekin eta araudia onartuta.'), 'trophy'),
+  askSpot: () => toast(L('Solicitud enviada', 'Eskaera bidalita'), L('Te apuntamos a la lista de espera de ese grupo y te avisamos al quedar plaza.', 'Talde horren itxaron-zerrendan sartu zaitugu.'), 'school'),
+  beMember: () => toast(L('Alta de socio', 'Bazkide altan'), L('Mandato SEPA firmado en el móvil. Sin papeles en recepción.', 'SEPA agindua mugikorrean sinatuta. Paperik gabe.'), 'card'),
+  receipt: () => toast(L('Recibo descargado', 'Ordainagiria deskargatuta'), L('PDF con TicketBAI.', 'PDFa TicketBAI-rekin.'), 'download'),
+  noop: () => toast(L('En la app real abre el teléfono o el mapa', 'Benetako aplikazioan telefonoa edo mapa irekitzen da'), '', 'info'),
+};
+document.addEventListener('click', (ev) => {
+  const el = ev.target.closest('[data-a]');
+  if (!el) return;
+  const fn = A[el.dataset.a];
+  if (!fn) return;
+  if (el.tagName === 'A') return;
+  ev.preventDefault();
+  fn(el.dataset, el, ev);
+});
+document.addEventListener('input', (ev) => { const el = ev.target; if (el.dataset && el.dataset.a === 'skill') A.skill(el.dataset, el); });
+
+/* ---------- sincronización y guía ---------- */
+PC.on((what, local) => {
+  if (what && typeof what === 'object') {
+    if (what.t === 'cue' && (what.frame === 'app' || !what.frame)) { cueIds = what.ids || []; applyCue(); }
+    if (what.t === 'nav' && what.frame === 'app') applyNav(what);
+    return;
+  }
+  if (what === 'reset') { location.reload(); return; }
+  S = PC.S;
+  if (!local) {
+    if (what === 'persona') { ui.tab = 'home'; ui.sheet = null; resetSeen(); }
+    if (ui.sheet && ui.sheet.type === 'answer') { const c = S.changes.find((x) => x.id === ui.sheet.id); if (!c || c.st !== 'proposed') ui.sheet = null; }
+    ui.keepSheetScroll = true;
+    render();
+  }
+  checkNew();
+});
+function applyNav(n) {
+  if (n.persona && n.persona !== S.persona) { S.persona = n.persona; PC.commit('persona'); resetSeen(); }
+  if (n.lang) { S.lang = n.lang; PC.commit('lang'); }
+  ui.sheet = null;
+  if (n.tab) { ui.tab = n.tab; ui.resetScroll = true; }
+  if (n.sub) { ui.sub[n.tab] = n.sub; }
+  if (n.sheet) ui.sheet = n.sheet;
+  render();
+}
+window.addEventListener('message', (e) => {
+  const m = e.data || {};
+  if (m.t === 'cue' && (m.frame === 'app' || !m.frame)) { cueIds = m.ids || []; applyCue(); }
+  if (m.t === 'nav' && m.frame === 'app') applyNav(m);
+});
+setInterval(() => {
+  if (ui.sheet && ui.sheet.type === 'timer') {
+    const s = ui.sheet; const left = Math.max(0, 90 * 60 - Math.floor((Date.now() - s.start) / 1000) - (s.skip || 0));
+    const el = document.getElementById('tleft'); if (el) el.textContent = `${String(Math.floor(left / 60)).padStart(2, '0')}:${String(left % 60).padStart(2, '0')}`;
+  }
+}, 1000);
+resetSeen();
+render();
+})();
+</script>
+</body>
+</html>

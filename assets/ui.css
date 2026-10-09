@@ -1,0 +1,154 @@
+/* Base común de la demo (identidad DOSS Pádel Cup; la variante Oarso cambia solo los tokens) */
+@font-face { font-family: 'Barlow Condensed'; src: url('fonts/BarlowCondensed-600.woff2') format('woff2'); font-weight: 600; font-display: swap; }
+@font-face { font-family: 'Barlow Condensed'; src: url('fonts/BarlowCondensed-700.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+@font-face { font-family: 'Barlow Condensed'; src: url('fonts/BarlowCondensed-800.woff2') format('woff2'); font-weight: 800; font-display: swap; }
+@font-face { font-family: 'Inter'; src: url('fonts/Inter-var.woff2') format('woff2'); font-weight: 300 800; font-display: swap; }
+@font-face { font-family: 'Space Mono'; src: url('fonts/SpaceMono-700.woff2') format('woff2'); font-weight: 700; font-display: swap; }
+
+:root, [data-brand="doss"] {
+  --brand: #1d5ae6; --brand-2: #174cc9; --brand-3: #3070f0; --brand-soft: #eef3ff; --brand-100: #d9e4ff; --brand-200: #b7c9ff;
+  --brand-deep: #0b1a3a; --navy: #070f24; --head: #1d5ae6; --head-ink: #fff;
+  --ball: #dcff3d; --ball-dark: #b8d81a; --ball-ink: #0b1a3a;
+  --bg: #f3f5fa; --card: #fff; --line: #e3e8f2; --line-2: #eef1f7; --ink: #0f172a; --ink-2: #334155; --muted: #64748b; --faint: #94a3b8;
+  --ok: #15803d; --ok-soft: #dcfce7; --warn: #b45309; --warn-soft: #fef3c7; --bad: #dc2626; --bad-soft: #fee2e2;
+  --f-display: 'Barlow Condensed', 'Inter', system-ui, sans-serif;
+  --f-body: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --f-score: 'Space Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+  --shadow: 0 10px 30px -12px rgb(11 26 58 / .18), 0 2px 6px -2px rgb(11 26 58 / .08);
+  --shadow-lg: 0 30px 60px -20px rgb(11 26 58 / .35);
+  --photo: url('img/red.jpg');
+  color-scheme: light;
+}
+[data-brand="oarso"] {
+  --brand: #0a47b8; --brand-2: #003da6; --brand-3: #2f6be0; --brand-soft: #eaf1f8; --brand-100: #d3e2f5; --brand-200: #a9c4ea;
+  --brand-deep: #061634; --navy: #050c19; --head: #061634;
+  --ball: #d9ff3d; --ball-dark: #b8e000; --ball-ink: #061634;
+  --bg: #edf2f8;
+  --f-display: 'Big Shoulders', 'Big Shoulders Display', 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --photo: url('img/pista-lineas.jpg');
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; -webkit-tap-highlight-color: transparent; }
+body { margin: 0; font: 14px/1.45 var(--f-body); color: var(--ink); background: var(--bg); -webkit-font-smoothing: antialiased; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; border: 0; background: none; padding: 0; }
+a { color: inherit; }
+h1, h2, h3, h4, p { margin: 0; }
+.ic { flex: none; display: block; }
+.display { font-family: var(--f-display); font-weight: 800; text-transform: uppercase; letter-spacing: .005em; line-height: .95; }
+[data-brand="oarso"] .display { letter-spacing: .01em; }
+.eyebrow { font-size: 10.5px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+.muted { color: var(--muted); }
+.faint { color: var(--faint); }
+.mono { font-family: var(--f-score); }
+.tnum { font-variant-numeric: tabular-nums; }
+.row { display: flex; align-items: center; gap: 10px; }
+.col { display: flex; flex-direction: column; gap: 10px; }
+.grow { flex: 1; min-width: 0; }
+.wrap { flex-wrap: wrap; }
+.between { justify-content: space-between; }
+.ellipsis { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hide-sb { scrollbar-width: none; } .hide-sb::-webkit-scrollbar { display: none; }
+[hidden] { display: none !important; }
+
+/* logotipo */
+.logo { display: inline-flex; align-items: center; gap: 9px; font-family: var(--f-display); font-weight: 800; text-transform: uppercase; line-height: 1; white-space: nowrap; }
+.logo .mark { width: 30px; height: 30px; border-radius: 9px; background: var(--ball); color: var(--ball-ink); display: grid; place-items: center; font-size: 17px; font-family: var(--f-score); font-weight: 700; box-shadow: inset 0 -2px 0 rgb(0 0 0 / .18); }
+.logo .mark-o { background: none; box-shadow: none; color: var(--ball); width: auto; }
+.logo .wm { font-size: 24px; letter-spacing: .01em; }
+.logo .wm b { color: var(--ball); font-weight: 800; }
+[data-brand="oarso"] .logo .wm { font-size: 23px; letter-spacing: .02em; }
+
+/* tarjetas y botones */
+.card { background: var(--card); border-radius: 22px; border: 1px solid rgb(226 232 240 / .8); box-shadow: var(--shadow); }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 0 16px; border-radius: 14px; font-size: 14px; font-weight: 600; transition: transform .12s, background .15s, box-shadow .15s; white-space: nowrap; }
+.btn:active { transform: scale(.97); }
+.btn[disabled] { opacity: .45; pointer-events: none; }
+.btn-primary { background: var(--brand); color: #fff; box-shadow: var(--shadow); }
+.btn-primary:hover { background: var(--brand-2); }
+.btn-ball { background: var(--ball); color: var(--ball-ink); box-shadow: inset 0 -2px 0 rgb(0 0 0 / .12); }
+.btn-ball:hover { background: var(--ball-dark); }
+.btn-ghost { background: #fff; border: 1px solid var(--line); color: var(--ink-2); }
+.btn-ghost:hover { background: #f8fafc; }
+.btn-dark { background: var(--brand-deep); color: #fff; }
+.btn-ok { background: var(--ok); color: #fff; }
+.btn-danger { background: var(--bad-soft); color: var(--bad); border: 1px solid #fecaca; }
+.btn-sm { min-height: 34px; padding: 0 12px; font-size: 13px; border-radius: 11px; }
+.btn-block { width: 100%; }
+.link { color: var(--brand); font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+
+/* chips y pastillas */
+.chip { display: inline-flex; align-items: center; gap: 6px; border-radius: 999px; padding: 7px 12px; font-size: 12.5px; font-weight: 600; white-space: nowrap; background: #fff; border: 1px solid var(--line); color: var(--ink-2); }
+.chip.on { background: var(--brand); border-color: var(--brand); color: #fff; box-shadow: var(--shadow); }
+.chip.glass { background: rgb(255 255 255 / .12); border-color: rgb(255 255 255 / .16); color: #fff; }
+.chip.ball { background: var(--ball); border-color: var(--ball); color: var(--ball-ink); }
+.pill { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 3px 9px; font-size: 11px; font-weight: 700; letter-spacing: .02em; white-space: nowrap; background: var(--line-2); color: var(--ink-2); }
+.pill.ok { background: var(--ok-soft); color: var(--ok); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill.bad { background: var(--bad-soft); color: var(--bad); }
+.pill.brand { background: var(--brand-soft); color: var(--brand); }
+.pill.ball { background: var(--ball); color: var(--ball-ink); }
+.pill.dark { background: var(--brand-deep); color: #fff; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; flex: none; }
+@keyframes pulse-dot { 0%, 100% { opacity: 1 } 50% { opacity: .3 } }
+.live { animation: pulse-dot 1.2s ease-in-out infinite; }
+
+/* marcadores tipo DOSS Pádel Cup */
+.tiles { display: inline-flex; gap: 5px; }
+.tile { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 36px; border-radius: 8px; font: 700 16px/1 var(--f-score); font-variant-numeric: tabular-nums; box-shadow: inset 0 -2px 0 rgb(0 0 0 / .25); background: #1e293b; color: rgb(255 255 255 / .85); }
+.tile.win { background: var(--brand); color: #fff; }
+.tile.live { background: var(--ball); color: var(--ball-ink); }
+.tile.idle { background: #e2e8f0; color: #94a3b8; box-shadow: none; }
+.tile.sm { width: 26px; height: 30px; font-size: 13px; border-radius: 7px; }
+
+.avatar { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 12px; font-weight: 700; background: var(--brand-soft); color: var(--brand); flex: none; }
+.avatar.dark { background: var(--brand-deep); color: var(--ball); }
+.avatar.sm { width: 28px; height: 28px; font-size: 10.5px; }
+.avatar.lg { width: 48px; height: 48px; font-size: 15px; }
+.badge { min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--ball); color: var(--ball-ink); font-size: 11px; font-weight: 800; display: inline-grid; place-items: center; }
+.badge.red { background: var(--bad); color: #fff; }
+
+/* formularios */
+.input { width: 100%; min-height: 42px; border: 1px solid var(--line); border-radius: 13px; padding: 9px 12px; background: #fff; outline: none; }
+.input:focus { border-color: var(--brand-3); box-shadow: 0 0 0 3px var(--brand-100); }
+textarea.input { resize: vertical; min-height: 84px; }
+.seg { display: inline-flex; background: var(--line-2); border-radius: 12px; padding: 3px; gap: 2px; }
+.seg button { padding: 7px 12px; border-radius: 9px; font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.seg button.on { background: #fff; color: var(--ink); box-shadow: 0 1px 3px rgb(0 0 0 / .1); }
+.switch { width: 40px; height: 24px; border-radius: 999px; background: #cbd5e1; position: relative; flex: none; transition: background .15s; }
+.switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .15s; box-shadow: 0 1px 2px rgb(0 0 0 / .2); }
+.switch.on { background: var(--brand); }
+.switch.on::after { transform: translateX(16px); }
+
+/* guía de la presentación: anillo que pulsa sobre lo siguiente que hay que tocar */
+@keyframes cue-ring { 0% { box-shadow: 0 0 0 0 rgb(220 255 61 / .95), 0 0 0 0 rgb(29 90 230 / .5) } 70% { box-shadow: 0 0 0 7px rgb(220 255 61 / 0), 0 0 0 14px rgb(29 90 230 / 0) } 100% { box-shadow: 0 0 0 0 rgb(220 255 61 / 0) } }
+.cue { animation: cue-ring 1.3s ease-out infinite !important; position: relative; z-index: 2; outline: 2px solid var(--ball) !important; outline-offset: 2px; }
+
+/* avisos emergentes */
+.toasts { position: fixed; left: 50%; transform: translateX(-50%); z-index: 90; display: flex; flex-direction: column; gap: 8px; width: min(92%, 420px); pointer-events: none; }
+.toast { pointer-events: auto; display: flex; gap: 11px; align-items: flex-start; background: rgb(15 23 42 / .96); color: #fff; border-radius: 18px; padding: 12px 14px; box-shadow: var(--shadow-lg); animation: drop .35s cubic-bezier(.2, .9, .3, 1.2); backdrop-filter: blur(8px); }
+.toast .ti { width: 34px; height: 34px; border-radius: 10px; background: var(--ball); color: var(--ball-ink); display: grid; place-items: center; flex: none; }
+.toast b { display: block; font-size: 13.5px; }
+.toast span { display: block; font-size: 12.5px; color: rgb(255 255 255 / .75); margin-top: 1px; }
+.toast .tapp { font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: rgb(255 255 255 / .5); font-weight: 700; margin-bottom: 2px; }
+@keyframes drop { from { opacity: 0; transform: translateY(-16px) scale(.97) } to { opacity: 1; transform: none } }
+@keyframes rise { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: none } }
+@keyframes pop { 0% { transform: scale(.85) } 60% { transform: scale(1.06) } 100% { transform: scale(1) } }
+@keyframes flash { 0% { background: rgb(220 255 61 / .55) } 100% { background: transparent } }
+.flash { animation: flash 1.8s ease-out; }
+.enter { animation: rise .35s ease-out both; }
+
+/* tabla de clasificación */
+.stand { width: 100%; border-collapse: collapse; font-size: 13px; }
+.stand th { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); font-weight: 700; text-align: center; padding: 8px 4px; }
+.stand th:nth-child(2) { text-align: left; }
+.stand td { padding: 9px 4px; text-align: center; border-top: 1px solid var(--line-2); font-variant-numeric: tabular-nums; }
+.stand td.tn { text-align: left; font-weight: 600; }
+.stand tr.me td { background: rgb(220 255 61 / .22); }
+.stand .pos { width: 24px; height: 24px; border-radius: 7px; display: inline-grid; place-items: center; font: 700 12px var(--f-score); background: #f1f5f9; color: var(--muted); }
+.stand .up .pos { background: var(--brand); color: var(--ball); }
+.stand .down .pos { background: #fee2e2; color: var(--bad); }
+.stand .ptsb { display: inline-grid; place-items: center; min-width: 30px; height: 26px; border-radius: 8px; background: #f1f5f9; font-weight: 800; }
+.zone-legend { display: flex; gap: 14px; font-size: 11.5px; color: var(--muted); flex-wrap: wrap; }
+.zone-legend i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 5px; vertical-align: -1px; }

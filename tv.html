@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es" data-brand="doss">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Pantalla del club · Demo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders:wght@700;800;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&display=swap">
+<link rel="stylesheet" href="assets/ui.css">
+<style>
+html, body { height: 100%; }
+body { margin: 0; overflow: hidden; background: var(--navy); color: #fff; font-size: 1.15vw; }
+.tv { height: 100%; display: grid; grid-template-rows: auto 1fr auto; padding: 2.2vw 2.6vw 1.6vw; gap: 1.6vw; background: radial-gradient(70% 70% at 0% 0%, color-mix(in srgb, var(--brand) 55%, transparent), transparent 60%), linear-gradient(160deg, var(--brand-deep), var(--navy)); }
+.top { display: flex; align-items: center; gap: 1.5vw; }
+.top .logo .mark { width: 3vw; height: 3vw; font-size: 1.6vw; border-radius: .8vw; }
+.top .logo .wm { font-size: 2.6vw; }
+.top .clock { margin-left: auto; font: 700 2.6vw var(--f-score); }
+.top .clock small { display: block; font: 600 .9vw var(--f-body); color: rgb(255 255 255 / .6); text-align: right; letter-spacing: .1em; text-transform: uppercase; }
+.grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 1.6vw; min-height: 0; }
+.box { background: rgb(255 255 255 / .06); border: 1px solid rgb(255 255 255 / .1); border-radius: 1.4vw; padding: 1.4vw 1.6vw; min-height: 0; overflow: hidden; }
+.box h2 { font-family: var(--f-display); font-weight: 800; text-transform: uppercase; font-size: 2.4vw; line-height: 1; display: flex; align-items: baseline; gap: 1vw; }
+.box h2 small { font: 700 .85vw var(--f-body); letter-spacing: .16em; color: var(--ball); }
+table { width: 100%; border-collapse: collapse; margin-top: 1vw; font-size: 1.25vw; }
+th { font-size: .8vw; letter-spacing: .14em; text-transform: uppercase; color: rgb(255 255 255 / .5); text-align: center; padding: .4vw; }
+th:nth-child(2) { text-align: left; }
+td { padding: .55vw .4vw; text-align: center; border-top: 1px solid rgb(255 255 255 / .08); font-variant-numeric: tabular-nums; }
+td.tn { text-align: left; font-weight: 600; }
+.pos { display: inline-grid; place-items: center; width: 2vw; height: 2vw; border-radius: .5vw; font: 700 1vw var(--f-score); background: rgb(255 255 255 / .1); }
+tr.up .pos { background: var(--ball); color: var(--ball-ink); }
+tr.down .pos { background: rgb(220 38 38 / .35); }
+.pts { font: 700 1.4vw var(--f-score); color: var(--ball); }
+.fade { animation: fade .6s ease; }
+@keyframes fade { from { opacity: 0; transform: translateY(.5vw) } }
+.mt { display: flex; align-items: center; gap: 1vw; padding: .75vw 0; border-top: 1px solid rgb(255 255 255 / .08); }
+.mt:first-of-type { border-top: 0; }
+.mt .h { font: 700 1.3vw var(--f-score); width: 5.2vw; }
+.mt .c { font-size: .85vw; color: rgb(255 255 255 / .55); width: 4.6vw; }
+.mt .n { flex: 1; font-size: 1.15vw; line-height: 1.25; }
+.mt .n small { display: block; color: rgb(255 255 255 / .55); font-size: .85vw; }
+.tile { width: 2.4vw; height: 2.7vw; font-size: 1.3vw; border-radius: .5vw; }
+.res { margin-top: 1.2vw; padding: 1vw 1.2vw; border-radius: 1vw; background: rgb(220 255 61 / .12); border: 1px solid rgb(220 255 61 / .3); }
+.res .eyebrow { color: var(--ball); font-size: .8vw; }
+.res .r { display: flex; align-items: center; gap: .8vw; margin-top: .5vw; font-size: 1.15vw; font-weight: 600; }
+.ticker { display: flex; align-items: center; gap: 1.2vw; background: var(--ball); color: var(--ball-ink); border-radius: 1vw; padding: .8vw 1.2vw; font-size: 1.15vw; font-weight: 600; overflow: hidden; white-space: nowrap; }
+.ticker b { font-family: var(--f-display); font-size: 1.5vw; text-transform: uppercase; }
+.ticker .tx { animation: scroll 28s linear infinite; }
+@keyframes scroll { from { transform: translateX(40%) } to { transform: translateX(-100%) } }
+.dots { display: flex; gap: .4vw; margin-left: auto; }
+.dots i { width: .6vw; height: .6vw; border-radius: 50%; background: rgb(255 255 255 / .25); }
+.dots i.on { background: var(--ball); }
+</style>
+</head>
+<body>
+<div class="tv" id="tv"></div>
+<script src="assets/core.js" data-frame="tv"></script>
+<script>
+(function () {
+'use strict';
+const esc = PC.esc;
+let g = 3, tick = 0;
+const order = [3, 1, 2, 4, 5, 6, 7];
+function f(s) { const k = PC.S.lang; PC.S.lang = 'es'; const r = PC.fDay(s, false); PC.S.lang = k; return r; }
+function render() {
+  const S = PC.S; PC.applyBrand();
+  const b = PC.brand();
+  const rows = PC.standings(g);
+  const today = S.matches.filter((m) => m.at.slice(0, 10) === PC.TODAY).sort((a, b2) => a.at.localeCompare(b2.at));
+  const classes = S.groups.filter((x) => x.dow === 2).sort((a, b2) => a.time.localeCompare(b2.time));
+  const last = (S.lastResult && PC.match(S.lastResult)) || S.matches.filter((m) => m.st === 'played').sort((a, b2) => b2.at.localeCompare(a.at))[0];
+  const tiles = (m, k) => (m.sets || []).map((s) => { const a = k === 'a' ? s[0] : s[1], o = k === 'a' ? s[1] : s[0]; return `<span class="tile ${a > o ? 'win' : ''}">${a}</span>`; }).join('');
+  const now = PC.now();
+  const msg = S.msgs[0];
+  document.getElementById('tv').innerHTML = `
+  <div class="top">${PC.logo()}<span style="font:700 .9vw var(--f-body);letter-spacing:.18em;text-transform:uppercase;color:rgb(255 255 255 / .55)">${esc(b.leagueLong)}</span><div class="clock">${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}<small>martes 17 noviembre</small></div></div>
+  <div class="grid">
+    <div class="box fade" key="${g}"><h2>Grupo ${g} <small>Fase I · clasificación</small><span class="dots">${order.map((x) => `<i class="${x === g ? 'on' : ''}"></i>`).join('')}</span></h2>
+      <table><thead><tr><th></th><th>Equipo</th><th>PJ</th><th>G</th><th>E</th><th>P</th><th>Sets</th><th>PTS</th></tr></thead><tbody>${rows.map((r) => `<tr class="${PC.zone(g, r.pos, rows.length)}"><td><span class="pos">${r.pos}</span></td><td class="tn">${esc(r.t.name)}</td><td>${r.pj}</td><td>${r.w}</td><td>${r.e}</td><td>${r.l}</td><td style="font-family:var(--f-score);font-size:1vw">${r.sf}-${r.sc}</td><td class="pts">${r.pts}</td></tr>`).join('')}</tbody></table></div>
+    <div class="box"><h2>Hoy en pista <small>liga y escuela</small></h2>
+      ${[...today.map((m) => ({ t: PC.time(m.at), c: 'Pista ' + m.court, n: `${esc(PC.team(m.a).name)} – ${esc(PC.team(m.b).name)}`, s: 'Liga · Grupo ' + m.g })), ...classes.map((x) => ({ t: x.time, c: 'Pista ' + x.court, n: `Escuela · ${esc(x.lvl)}`, s: esc(PC.coach(x.coach).name) }))].sort((a, b2) => a.t.localeCompare(b2.t)).slice(0, 7).map((x) => `<div class="mt"><span class="h">${x.t}</span><span class="c">${x.c}</span><span class="n">${x.n}<small>${x.s}</small></span></div>`).join('')}
+      ${last ? `<div class="res"><div class="eyebrow">Último resultado · ${f(last.at)}</div><div class="r"><span style="flex:1">${esc(PC.team(last.a).name)}</span><span class="tiles">${tiles(last, 'a')}</span></div><div class="r"><span style="flex:1">${esc(PC.team(last.b).name)}</span><span class="tiles">${tiles(last, 'b')}</span></div></div>` : ''}
+    </div>
+  </div>
+  <div class="ticker"><b>Avisos</b><span class="tx">${msg ? esc(msg.title.es) + ' — ' + esc(msg.body.es) + ' · ' : ''}Americana de Navidad el sábado 19 a las 16:00 · Pozo Femenino este sábado a las 12:00 · Las pistas, en Playtomic</span></div>`;
+}
+PC.on(() => render());
+setInterval(() => { tick++; g = order[tick % order.length]; render(); }, 9000);
+render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,574 @@
+<!doctype html>
+<html lang="es" data-brand="doss">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0b1a3a">
+<title>Panel del club · Demo</title>
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders:wght@700;800;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&display=swap">
+<link rel="stylesheet" href="assets/ui.css">
+<style>
+html, body { height: 100%; }
+body { overflow: hidden; background: #f4f6fb; font-size: 13.5px; }
+.pn { display: grid; grid-template-columns: 232px 1fr; height: 100%; }
+.side { background: var(--brand-deep); color: #fff; display: flex; flex-direction: column; padding: 16px 12px; gap: 4px; overflow-y: auto; }
+[data-brand="oarso"] .side { background: var(--navy); }
+.side .logo { padding: 4px 8px 14px; }
+.side .logo .wm { font-size: 21px; }
+.side .club { font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: rgb(255 255 255 / .5); padding: 0 10px 10px; font-weight: 700; }
+.nv { display: flex; align-items: center; gap: 11px; padding: 10px 11px; border-radius: 12px; color: rgb(255 255 255 / .78); font-weight: 600; font-size: 13.5px; width: 100%; text-align: left; position: relative; }
+.nv:hover { background: rgb(255 255 255 / .06); }
+.nv.on { background: rgb(255 255 255 / .1); color: #fff; }
+.nv.on::before { content: ''; position: absolute; left: -12px; top: 9px; bottom: 9px; width: 4px; border-radius: 0 4px 4px 0; background: var(--ball); }
+.nv.on .ic { color: var(--ball); }
+.nv .badge { margin-left: auto; }
+.side .sep { height: 1px; background: rgb(255 255 255 / .08); margin: 8px 6px; }
+.side .who { margin-top: auto; display: flex; gap: 10px; align-items: center; padding: 10px; border-radius: 14px; background: rgb(255 255 255 / .06); }
+.side .who .avatar { background: var(--ball); color: var(--ball-ink); }
+.side .who small { display: block; color: rgb(255 255 255 / .55); font-size: 11.5px; }
+.mainp { display: flex; flex-direction: column; min-width: 0; height: 100%; }
+.ph { display: flex; align-items: center; gap: 12px; padding: 16px 22px 12px; background: #f4f6fb; flex-wrap: wrap; }
+.ph h1 { font-family: var(--f-display); font-weight: 800; text-transform: uppercase; font-size: 30px; line-height: 1; color: var(--brand-deep); }
+.ph .date { color: var(--muted); font-size: 12.5px; }
+.ph .srch { margin-left: auto; position: relative; }
+.ph .srch input { width: 250px; padding-left: 36px; min-height: 38px; border-radius: 12px; }
+.ph .srch .ic { position: absolute; left: 11px; top: 10px; color: var(--faint); }
+.content { flex: 1; overflow-y: auto; padding: 4px 22px 40px; }
+.content > * + * { margin-top: 16px; }
+.tabs2 { display: flex; gap: 6px; flex-wrap: wrap; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.kpi { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 14px 16px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+.kpi .k { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 700; }
+.kpi .v { font: 700 30px/1.1 var(--f-score); margin-top: 6px; color: var(--brand-deep); letter-spacing: -.02em; }
+.kpi .s { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.kpi.hot { background: var(--brand-deep); color: #fff; border-color: var(--brand-deep); }
+.kpi.hot .k, .kpi.hot .s { color: rgb(255 255 255 / .65); }
+.kpi.hot .v { color: var(--ball); }
+.two { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.panelc { background: #fff; border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow); }
+.panelc > .hd { display: flex; align-items: center; gap: 10px; padding: 14px 16px 10px; }
+.panelc > .hd h2 { font-family: var(--f-display); font-weight: 800; text-transform: uppercase; font-size: 21px; color: var(--brand-deep); line-height: 1; }
+.panelc > .hd .r { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+.panelc > .bd { padding: 0 16px 16px; }
+.q { border: 1px solid var(--line); border-radius: 16px; padding: 13px 14px; background: #fff; }
+.q + .q { margin-top: 10px; }
+.q.hot { border: 2px solid var(--ball); box-shadow: 0 0 0 4px rgb(220 255 61 / .25); }
+.q .qt { display: flex; gap: 10px; align-items: flex-start; }
+.q .qi { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; background: var(--brand-soft); color: var(--brand); flex: none; }
+.q b.t { font-size: 14px; display: block; }
+.q .sub { color: var(--muted); font-size: 12.5px; }
+.checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 4px 12px; margin: 10px 0; font-size: 12.5px; }
+.checks span { display: flex; gap: 6px; align-items: center; color: var(--ink-2); }
+.checks .ok { color: var(--ok); }
+.checks .no { color: var(--bad); }
+.qa { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.mv { display: flex; align-items: center; gap: 8px; font-size: 13px; flex-wrap: wrap; margin-top: 6px; }
+.mv .from { text-decoration: line-through; color: var(--faint); }
+.mv .to { font-weight: 700; background: var(--ball); color: var(--ball-ink); padding: 2px 8px; border-radius: 7px; }
+.gantt { position: relative; font-size: 11px; }
+.gantt .hrs { display: grid; margin-left: 56px; color: var(--faint); font-weight: 600; }
+.gantt .lane { display: flex; align-items: center; height: 36px; border-top: 1px solid var(--line-2); }
+.gantt .lane > span { width: 56px; font-weight: 700; color: var(--muted); flex: none; }
+.gantt .track { position: relative; flex: 1; height: 100%; }
+.gantt .blk { position: absolute; top: 5px; bottom: 5px; border-radius: 8px; padding: 3px 6px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-weight: 600; line-height: 1.15; display: flex; flex-direction: column; justify-content: center; font-size: 10.5px; }
+.gantt .liga { background: var(--brand); color: #fff; }
+.gantt .esc { background: var(--ball); color: var(--ball-ink); }
+.gantt .pt { background: repeating-linear-gradient(-45deg, #e8edf5 0 5px, #f1f4f9 5px 10px); color: var(--muted); border: 1px solid #dfe5ef; }
+.gantt .nowl { position: absolute; top: 18px; bottom: 0; width: 2px; background: var(--bad); z-index: 2; }
+.gantt .nowl::before { content: 'ahora'; position: absolute; top: -16px; left: -14px; font-size: 10px; color: var(--bad); font-weight: 700; }
+.log { display: flex; gap: 10px; padding: 9px 0; border-top: 1px solid var(--line-2); font-size: 12.8px; }
+.log:first-child { border-top: 0; }
+.log .li2 { width: 28px; height: 28px; border-radius: 9px; background: var(--line-2); color: var(--ink-2); display: grid; place-items: center; flex: none; }
+.log time { color: var(--faint); font-size: 11.5px; display: block; }
+.log.new { animation: flash 2.2s ease-out; border-radius: 10px; }
+table.tb { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tb th { text-align: left; font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); padding: 8px 10px; font-weight: 700; border-bottom: 1px solid var(--line); white-space: nowrap; }
+.tb td { padding: 9px 10px; border-bottom: 1px solid var(--line-2); vertical-align: middle; }
+.tb tr:hover td { background: #fafbfe; }
+.tbw { overflow-x: auto; }
+.groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 14px; }
+.gcard { background: #fff; border: 1px solid var(--line); border-radius: 18px; padding: 10px 12px 12px; box-shadow: var(--shadow); }
+.gcard h3 { font-family: var(--f-display); font-weight: 800; text-transform: uppercase; font-size: 19px; color: var(--brand-deep); }
+.gcard .stand td { padding: 5px 3px; font-size: 12px; }
+.gcard .stand th { padding: 5px 3px; }
+.week { display: grid; grid-template-columns: repeat(7, minmax(120px, 1fr)); gap: 8px; overflow-x: auto; }
+.wd { background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 10px; min-height: 160px; }
+.wd.off { background: repeating-linear-gradient(-45deg, #f6f8fb 0 8px, #eef2f7 8px 16px); }
+.wd h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 8px; display: flex; justify-content: space-between; }
+.wd .mm { border-radius: 10px; padding: 6px 8px; background: var(--brand-soft); margin-bottom: 6px; font-size: 11.5px; line-height: 1.3; border-left: 3px solid var(--brand); }
+.wd .mm.g3 { background: rgb(220 255 61 / .35); border-left-color: var(--ball-dark); }
+.wd .mm.chg { outline: 2px dashed var(--brand); }
+.wd .mm b { font-family: var(--f-score); font-size: 11px; }
+.sched { display: grid; grid-template-columns: repeat(6, minmax(140px, 1fr)); gap: 8px; overflow-x: auto; }
+.sched .col2 { display: flex; flex-direction: column; gap: 8px; }
+.sched h4 { font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.gb { border-radius: 14px; padding: 9px 10px; background: #fff; border: 1px solid var(--line); text-align: left; width: 100%; box-shadow: var(--shadow); }
+.gb.kids { border-left: 4px solid var(--ball-dark); }
+.gb.adult { border-left: 4px solid var(--brand); }
+.gb b { display: block; font-size: 13px; }
+.gb small { color: var(--muted); font-size: 11.5px; display: block; }
+.occ { display: flex; gap: 3px; margin-top: 6px; }
+.occ i { width: 12px; height: 12px; border-radius: 4px; background: var(--brand); }
+.occ i.free { background: #fff; border: 1.5px dashed var(--ok); }
+.occ i.abs { background: #fde68a; }
+.drawer-bg { position: fixed; inset: 0; background: rgb(7 15 36 / .4); z-index: 60; display: flex; justify-content: flex-end; animation: fade .2s; }
+@keyframes fade { from { opacity: 0 } }
+.drawer { width: min(460px, 100%); height: 100%; background: #f4f6fb; overflow-y: auto; padding: 18px; animation: slide .25s ease-out; }
+@keyframes slide { from { transform: translateX(30%) } }
+.drawer > * + * { margin-top: 12px; }
+.modal-bg { position: fixed; inset: 0; background: rgb(7 15 36 / .55); z-index: 70; display: grid; place-items: center; padding: 20px; animation: fade .2s; }
+.modal { width: min(1100px, 100%); aspect-ratio: 16 / 9; max-height: 100%; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-lg); background: #000; position: relative; }
+.modal iframe { border: 0; width: 100%; height: 100%; }
+.modal .x { position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; border-radius: 50%; background: rgb(255 255 255 / .9); display: grid; place-items: center; z-index: 2; }
+.prog { height: 10px; border-radius: 99px; background: var(--line-2); overflow: hidden; display: flex; }
+.prog i { display: block; height: 100%; background: var(--ok); }
+.prog i.b { background: var(--brand); }
+.prog i.w { background: #fbbf24; }
+.typebar { display: grid; grid-template-columns: 130px 1fr 70px; gap: 10px; align-items: center; font-size: 13px; padding: 5px 0; }
+.compose { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 16px; align-items: start; }
+.phone-prev { border-radius: 30px; background: linear-gradient(160deg, var(--brand), var(--brand-deep)); padding: 18px 14px; color: #fff; min-height: 320px; }
+.phone-prev .toast { position: static; animation: none; margin-top: 8px; }
+.segl { display: flex; flex-wrap: wrap; gap: 6px; }
+.rulecard { display: grid; grid-template-columns: 38px 1fr auto; gap: 12px; align-items: center; padding: 12px 0; border-top: 1px solid var(--line-2); }
+.rulecard:first-child { border-top: 0; }
+.rulecard .ti { width: 38px; height: 38px; border-radius: 12px; background: var(--brand-deep); color: var(--ball); display: grid; place-items: center; }
+.rulecard .val { font: 700 13px var(--f-score); background: var(--line-2); padding: 6px 10px; border-radius: 9px; white-space: nowrap; }
+.bracket { display: grid; grid-template-columns: repeat(3, minmax(170px, 1fr)); gap: 14px; align-items: center; overflow-x: auto; }
+.bracket .rd { display: flex; flex-direction: column; gap: 10px; justify-content: space-around; height: 100%; }
+.bm { border-radius: 14px; border: 1px solid var(--line); background: #fff; padding: 8px 10px; font-size: 12.5px; }
+.bm .bt { display: flex; align-items: center; gap: 6px; padding: 3px 0; }
+.bm .bt.w b { color: var(--brand); }
+.bm .bt.l { color: var(--faint); }
+.bm .bt .tiles { margin-left: auto; }
+.bm.live { border: 2px solid var(--ball); }
+.integ { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.integ .it { border: 1px solid var(--line); border-radius: 16px; padding: 14px; background: #fff; }
+@media (max-width: 1080px) {
+  .pn { grid-template-columns: 74px 1fr; }
+  .side { padding: 14px 8px; align-items: center; }
+  .side .logo .wm, .side .club, .nv span.lb, .side .who div, .nv .badge { display: none; }
+  .side .logo { padding: 4px 0 14px; }
+  .nv { justify-content: center; padding: 11px; }
+  .nv .badgeDot { display: block; }
+  .two, .compose { grid-template-columns: 1fr; }
+  .ph .srch input { width: 180px; }
+  .content { padding: 4px 14px 40px; }
+  .ph { padding: 14px 14px 10px; }
+}
+.nv .badgeDot { display: none; position: absolute; top: 7px; right: 9px; width: 9px; height: 9px; border-radius: 50%; background: var(--ball); border: 2px solid var(--brand-deep); }
+@media (max-width: 760px) {
+  .ph .srch { display: none; }
+  .ph h1 { font-size: 26px; }
+}
+.toasts { top: 14px; left: auto; right: 16px; transform: none; }
+</style>
+</head>
+<body>
+<div class="pn" id="root"></div>
+<div id="layer"></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+<script src="assets/core.js" data-frame="panel"></script>
+<script>
+(function () {
+'use strict';
+const ic = PC.ic, esc = PC.esc;
+const T = (o) => (o == null ? '' : typeof o === 'string' ? o : o.es);
+let S = PC.S;
+const ui = { sec: 'hoy', sub: { liga: 'grupos', escuela: 'horario' }, drawer: null, modal: null, week: '2026-11-16', comp: { seg: 'escuela-familias', tpl: 'pista' }, phasePreview: false, newLog: null, search: '', bracket: null };
+let cueIds = [];
+let seenClub = new Set(S.notifs.filter((n) => n.to === 'club').map((n) => n.id));
+const brand = () => PC.brand();
+const fD = (s) => { const keep = S.lang; S.lang = 'es'; const r = PC.fDay(s); S.lang = keep; return r; };
+const fDL = (s) => { const keep = S.lang; S.lang = 'es'; const r = PC.fDay(s, false); S.lang = keep; return r; };
+const fLong = (s) => { const keep = S.lang; S.lang = 'es'; const r = PC.fLong(s); S.lang = keep; return r; };
+const fAgo = (s) => { const keep = S.lang; S.lang = 'es'; const r = PC.fAgo(s); S.lang = keep; return r; };
+function toast(title, body, icon = 'check') {
+  const box = document.getElementById('toasts');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.innerHTML = `<div class="ti">${ic(icon, 18)}</div><div><div class="tapp">Panel · ahora</div><b>${esc(title)}</b>${body ? `<span>${esc(body)}</span>` : ''}</div>`;
+  box.appendChild(el);
+  setTimeout(() => { el.style.transition = 'opacity .4s'; el.style.opacity = '0'; }, 4500);
+  setTimeout(() => el.remove(), 5000);
+}
+const post = (msg) => { try { if (window.parent !== window) window.parent.postMessage(msg, '*'); } catch (e) {} };
+
+/* ---------- datos derivados ---------- */
+function queue() {
+  const items = [];
+  S.changes.filter((c) => c.st === 'accepted').forEach((c) => items.push({ k: 'change', c, m: PC.match(c.m), hot: true }));
+  S.subs.filter((s) => s.st === 'pending').forEach((s) => items.push({ k: 'sub', s, m: PC.match(s.m), hot: true }));
+  S.disputes.filter((d) => d.st === 'open').forEach((d) => items.push({ k: 'dispute', d, m: PC.match(d.m) }));
+  S.inscr.filter((i) => i.st === 'new').forEach((i) => items.push({ k: 'inscr', i }));
+  const wed = PC.group('gr-wed1730');
+  const wk = S.wait.filter((w) => w.kind === 'kids');
+  if (PC.groupStudents(wed.id).length < wed.cap && wk.length) items.push({ k: 'wait', g: wed, w: wk });
+  return items;
+}
+const waiting = () => S.changes.filter((c) => c.st === 'proposed');
+function weekMatches(from) { const to = PC.addDays(from + 'T00:00', 7).slice(0, 10); return S.matches.filter((m) => m.at >= from && m.at < to); }
+
+/* ---------- secciones ---------- */
+const NAV = [
+  ['hoy', 'home', 'Hoy'], ['liga', 'trophy', 'Liga'], ['escuela', 'school', 'Escuela'], ['cobros', 'euro', 'Cobros'], ['socios', 'card', 'Socios'],
+  ['com', 'send', 'Comunicación'], ['act', 'star', 'Actividades'], ['docs', 'doc', 'Documentos'], ['ajustes', 'gear', 'Ajustes'],
+];
+function side() {
+  const q = queue().length;
+  return `<aside class="side">${PC.logo()}<div class="club">Panel del club</div>
+  ${NAV.map(([id, icn, lab]) => `<button class="nv ${ui.sec === id ? 'on' : ''}" data-a="sec" data-v="${id}" data-cue="nav-${id}" title="${lab}">${ic(icn, 19)}<span class="lb">${lab}</span>${id === 'hoy' && q ? `<span class="badge">${q}</span><span class="badgeDot"></span>` : ''}</button>`).join('')}
+  <div class="sep"></div>
+  <button class="nv" data-a="tv" data-cue="btn-tv" title="Pantalla del club">${ic('tv', 19)}<span class="lb">Pantalla del club</span></button>
+  <div class="who"><span class="avatar">SA</span><div><b style="font-size:13px">Sergio</b><small>Gestión deportiva · admin</small></div></div></aside>`;
+}
+function header(title, extra = '') {
+  return `<header class="ph"><div><h1>${title}</h1><div class="date">Martes 17 de noviembre de 2026 · ${PC.time(PC.nowIso())} · ${esc(brand().leagueLong)}</div></div>${extra}<div class="srch">${ic('search', 17)}<input class="input" placeholder="Buscar jugador, equipo o alumno" data-a="search" value="${esc(ui.search)}"></div></header>`;
+}
+const tabs2 = (key, items) => `<div class="tabs2">${items.map(([id, lab, n]) => `<button class="chip ${ui.sub[key] === id ? 'on' : ''}" data-a="sub" data-k="${key}" data-v="${id}" data-cue="sub-${key}-${id}">${lab}${n ? ` <span class="badge" style="margin-left:2px">${n}</span>` : ''}</button>`).join('')}</div>`;
+const card = (title, body, right = '', cls = '') => `<section class="panelc ${cls}"><div class="hd"><h2>${title}</h2><div class="r">${right}</div></div><div class="bd">${body}</div></section>`;
+
+/* ----- hoy ----- */
+function secHoy() {
+  const q = queue();
+  const wm = weekMatches('2026-11-16');
+  const today = S.groups.filter((g) => g.dow === 2);
+  const t1p = S.pay.filter((r) => r.t === 'T1' && r.st === 'pending');
+  const att = Object.values(S.students).reduce((t, s) => t + s.att, 0) / Object.values(S.students).length;
+  const val = S.changes.filter((c) => c.st === 'validated').length;
+  const k = `<div class="kpis">
+    <div class="kpi hot" data-cue="kpi-queue"><div class="k">Necesitan tu OK</div><div class="v">${q.length}</div><div class="s">${waiting().length ? waiting().length + ' cambio esperando al rival' : 'todo lo demás va solo'}</div></div>
+    <div class="kpi"><div class="k">Liga esta semana</div><div class="v">${wm.length}</div><div class="s">${wm.filter((m) => m.st === 'played').length} jugados · ${wm.filter((m) => m.resultDue || m.st === 'awaiting').length} resultado pendiente</div></div>
+    <div class="kpi"><div class="k">Clases hoy</div><div class="v">${today.length}</div><div class="s">${today.reduce((t, g) => t + PC.occupancy(g.id, PC.TODAY + 'T' + g.time), 0)} alumnos · 1 recuperación</div></div>
+    <div class="kpi"><div class="k">Cobros pendientes</div><div class="v">${t1p.length}</div><div class="s">${PC.eur(t1p.reduce((t, r) => t + r.amount, 0))} · recordatorio automático</div></div>
+    <div class="kpi"><div class="k">Asistencia escuela</div><div class="v">${Math.round(att * 100)}%</div><div class="s">1 alumno con 3 faltas seguidas</div></div>
+    <div class="kpi"><div class="k">Cambios esta fase</div><div class="v">${val}</div><div class="s">0 llamadas · 0 WhatsApps al club</div></div></div>`;
+  const qhtml = q.length ? q.map(qItem).join('') : `<div class="empty" style="padding:30px 10px;text-align:center;color:var(--muted)">${ic('check', 28)}<div style="margin-top:8px;font-weight:600">Nada pendiente</div><div style="font-size:12.5px">Los capitanes se organizan solos; aquí solo llega lo que ya está acordado.</div></div>`;
+  const wait = waiting().map((c) => { const m = PC.match(c.m); return `<div class="q" style="background:#fafbfe"><div class="qt"><div class="qi" style="background:var(--line-2);color:var(--muted)">${ic('clock', 18)}</div><div class="grow"><b class="t">Esperando al rival · no necesitas hacer nada</b><div class="sub">${esc(PC.team(c.by).name)} ofrece ${c.opts.length} horarios a ${esc(PC.team(PC.vs(m, c.by)).name)} para su partido del ${fDL(m.at)} ${PC.time(m.at)}. Cuando elijan, aparecerá aquí para validar.</div></div></div></div>`; }).join('');
+  return `${header('Hoy')}<div class="content">${k}
+  <div class="two"><div class="col" style="gap:16px">${card('Necesita tu OK', qhtml + (wait ? `<div style="margin-top:10px">${wait}</div>` : ''), `<span class="pill ${q.length ? 'ball' : 'ok'}">${q.length}</span>`)}</div>
+  <div class="col" style="gap:16px">${card('Hoy en pistas', gantt(), `<span class="pill">5 pistas</span>`)}${card('Actividad', logHtml(9), `<span class="pill">en directo</span>`)}</div></div></div>`;
+}
+function checkRow(ok, txt) { return `<span class="${ok ? 'ok' : 'no'}">${ic(ok ? 'check' : 'x', 14)}<span style="color:var(--ink-2)">${txt}</span></span>`; }
+function qItem(it) {
+  if (it.k === 'change') {
+    const { c, m } = it; const A = PC.team(m.a), B = PC.team(m.b);
+    const stt = PC.slotState(c.pick, m.id); const court = PC.freeCourt(c.pick, m.id);
+    return `<div class="q hot" data-cue="q-change-${m.id}"><div class="qt"><div class="qi">${ic('swap', 18)}</div><div class="grow"><div class="row between"><b class="t">Cambio de partido acordado</b><span class="pill brand">Grupo ${m.g}</span></div><div class="sub">${esc(A.name)} – ${esc(B.name)} · propuesto por ${esc(PC.team(c.by).name)} ${fAgo(c.ts)}, aceptado ${fAgo(c.tsAccept)}</div>
+      <div class="mv"><span class="from">${fDL(m.at)} ${PC.time(m.at)} · P${m.court}</span>${ic('chev', 14)}<span class="to">${fDL(c.pick)} ${PC.time(c.pick)}</span></div></div></div>
+      <div class="checks">${checkRow((m.chg || 0) < PC.RULES.changesPerMatch, 'Primer cambio del partido')}${checkRow(PC.isLeagueDay(c.pick), 'Día de liga (no es miércoles ni jueves)')}${checkRow(c.pick.slice(0, 10) <= PC.PHASE.to, 'Dentro de la Fase I (hasta el 19 dic)')}${checkRow(true, 'Los dos capitanes de acuerdo')}${checkRow(stt.ok || stt.why === 'lleno' && false, `Pistas de liga en esa franja: ${stt.L.league}/${PC.RULES.maxLeagueCourts}`)}${checkRow(true, `Pista ${court} libre de liga y escuela`)}</div>
+      <div class="qa"><button class="btn btn-ok btn-sm" data-a="validate" data-id="${c.id}" data-court="${court}" data-cue="btn-validate-${m.id}">${ic('check', 16)} Validar · pista ${court} y avisar</button><button class="btn btn-ghost btn-sm" data-a="reject" data-id="${c.id}">Rechazar</button><a class="link" style="font-size:12.5px" href="${PC.PLAYTOMIC}" target="_blank" rel="noopener">Bloquear en Playtomic Manager ${ic('ext', 13)}</a></div></div>`;
+  }
+  if (it.k === 'sub') {
+    const { s, m } = it; const inn = S.players[s.inn], out = S.players[s.out];
+    return `<div class="q hot" data-cue="q-sub-${m.id}"><div class="qt"><div class="qi">${ic('sub', 18)}</div><div class="grow"><div class="row between"><b class="t">Sustituto solicitado</b><span class="pill brand">Grupo ${m.g}</span></div><div class="sub">${esc(PC.team(s.team).name)} · partido del ${fDL(m.at)} ${PC.time(m.at)} contra ${esc(PC.team(PC.vs(m, s.team)).name)}</div>
+      <div class="mv"><span class="from">${esc(out.name)} · ${PC.lvl(out.lvl)}</span>${ic('chev', 14)}<span class="to">${esc(inn.name)} · ${PC.lvl(inn.lvl)}</span></div></div></div>
+      <div class="checks">${checkRow(inn.lvl <= out.lvl, `Nivel igual o menor (${PC.lvl(inn.lvl)} ≤ ${PC.lvl(out.lvl)})`)}${checkRow(true, 'No juega en otro equipo de la liga')}${checkRow(true, 'Está en la bolsa de sustitutos')}${checkRow(true, inn.socio ? 'Socio' : 'No socio · paga tarifa general')}</div>
+      <div class="qa"><button class="btn btn-ok btn-sm" data-a="approveSub" data-id="${s.id}" data-cue="btn-approve-${m.id}">${ic('check', 16)} Aprobar y avisar</button><button class="btn btn-ghost btn-sm" data-a="rejectSub" data-id="${s.id}">Rechazar</button></div></div>`;
+  }
+  if (it.k === 'dispute') {
+    const { d, m } = it; const A = PC.team(m.a), B = PC.team(m.b);
+    const v = (x) => x.sets.map((s) => s.join('-')).join(' ');
+    return `<div class="q"><div class="qt"><div class="qi" style="background:var(--warn-soft);color:var(--warn)">${ic('alert', 18)}</div><div class="grow"><div class="row between"><b class="t">Resultado en disputa</b><span class="pill brand">Grupo ${m.g}</span></div><div class="sub">${esc(A.name)} – ${esc(B.name)} · ${fDL(m.at)}. Los capitanes no coinciden; la clasificación espera.</div></div></div>
+      <div class="qa" style="margin-top:10px"><button class="btn btn-ghost btn-sm" data-a="dispute" data-id="${d.id}" data-v="a"><span class="mono">${v(d.v.a)}</span> · según ${esc(A.name)}</button><button class="btn btn-ghost btn-sm" data-a="dispute" data-id="${d.id}" data-v="b"><span class="mono">${v(d.v.b)}</span> · según ${esc(B.name)}</button></div></div>`;
+  }
+  if (it.k === 'inscr') {
+    const { i } = it;
+    return `<div class="q"><div class="qt"><div class="qi">${ic('users', 18)}</div><div class="grow"><b class="t">Nuevo equipo para la Fase II</b><div class="sub">${esc(i.team)} · ${esc(i.players)} · nivel ${PC.lvl(i.lvl)} · llegó por el ${esc(i.from)} ${fAgo(i.ts)}</div></div></div>
+      <div class="qa" style="margin-top:10px"><button class="btn btn-primary btn-sm" data-a="inscr" data-id="${i.id}">Asignar al Grupo 6 (por nivel)</button><button class="btn btn-ghost btn-sm" data-a="noop">Ver ficha</button></div></div>`;
+  }
+  if (it.k === 'wait') {
+    const { g, w } = it; const n = PC.groupStudents(g.id).length;
+    return `<div class="q"><div class="qt"><div class="qi" style="background:rgb(220 255 61 / .35);color:var(--ball-ink)">${ic('school', 18)}</div><div class="grow"><b class="t">Plaza libre en ${esc(g.lvl)} infantil · miércoles ${g.time}</b><div class="sub">${n}/${g.cap} con ${esc(PC.coach(g.coach).name)}. Hay ${w.length} peques en lista de espera de ese nivel.</div></div></div>
+      <div class="qa" style="margin-top:10px"><button class="btn btn-primary btn-sm" data-a="offerSpot" data-id="${w[0].id}">Ofrecer a ${esc(w[0].name)} (${w[0].age} años, espera desde ${fDL(w[0].since + 'T00:00')})</button></div></div>`;
+  }
+  return '';
+}
+function gantt() {
+  const start = 9 * 60, end = 22.5 * 60, span = end - start;
+  const x = (hm) => { const [h, m] = hm.split(':').map(Number); return ((h * 60 + m - start) / span) * 100; };
+  const blocks = { 1: [], 2: [], 3: [], 4: [], 5: [] };
+  S.matches.filter((m) => m.at.slice(0, 10) === PC.TODAY).forEach((m) => blocks[m.court] && blocks[m.court].push({ cls: 'liga', from: PC.time(m.at), dur: 90, t: `${PC.team(m.a).name} – ${PC.team(m.b).name}`, s: `Liga · G${m.g}` }));
+  S.groups.filter((g) => g.dow === 2).forEach((g) => blocks[g.court].push({ cls: 'esc', from: g.time, dur: 60, t: `${g.lvl} · ${PC.coach(g.coach).short}`, s: `Escuela ${PC.occupancy(g.id, PC.TODAY + 'T' + g.time)}/${g.cap}` }));
+  const R = PC.rng(1711);
+  for (let c = 1; c <= 5; c++) {
+    let t = 9.5 * 60;
+    while (t < 22 * 60) {
+      const hm = `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+      const busy = blocks[c].some((b) => { const b0 = x(b.from) / 100 * span + start; return t < b0 + b.dur && b0 < t + 90; });
+      if (!busy && R() < 0.62) { blocks[c].push({ cls: 'pt', from: hm, dur: 90, t: 'Reserva', s: 'Playtomic' }); t += 90; } else t += 30;
+    }
+  }
+  const hrs = [];
+  for (let h = 9; h <= 22; h += 2) hrs.push(h);
+  const nowX = x(PC.time(PC.nowIso()));
+  return `<div class="gantt"><div class="hrs" style="grid-template-columns:repeat(${hrs.length},1fr)">${hrs.map((h) => `<span>${h}:00</span>`).join('')}</div>
+    <div style="position:relative">${[1, 2, 3, 4, 5].map((c) => `<div class="lane"><span>Pista ${c}</span><div class="track">${blocks[c].map((b) => `<div class="blk ${b.cls}" style="left:${x(b.from)}%;width:${(b.dur / span) * 100}%" title="${esc(b.t)}">${esc(b.t)}<small style="opacity:.75;font-weight:500">${esc(b.s)}</small></div>`).join('')}</div></div>`).join('')}
+    <div class="nowl" style="left:calc(56px + (100% - 56px) * ${nowX / 100})"></div></div>
+    <div class="zone-legend" style="margin-top:10px"><span><i style="background:var(--brand)"></i>Liga</span><span><i style="background:var(--ball)"></i>Escuela</span><span><i style="background:#e8edf5;border:1px solid #dfe5ef"></i>Reservas de Playtomic (solo lectura)</span></div></div>`;
+}
+function logHtml(n) {
+  return S.log.slice(0, n).map((l) => `<div class="log ${ui.newLog && l.id === ui.newLog ? 'new' : ''}"><div class="li2">${ic(l.icon || 'info', 15)}</div><div class="grow">${esc(l.text)}<time>${fAgo(l.ts)}</time></div></div>`).join('');
+}
+
+/* ----- liga ----- */
+function secLiga() {
+  const sub = ui.sub.liga;
+  const q = S.changes.filter((c) => c.st === 'accepted').length;
+  const t = tabs2('liga', [['grupos', 'Grupos'], ['cal', 'Calendario'], ['cambios', 'Cambios', q], ['res', 'Resultados'], ['equipos', 'Equipos'], ['fases', 'Fases']]);
+  let body = '';
+  if (sub === 'grupos') {
+    body = `<div class="groups">${[1, 2, 3, 4, 5, 6, 7].map((g) => {
+      const rows = PC.standings(g);
+      return `<div class="gcard"><div class="row between" style="margin-bottom:4px"><h3>Grupo ${g}</h3><span class="muted" style="font-size:12px">${rows.length} equipos · ${S.matches.filter((m) => m.g === g && m.st === 'played').length}/${S.matches.filter((m) => m.g === g).length} jugados</span></div>
+      <table class="stand"><thead><tr><th></th><th>Equipo</th><th>PJ</th><th>G-E-P</th><th>NP</th><th>PTS</th></tr></thead><tbody>${rows.map((r) => { const z = PC.zone(g, r.pos, rows.length); return `<tr class="${z}"><td><span class="pos">${r.pos}</span></td><td class="tn"><span class="ellipsis" style="display:block;max-width:120px">${esc(r.t.name)}</span></td><td>${r.pj}</td><td>${r.w}-${r.e}-${r.l}</td><td style="${r.np ? 'color:var(--bad);font-weight:700' : 'color:var(--faint)'}">${r.np}</td><td><span class="ptsb">${r.pts}</span></td></tr>`; }).join('')}</tbody></table></div>`;
+    }).join('')}</div>
+    <div class="zone-legend"><span><i style="background:var(--brand)"></i>Suben ${PC.RULES.upDown}</span><span><i style="background:#fecaca"></i>Bajan ${PC.RULES.upDown}</span><span>Puntos ${PC.RULES.pts.W}/${PC.RULES.pts.T}/${PC.RULES.pts.L}/${PC.RULES.pts.NP} · desempate: enfrentamiento directo y sets ganados</span></div>`;
+  } else if (sub === 'cal') {
+    const days = []; for (let i = 0; i < 7; i++) days.push(PC.addDays(ui.week + 'T00:00', i).slice(0, 10));
+    body = `<div class="row" style="gap:8px"><button class="btn btn-ghost btn-sm" data-a="week" data-d="-7">${ic('back', 15)}</button><b style="font-size:14px">Semana del ${fDL(ui.week + 'T00:00')}</b><button class="btn btn-ghost btn-sm" data-a="week" data-d="7">${ic('chev', 15)}</button><span class="muted" style="font-size:12.5px;margin-left:8px">Máximo ${PC.RULES.maxLeagueCourts} pistas de liga por franja · miércoles y jueves libres para clientes</span></div>
+    <div class="week">${days.map((d) => { const off = !PC.isLeagueDay(d + 'T00:00'); const ms = S.matches.filter((m) => m.at.slice(0, 10) === d).sort((a, b) => a.at.localeCompare(b.at)); return `<div class="wd ${off ? 'off' : ''}"><h4><span>${fDL(d + 'T00:00')}</span>${off ? '' : `<span>${ms.length}</span>`}</h4>${off ? `<div class="muted" style="font-size:12px">Sin liga · pistas para reservas</div>` : ms.map((m) => `<div class="mm ${m.g === 3 ? 'g3' : ''} ${m.chg ? 'chg' : ''}"><b>${PC.time(m.at)}</b> · P${m.court} · G${m.g}<br>${esc(PC.team(m.a).name)} – ${esc(PC.team(m.b).name)}${m.st === 'played' ? `<br><span class="mono" style="color:var(--muted)">${PC.scoreText(m)}</span>` : m.chg ? '<br><span style="color:var(--brand);font-weight:700">cambiado</span>' : ''}</div>`).join('')}</div>`; }).join('')}</div>`;
+  } else if (sub === 'cambios') {
+    const list = S.changes.slice().sort((a, b) => (b.tsVal || b.ts).localeCompare(a.tsVal || a.ts));
+    const val = list.filter((c) => c.st === 'validated');
+    body = `<div class="kpis"><div class="kpi"><div class="k">Validados esta fase</div><div class="v">${val.length}</div><div class="s">sin una sola llamada</div></div><div class="kpi"><div class="k">Pendientes de ti</div><div class="v">${list.filter((c) => c.st === 'accepted').length}</div><div class="s">ya acordados entre capitanes</div></div><div class="kpi"><div class="k">Esperando al rival</div><div class="v">${list.filter((c) => c.st === 'proposed').length}</div><div class="s">no requieren nada del club</div></div><div class="kpi"><div class="k">Tiempo medio</div><div class="v">13 h</div><div class="s">de la propuesta a la validación</div></div></div>
+    ${card('Historial de cambios', `<div class="tbw"><table class="tb"><thead><tr><th>Grupo</th><th>Partido</th><th>Antes</th><th>Ahora</th><th>Propone</th><th>Estado</th></tr></thead><tbody>${list.map((c) => { const m = PC.match(c.m); const st = { proposed: ['Esperando al rival', ''], accepted: ['Falta validar', 'warn'], validated: ['Validado', 'ok'], rejected: ['Rechazado', 'bad'], declined: ['Rival no acepta', ''] }[c.st]; return `<tr><td>G${m.g}</td><td><b>${esc(PC.team(m.a).name)}</b> – ${esc(PC.team(m.b).name)}</td><td class="muted">${m.orig ? fDL(m.orig) + ' ' + PC.time(m.orig) : fDL(m.at) + ' ' + PC.time(m.at)}</td><td>${c.pick ? `<b>${fDL(c.pick)} ${PC.time(c.pick)}</b>` : `<span class="muted">${c.opts.length} opciones</span>`}</td><td>${esc(PC.team(c.by).name)}</td><td><span class="pill ${st[1]}">${st[0]}</span></td></tr>`; }).join('')}</tbody></table></div>`)}`;
+  } else if (sub === 'res') {
+    const pend = S.matches.filter((m) => m.resultDue || m.st === 'awaiting');
+    const last = S.matches.filter((m) => m.st === 'played').sort((a, b) => (b.confirmedAt || b.at).localeCompare(a.confirmedAt || a.at)).slice(0, 12);
+    body = `<div class="two">${card('Pendientes', pend.map((m) => `<div class="q"><div class="qt"><div class="qi">${ic('clock', 18)}</div><div class="grow"><b class="t">${esc(PC.team(m.a).name)} – ${esc(PC.team(m.b).name)}</b><div class="sub">G${m.g} · jugado ${fDL(m.at)} · ${m.st === 'awaiting' ? 'esperando la confirmación del rival' : 'falta que un capitán lo introduzca (plazo ' + PC.RULES.resultHours + ' h)'}</div></div><button class="btn btn-ghost btn-sm" data-a="remindCaps">Recordar</button></div></div>`).join('') || '<div class="muted">Todo al día.</div>')}
+    ${card('Últimos confirmados', last.map((m) => { const o = PC.outcome(m); return `<div class="log ${S.lastResult === m.id ? 'new' : ''}"><div class="li2">${ic('trophy', 15)}</div><div class="grow"><b style="${o.a === 'W' ? '' : 'font-weight:500'}">${esc(PC.team(m.a).name)}</b> <span class="mono">${PC.scoreText(m)}</span> <b style="${o.b === 'W' ? '' : 'font-weight:500'}">${esc(PC.team(m.b).name)}</b><time>G${m.g} · ${fDL(m.at)}${m.end === 'stb' ? ' · supertiebreak' : m.end === 'time' ? ' · por tiempo' : m.np ? ' · no presentado' : ''}</time></div></div>`; }).join(''))}</div>`;
+  } else if (sub === 'equipos') {
+    body = card('Equipos de la liga', `<div class="tbw"><table class="tb"><thead><tr><th>Equipo</th><th>Grupo</th><th>Capitán</th><th>Compañero</th><th>Nivel</th><th>Pago</th><th>NP</th></tr></thead><tbody>${S.teams.slice().sort((a, b) => a.g - b.g || a.name.localeCompare(b.name)).map((t) => { const ps = PC.teamPlayers(t); const r = PC.posOf(t.id); return `<tr><td><b>${esc(t.name)}</b></td><td>G${t.g}</td><td>${esc(ps[0].name)}</td><td>${esc(ps[1].name)}</td><td class="mono">${PC.lvl((ps[0].lvl + ps[1].lvl) / 2)}</td><td>${t.paid ? '<span class="pill ok">Pagado</span>' : '<span class="pill warn">1 jugador pendiente</span>'}</td><td style="${r.np ? 'color:var(--bad);font-weight:700' : 'color:var(--faint)'}">${r.np}${r.np >= 1 ? ' · aviso' : ''}</td></tr>`; }).join('')}</tbody></table></div>`, `<span class="pill">${S.teams.length} equipos · ${S.teams.length * 2} jugadores</span>`);
+  } else {
+    const moves = PC.phaseMoves();
+    body = `${card('Cerrar fase y generar la siguiente', `<p class="muted" style="max-width:70ch">Al terminar la Fase I, la app aplica vuestra normativa: suben los ${PC.RULES.upDown} primeros, bajan los ${PC.RULES.upDown} últimos y los equipos con ${PC.RULES.npLimit} no presentados quedan fuera. Después genera el calendario de la Fase II (12 ene – 22 mar) sin miércoles ni jueves y con máximo ${PC.RULES.maxLeagueCourts} pistas por franja.</p>
+      <div class="qa" style="margin-top:12px"><button class="btn btn-primary" data-a="phasePreview" data-cue="btn-close-phase">${ic('trophy', 17)} Simular cierre con la clasificación de hoy</button>${S.phase2 ? `<span class="pill ok">Borrador publicado ${fAgo(S.phase2.ts)}</span>` : ''}</div>`)}
+    ${ui.phasePreview ? card('Movimientos para la Fase II', `<div class="groups">${[1, 2, 3, 4, 5, 6, 7].map((g) => `<div class="gcard"><h3>Grupo ${g}</h3>${moves.filter((m) => m.from === g).map((m) => `<div class="row" style="padding:5px 0;border-top:1px solid var(--line-2);font-size:12.5px"><span class="mono" style="width:18px;color:var(--muted)">${m.pos}</span><span class="grow ellipsis">${esc(m.t.name)}</span>${m.out ? '<span class="pill bad">fuera · 2 NP</span>' : m.z === 'up' ? `<span class="pill brand">${ic('up', 11)} G${m.to}</span>` : m.z === 'down' ? `<span class="pill bad">${ic('down', 11)} G${m.to}</span>` : `<span class="pill">G${m.to}</span>`}${m.np === 1 ? '<span class="pill warn" title="1 no presentado">1 NP</span>' : ''}</div>`).join('')}</div>`).join('')}</div>
+      <div class="qa" style="margin-top:14px"><button class="btn btn-ok" data-a="publishPhase" data-cue="btn-publish-phase">${ic('send', 16)} Publicar borrador y avisar a los 92 jugadores</button><span class="muted" style="font-size:12.5px">Los equipos confirman desde la app si siguen; las bajas dejan hueco a la lista de espera.</span></div>`, `<span class="pill">${moves.filter((m) => m.z === 'up').length} suben · ${moves.filter((m) => m.z === 'down').length} bajan</span>`) : ''}`;
+  }
+  return `${header('Liga', `<span class="pill ball">${brand().league} · Fase I</span>`)}<div class="content">${t}${body}</div>`;
+}
+
+/* ----- escuela ----- */
+function secEscuela() {
+  const sub = ui.sub.escuela;
+  const t = tabs2('escuela', [['horario', 'Horario'], ['alumnos', 'Alumnos'], ['espera', 'Lista de espera', S.wait.length], ['entrenadores', 'Entrenadores']]);
+  const n = Object.values(S.students).filter((s) => !s.baja).length;
+  const kp = `<div class="kpis"><div class="kpi"><div class="k">Alumnos</div><div class="v">${n}</div><div class="s">${Object.values(S.students).filter((s) => PC.group(s.group).kind === 'kids').length} peques · ${Object.values(S.students).filter((s) => PC.group(s.group).kind === 'adult').length} adultos</div></div><div class="kpi"><div class="k">Grupos</div><div class="v">${S.groups.length}</div><div class="s">${S.groups.filter((g) => PC.groupStudents(g.id).length < g.cap).length} con plaza libre</div></div><div class="kpi"><div class="k">Recuperaciones</div><div class="v">${S.makeups.length}</div><div class="s">huecos ofrecidos solos</div></div><div class="kpi"><div class="k">Trimestre</div><div class="v">T1</div><div class="s">16 sep – 20 dic · 12 clases</div></div></div>`;
+  let body = '';
+  if (sub === 'horario') {
+    const days = [1, 2, 3, 4, 5, 6];
+    body = `<div class="sched">${days.map((d) => `<div class="col2"><h4>${['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][d]}</h4>${S.groups.filter((g) => g.dow === d).sort((a, b) => a.time.localeCompare(b.time)).map((g) => {
+      const st = PC.groupStudents(g.id); const next = PC.classDates(g, PC.TODAY, PC.T1.to).find((x) => !PC.isFestivo(x));
+      const a = PC.attendees(g.id, next);
+      const dots = []; for (let i = 0; i < g.cap; i++) dots.push(i < st.length ? (a.list[i] && a.list[i].absent ? 'abs' : '') : 'free');
+      return `<button class="gb ${g.kind}" data-a="group" data-id="${g.id}" data-cue="grp-${g.id}"><div class="row between"><b class="mono" style="font-size:13px">${g.time}</b><span class="pill">P${g.court}</span></div><b>${esc(g.lvl)}${g.kind === 'kids' ? ' · infantil' : ''}</b><small>${esc(PC.coach(g.coach).name)}</small><div class="occ">${dots.map((c) => `<i class="${c}"></i>`).join('')}</div></button>`;
+    }).join('')}</div>`).join('')}</div>
+    <div class="zone-legend"><span><i style="background:var(--brand)"></i>Plaza ocupada</span><span><i style="background:#fde68a"></i>Avisa de falta la próxima clase</span><span><i style="border:1.5px dashed var(--ok);background:#fff"></i>Plaza libre</span></div>`;
+  } else if (sub === 'alumnos') {
+    const list = Object.values(S.students).sort((a, b) => (b.streak || 0) - (a.streak || 0) || a.name.localeCompare(b.name));
+    body = card('Alumnos', `<div class="tbw"><table class="tb"><thead><tr><th>Alumno</th><th>Grupo</th><th>Socio</th><th>Asistencia</th><th>1er trim.</th><th>2º trim.</th><th></th></tr></thead><tbody>${list.slice(0, 40).map((s) => { const g = PC.group(s.group); const t1 = S.pay.find((r) => r.student === s.id && r.t === 'T1'); const t2 = S.pay.find((r) => r.student === s.id && r.t === 'T2'); return `<tr><td><b>${esc(s.name)}</b>${s.age ? ` <span class="muted">· ${s.age} años</span>` : ''}${s.info ? ` <span class="pill bad" title="${esc(s.info.med)}">${ic('heart', 10)}</span>` : ''}</td><td>${esc(g.lvl)} · ${['', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'][g.dow]} ${g.time}</td><td>${s.socio ? 'Sí' : '<span class="muted">No</span>'}</td><td><div class="row" style="gap:6px"><div class="prog" style="width:60px"><i class="b" style="width:${Math.round(s.att * 100)}%"></i></div><span class="mono" style="font-size:12px">${Math.round(s.att * 100)}%</span></div></td><td>${t1 ? (t1.st === 'paid' ? '<span class="pill ok">Pagado</span>' : '<span class="pill warn">Pendiente</span>') : ''}</td><td>${t2 ? (t2.st === 'paid' ? '<span class="pill ok">Pagado</span>' : t2.st === 'sepa' ? '<span class="pill brand">Domiciliado</span>' : '<span class="pill">Enlace enviado</span>') : s.leaving ? '<span class="pill">Baja en T2</span>' : '<span class="faint">—</span>'}</td><td>${s.streak >= 3 ? `<span class="pill warn">${ic('alert', 11)} 3 faltas seguidas</span>` : ''}</td></tr>`; }).join('')}</tbody></table></div><div class="muted" style="font-size:12px;margin-top:8px">Mostrando 40 de ${list.length}.</div>`, `<button class="btn btn-ghost btn-sm" data-a="noop">${ic('download', 15)} Exportar</button>`);
+  } else if (sub === 'espera') {
+    body = card('Lista de espera', S.wait.map((w) => { const match = S.groups.filter((g) => g.kind === w.kind && g.lvl === w.lvl && PC.groupStudents(g.id).length < g.cap); return `<div class="q"><div class="qt"><div class="qi">${ic(w.kind === 'kids' ? 'star' : 'school', 18)}</div><div class="grow"><b class="t">${esc(w.name)}${w.age ? ` · ${w.age} años` : ''}</b><div class="sub">${w.kind === 'kids' ? 'Infantil' : 'Adultos'} · ${esc(w.lvl)} · prefiere ${esc(w.pref)} · desde ${fDL(w.since + 'T00:00')}</div></div>${match.length ? `<button class="btn btn-primary btn-sm" data-a="offerSpot" data-id="${w.id}">Ofrecer ${['', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'][match[0].dow]} ${match[0].time}</button>` : '<span class="pill">sin plaza de su nivel</span>'}</div></div>`; }).join('') || '<div class="muted">Nadie en espera.</div>');
+  } else {
+    body = `<div class="groups">${Object.values(S.coaches).map((c) => { const gs = S.groups.filter((g) => g.coach === c.id); const st = gs.reduce((t, g) => t + PC.groupStudents(g.id).length, 0); const today = gs.filter((g) => g.dow === 2); return `<div class="gcard"><div class="row"><span class="avatar lg dark">${PC.ini(c.name)}</span><div class="grow"><h3>${esc(c.name)}</h3><div class="muted" style="font-size:12.5px">${gs.length} grupos · ${st} alumnos</div></div></div>
+      <div class="kv" style="margin-top:12px"><dt>Horas por semana</dt><dd>${c.hours} h</dd><dt>Horas en noviembre (nóminas)</dt><dd>${Math.round(c.hours * 4.2)} h</dd><dt>Hoy</dt><dd>${today.map((g) => `${g.time} ${S.closed[g.id + '|' + PC.TODAY] ? '✓' : ''}`).join(' · ') || 'libre'}</dd><dt>Evaluaciones al día</dt><dd>${c.id === 'c-unai' ? '11 de 15' : c.id === 'c-irati' ? '24 de 27' : '9 de 12'}</dd></div></div>`; }).join('')}</div>`;
+  }
+  return `${header('Escuela', `<span class="pill ball">${esc(brand().school)} · 2026-27</span>`)}<div class="content">${kp}${t}${body}</div>`;
+}
+function groupDrawer(gid) {
+  const g = PC.group(gid); const next = PC.classDates(g, PC.TODAY, PC.T1.to).find((x) => !PC.isFestivo(x) && PC.parse(x).getTime() + 3600000 > PC.NOW.getTime());
+  const a = PC.attendees(g.id, next); const k = g.id + '|' + next.slice(0, 10); const rec = S.att[k] || {};
+  return `<div class="drawer-bg" data-a="closeLayer" data-self="1"><div class="drawer"><div class="row"><div class="grow"><div class="eyebrow">${g.kind === 'kids' ? 'Infantil' : 'Adultos'} · pista ${g.court}</div><h2 class="display" style="font-size:30px;color:var(--brand-deep)">${esc(g.lvl)} · ${['', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'][g.dow]} ${g.time}</h2><div class="muted">${esc(PC.coach(g.coach).name)} · ${PC.groupStudents(g.id).length}/${g.cap} plazas</div></div><button class="btn btn-ghost btn-sm" data-a="closeLayer">${ic('x', 16)}</button></div>
+    ${card(`Próxima clase · ${fD(next)}`, a.list.map((x) => `<div class="row" style="padding:6px 0;border-top:1px solid var(--line-2)"><span class="avatar sm">${PC.ini(x.s.name)}</span><span class="grow">${esc(x.s.name)}</span>${x.absent ? '<span class="pill warn">Avisó</span>' : ''}${x.kind === 'makeup' ? '<span class="pill brand">Recupera</span>' : ''}${rec[x.s.id] === 'yes' ? '<span class="pill ok">Presente</span>' : rec[x.s.id] === 'no' ? '<span class="pill bad">Falta</span>' : ''}</div>`).join('') + (S.closed[k] ? `<div class="pill ok" style="margin-top:8px">Lista pasada por ${esc(PC.coach(g.coach).short)} ${fAgo(S.closed[k])}</div>` : ''))}
+    ${card('Alumnos y pagos', PC.groupStudents(g.id).map((s) => { const t1 = S.pay.find((r) => r.student === s.id && r.t === 'T1'); return `<div class="row" style="padding:6px 0;border-top:1px solid var(--line-2)"><span class="grow">${esc(s.name)}</span><span class="mono muted" style="font-size:12px">${Math.round(s.att * 100)}%</span>${t1 && t1.st === 'paid' ? '<span class="pill ok">T1</span>' : '<span class="pill warn">T1</span>'}</div>`; }).join(''))}
+  </div></div>`;
+}
+
+/* ----- cobros ----- */
+function secCobros() {
+  const t1 = S.pay.filter((r) => r.t === 'T1'); const t1paid = t1.filter((r) => r.st === 'paid');
+  const t2 = S.pay.filter((r) => r.t === 'T2');
+  const mem = S.members.types.reduce((t, [, p, n]) => t + p * n, 0);
+  const pv = PC.t2Preview();
+  const k = `<div class="kpis"><div class="kpi"><div class="k">Escuela · 1er trimestre</div><div class="v">${PC.eur(t1paid.reduce((t, r) => t + r.amount, 0))}</div><div class="s">${t1paid.length} de ${t1.length} recibos cobrados</div></div><div class="kpi"><div class="k">Cuotas de socio · nov</div><div class="v">${PC.eur(mem)}</div><div class="s">${S.members.types.reduce((t, x) => t + x[2], 0)} socios · ${S.members.devueltos} recibos devueltos</div></div><div class="kpi"><div class="k">Liga · Fase I</div><div class="v">${S.teams.filter((x) => x.paid).length}/${S.teams.length}</div><div class="s">equipos al día (pago en recepción)</div></div><div class="kpi ${t2.length ? 'hot' : ''}"><div class="k">Escuela · 2º trimestre</div><div class="v">${t2.length ? t2.filter((r) => r.st === 'paid').length + '/' + t2.length : '—'}</div><div class="s">${t2.length ? 'pagados por enlace · resto domiciliado el 13 ene' : 'se prepara en dos toques'}</div></div></div>`;
+  const tar = { adult4: 'Adultos · grupo de 4', adult3: 'Adultos · grupo de 3', kids: 'Infantil · 4 a 6' };
+  const t2box = S.t2 === 'none' ? card('Preparar cobros del 2º trimestre', `<p class="muted">Precios de vuestra tarifa aplicados solos a cada alumno según grupo y si es socio. Las bajas comunicadas quedan fuera.</p>
+    <div class="tbw" style="margin-top:10px"><table class="tb"><thead><tr><th>Tarifa</th><th>Socio</th><th>Alumnos</th><th>Precio</th><th style="text-align:right">Subtotal</th></tr></thead><tbody>${pv.list.map((r) => `<tr><td>${tar[r.tar]}</td><td>${r.socio ? 'Sí' : 'No'}</td><td>${r.n}</td><td class="mono">${PC.eur(r.price)}</td><td class="mono" style="text-align:right">${PC.eur(r.n * r.price)}</td></tr>`).join('')}<tr><td colspan="4"><b>Total · ${pv.n} recibos</b> <span class="muted">(${pv.leaving} bajas excluidas)</span></td><td class="mono" style="text-align:right"><b>${PC.eur(pv.total)}</b></td></tr></tbody></table></div>
+    <div class="checks" style="margin-top:12px">${checkRow(true, `${pv.sepa} con domiciliación → remesa SEPA el 13 de enero`)}${checkRow(true, `${pv.link} con enlace de pago (Bizum o tarjeta)`)}${checkRow(true, 'Recordatorio automático a los 3 y 7 días')}${checkRow(true, 'Factura con TicketBAI al cobrar')}</div>
+    <button class="btn btn-primary" data-a="sendT2" data-cue="btn-t2-send">${ic('send', 16)} Generar ${pv.n} recibos y avisar a las familias</button>`, '', '') :
+    card('2º trimestre · en marcha', `<div class="prog" style="margin:4px 0 8px"><i style="width:${(t2.filter((r) => r.st === 'paid').length / t2.length) * 100}%"></i><i class="b" style="width:${(t2.filter((r) => r.st === 'sepa').length / t2.length) * 100}%"></i><i class="w" style="width:${(t2.filter((r) => r.st === 'pending').length / t2.length) * 100}%"></i></div>
+      <div class="zone-legend"><span><i style="background:var(--ok)"></i>Pagado ${t2.filter((r) => r.st === 'paid').length}</span><span><i style="background:var(--brand)"></i>Domiciliado el 13 ene ${t2.filter((r) => r.st === 'sepa').length}</span><span><i style="background:#fbbf24"></i>Enlace enviado ${t2.filter((r) => r.st === 'pending').length}</span></div>
+      <div class="tbw" style="margin-top:10px"><table class="tb"><thead><tr><th>Alumno</th><th>Concepto</th><th>Importe</th><th>Estado</th></tr></thead><tbody>${t2.slice().sort((a, b) => (b.paidAt || '').localeCompare(a.paidAt || '')).slice(0, 10).map((r) => `<tr class="${r.paidAt ? 'flashrow' : ''}"><td><b>${esc(S.students[r.student].name)}</b></td><td>${esc(r.concept)}</td><td class="mono">${PC.eur(r.amount)}</td><td>${r.st === 'paid' ? `<span class="pill ok">Pagado · ${esc(r.method)}</span>` : r.st === 'sepa' ? '<span class="pill brand">Domiciliado</span>' : '<span class="pill">Enlace enviado</span>'}</td></tr>`).join('')}</tbody></table></div>
+      <div class="qa" style="margin-top:12px"><button class="btn btn-ghost btn-sm" data-a="sepa">${ic('download', 15)} Remesa SEPA (XML) para el banco</button><button class="btn btn-ghost btn-sm" data-a="noop">${ic('download', 15)} Exportar a contabilidad</button></div>`, `<span class="pill ok">enviado</span>`);
+  const pend = t1.filter((r) => r.st === 'pending');
+  return `${header('Cobros')}<div class="content">${k}<div class="two">${t2box}${card('Pendientes del 1er trimestre', pend.map((r) => `<div class="q"><div class="qt"><div class="qi" style="background:var(--warn-soft);color:var(--warn)">${ic('euro', 18)}</div><div class="grow"><b class="t">${esc(S.students[r.student].name)} · ${PC.eur(r.amount)}</b><div class="sub">${esc(r.concept)} · ${r.reminded || 0} recordatorios automáticos</div></div><button class="btn btn-ghost btn-sm" data-a="remind" data-id="${r.id}">Recordar</button><button class="btn btn-ghost btn-sm" data-a="cash" data-id="${r.id}">Pagó en recepción</button></div></div>`).join('') || '<div class="muted">Nada pendiente.</div>')}</div></div>`;
+}
+
+/* ----- socios ----- */
+function secSocios() {
+  const tot = S.members.types.reduce((t, x) => t + x[2], 0); const mrr = S.members.types.reduce((t, [, p, n]) => t + p * n, 0);
+  const max = Math.max(...S.members.types.map((x) => x[2]));
+  const sample = Object.values(S.players).filter((p) => p.socio).slice(0, 14);
+  const types = ['Pádel', 'Pádel + Gym', 'Familiar', 'Gym', 'Familiar Premium'];
+  return `${header('Socios')}<div class="content"><div class="kpis"><div class="kpi"><div class="k">Socios</div><div class="v">${tot}</div><div class="s">+${S.members.alta} altas · −${S.members.baja} bajas este mes</div></div><div class="kpi"><div class="k">Cuotas al mes</div><div class="v">${PC.eur(mrr)}</div><div class="s">domiciliadas el día 2</div></div><div class="kpi"><div class="k">Devueltos</div><div class="v">${S.members.devueltos}</div><div class="s">aviso automático al socio</div></div><div class="kpi"><div class="k">Carnet digital</div><div class="v">${Math.round(tot * 0.81)}</div><div class="s">lo llevan en el móvil</div></div></div>
+  <div class="two">${card('Tipos de cuota', S.members.types.map(([n, p, c]) => `<div class="typebar"><span><b>${esc(n)}</b> <span class="muted">${p} €/mes</span></span><div class="prog"><i class="b" style="width:${(c / max) * 100}%"></i></div><span class="mono" style="text-align:right">${c}</span></div>`).join(''))}
+  ${card('Socios', `<div class="tbw"><table class="tb"><thead><tr><th>Nombre</th><th>Cuota</th><th>Desde</th><th>Estado</th></tr></thead><tbody>${sample.map((p, i) => `<tr><td><b>${esc(p.name)}</b></td><td>${types[i % 5]}</td><td class="muted">${2022 + (i % 4)}</td><td>${i === 5 ? '<span class="pill warn">Recibo devuelto</span>' : '<span class="pill ok">Al día</span>'}</td></tr>`).join('')}</tbody></table></div>`, `<button class="btn btn-ghost btn-sm" data-a="noop">${ic('plus', 15)} Alta</button>`)}</div></div>`;
+}
+
+/* ----- comunicación ----- */
+function secCom() {
+  const c = ui.comp; const tpl = PC.TEMPLATES.find((x) => x.id === c.tpl) || PC.TEMPLATES[0];
+  const seg = PC.SEGMENTS.find((s) => s.id === c.seg);
+  return `${header('Comunicación')}<div class="content"><div class="compose">${card('Nuevo aviso', `
+    <div class="eyebrow" style="margin-bottom:8px">¿A quién?</div>
+    <div class="segl">${PC.SEGMENTS.map((s) => `<button class="chip ${c.seg === s.id ? 'on' : ''}" data-a="seg" data-v="${s.id}" data-cue="seg-${s.id}">${esc(s.es)} <span class="muted" style="${c.seg === s.id ? 'color:rgb(255 255 255 / .75)' : ''}">${s.n}</span></button>`).join('')}</div>
+    <div class="eyebrow" style="margin:14px 0 8px">Plantillas</div>
+    <div class="segl">${PC.TEMPLATES.map((t) => `<button class="chip ${c.tpl === t.id ? 'on' : ''}" data-a="tpl" data-v="${t.id}" data-cue="tpl-${t.id}">${esc(t.title.es)}</button>`).join('')}</div>
+    <div class="two" style="margin-top:14px;gap:12px"><div class="col" style="gap:8px"><span class="eyebrow">Castellano</span><input class="input" id="tes" value="${esc(tpl.title.es)}"><textarea class="input" id="bes" style="min-height:110px">${esc(tpl.body.es)}</textarea></div><div class="col" style="gap:8px"><span class="eyebrow">Euskera</span><input class="input" id="teu" value="${esc(tpl.title.eu)}"><textarea class="input" id="beu" style="min-height:110px">${esc(tpl.body.eu)}</textarea></div></div>
+    <div class="checks" style="margin-top:6px">${checkRow(true, 'Notificación en el móvil')}${checkRow(true, 'Email a quien no tenga la app')}${checkRow(true, 'Cada persona lo recibe en su idioma')}${checkRow(true, 'Queda guardado con quién lo ha leído')}</div>
+    <button class="btn btn-primary" data-a="sendMsg" data-cue="btn-send-msg">${ic('send', 16)} Enviar a ${seg ? seg.n : ''} personas</button>`)}
+    <div class="col" style="gap:16px"><div class="phone-prev"><div class="eyebrow" style="color:var(--ball)">Así le llega</div><div class="toast"><div class="ti">${ic('msg', 18)}</div><div><div class="tapp">${esc(brand().w1)} ${esc(brand().w2)} · ahora</div><b>${esc(tpl.title.es)}</b><span>${esc(tpl.body.es.slice(0, 90))}…</span></div></div><div class="toast"><div class="ti">${ic('msg', 18)}</div><div><div class="tapp">${esc(brand().w1)} ${esc(brand().w2)} · orain</div><b>${esc(tpl.title.eu)}</b><span>${esc(tpl.body.eu.slice(0, 90))}…</span></div></div></div></div></div>
+  ${card('Enviados', `<div class="tbw"><table class="tb"><thead><tr><th>Aviso</th><th>A quién</th><th>Cuándo</th><th>Leído</th></tr></thead><tbody>${S.msgs.map((m) => { const sg = PC.SEGMENTS.find((s) => s.id === m.seg); const read = m.read || Math.round(m.sent * 0.35); return `<tr><td><b>${esc(T(m.title))}</b></td><td>${esc(sg ? sg.es : m.seg)}</td><td class="muted">${fAgo(m.ts)}</td><td><div class="row" style="gap:6px"><div class="prog" style="width:80px"><i class="b" style="width:${(read / m.sent) * 100}%"></i></div><span class="mono" style="font-size:12px">${read}/${m.sent}</span></div></td></tr>`; }).join('')}</tbody></table></div>`)}</div>`;
+}
+
+/* ----- actividades ----- */
+function bracketData() {
+  if (ui.bracket) return ui.bracket;
+  const names = ['Sarekoak', 'Pala de Oro', 'Txapeldunak', 'Los Muros', 'Errebote', 'Kristalak', 'Arrano', 'Ekaitza'];
+  ui.bracket = {
+    qf: [[0, 1, [[6, 3], [6, 4]], 'a'], [2, 3, [[4, 6], [6, 3], [11, 7]], 'a'], [4, 5, null, null, true], [6, 7, null, null]].map(([a, b, s, w, live]) => ({ a: names[a], b: names[b], s, w, live })),
+    sf: [{ a: 'Sarekoak', b: 'Txapeldunak', s: null }, { a: null, b: null, s: null }], f: [{ a: null, b: null }],
+  };
+  return ui.bracket;
+}
+function bm(m, i, rd) {
+  const tl = (k) => m.s ? m.s.map((x) => { const mine = k === 'a' ? x[0] : x[1], oth = k === 'a' ? x[1] : x[0]; return `<span class="tile sm ${mine > oth ? 'win' : ''}">${mine}</span>`; }).join('') : m.live ? `<span class="tile sm live">${k === 'a' ? 4 : 3}</span>` : '<span class="tile sm idle">–</span>';
+  return `<div class="bm ${m.live ? 'live' : ''}"><div class="bt ${m.w === 'a' ? 'w' : m.w ? 'l' : ''}"><b>${esc(m.a || 'Por decidir')}</b><span class="tiles">${tl('a')}</span></div><div class="bt ${m.w === 'b' ? 'w' : m.w ? 'l' : ''}"><b>${esc(m.b || 'Por decidir')}</b><span class="tiles">${tl('b')}</span></div>${rd === 'qf' && !m.w ? `<div class="qa" style="margin-top:6px">${m.live ? `<button class="btn btn-ok btn-sm" data-a="bfin" data-i="${i}">${ic('check', 14)} Finalizar 6-4 6-3</button>` : `<button class="btn btn-ball btn-sm" data-a="bstart" data-i="${i}">${ic('play', 13)} Empieza</button>`}</div>` : ''}</div>`;
+}
+function secAct() {
+  const b = bracketData();
+  return `${header('Actividades')}<div class="content"><div class="two">${card('Calendario de actividades', S.events.map((e) => `<div class="q"><div class="qt"><div class="qi">${ic(e.where === 'playtomic' ? 'court' : 'star', 18)}</div><div class="grow"><b class="t">${esc(e.name)}</b><div class="sub">${fLong(e.when)} · ${PC.time(e.when)} · nivel ${esc(e.lvl)}</div></div>${e.where === 'playtomic' ? `<span class="pill">en Playtomic</span>` : e.soon ? '<span class="pill">junio</span>' : `<span class="pill ${e.n >= e.cap ? 'bad' : 'ok'}">${e.n}/${e.cap}</span>`}</div>${e.where === 'app' && !e.soon ? `<div class="prog" style="margin-top:10px"><i class="b" style="width:${(e.n / e.cap) * 100}%"></i></div><div class="muted" style="font-size:12px;margin-top:6px">Inscripción y pago desde la app · prioridad para socios hasta el viernes${e.joined && e.joined.length ? ' · nuevos: ' + e.joined.map((p) => PC.PERSONAS[p].name).join(', ') : ''}</div>` : ''}</div>`).join(''))}
+  ${card('Torneo social de Navidad · mesa de control', `<p class="muted" style="margin-bottom:12px">La misma mesa de control que usamos en la app de la DOSS Pádel Cup: un toque para empezar, otro para cerrar, y el ganador pasa solo de ronda.</p><div class="bracket"><div class="rd"><div class="eyebrow">Cuartos</div>${b.qf.map((m, i) => bm(m, i, 'qf')).join('')}</div><div class="rd"><div class="eyebrow">Semifinales</div>${b.sf.map((m, i) => bm(m, i, 'sf')).join('')}</div><div class="rd"><div class="eyebrow">Final</div>${b.f.map((m, i) => bm(m, i, 'f')).join('')}</div></div>`)}</div></div>`;
+}
+
+/* ----- documentos ----- */
+function secDocs() {
+  return `${header('Documentos')}<div class="content">${card('Firmas y consentimientos', `<div class="tbw"><table class="tb"><thead><tr><th>Documento</th><th>Para</th><th>Firmado</th><th></th></tr></thead><tbody>${S.docs.map((d) => `<tr><td><b>${esc(d.name)}</b></td><td>${esc(d.who)}</td><td><div class="row" style="gap:8px"><div class="prog" style="width:110px"><i style="width:${(d.ok / d.of) * 100}%"></i></div><span class="mono" style="font-size:12px">${d.ok}/${d.of}</span></div></td><td>${d.ok < d.of ? `<button class="btn btn-ghost btn-sm" data-a="askSign" data-id="${d.id}">Pedir firma a ${d.of - d.ok}</button>` : '<span class="pill ok">Completo</span>'}</td></tr>`).join('')}</tbody></table></div>`)}
+  ${card('Lo que ve cada uno', `<div class="integ"><div class="it"><b>Información médica de menores</b><p class="muted" style="font-size:12.5px;margin-top:4px">La familia la escribe una vez. Solo la ve su entrenador, en la lista de clase. Nadie más.</p></div><div class="it"><b>Recogida autorizada</b><p class="muted" style="font-size:12.5px;margin-top:4px">Quién puede llevarse a cada peque, visible en recepción y para el entrenador.</p></div><div class="it"><b>Normativa de la liga</b><p class="muted" style="font-size:12.5px;margin-top:4px">Se acepta al inscribir el equipo; queda registrada la fecha y la versión.</p></div></div>`)}</div>`;
+}
+
+/* ----- ajustes ----- */
+function secAjustes() {
+  const R = PC.RULES;
+  const rules = [
+    ['trophy', 'Puntos', 'Victoria, empate, derrota, no presentado', `${R.pts.W} · ${R.pts.T} · ${R.pts.L} · ${R.pts.NP}`],
+    ['timer', 'Duración y punto de oro', 'El resultado es el del final del tiempo', `${R.minutes}′ · sí`],
+    ['clock', 'Últimos minutos', 'Pacto previo entre capitanes', `< ${R.lastMinutes}′ · STB 11 / 3er set`],
+    ['cal', 'Días de liga', 'Miércoles y jueves para clientes', 'L M V S D'],
+    ['swap', 'Cambios por partido', 'Con fecha alternativa acordada', `${R.changesPerMatch}`],
+    ['court', 'Pistas de liga por franja', 'Protege las reservas del resto', `máx. ${R.maxLeagueCourts} de ${R.courts}`],
+    ['sub', 'Sustitutos', 'Con aprobación del club', R.subLevel],
+    ['alert', 'No presentados', 'En la misma fase', `${R.npLimit} → fuera de la siguiente`],
+    ['up', 'Ascensos y descensos', 'Por grupo y fase', `${R.upDown} y ${R.upDown}`],
+    ['ball', 'Plazo para el resultado', 'Después, aviso a los capitanes', `${R.resultHours} h`],
+  ];
+  return `${header('Ajustes')}<div class="content"><div class="two">
+  ${card('Vuestra normativa, convertida en reglas', rules.map(([i, t, d, v]) => `<div class="rulecard"><div class="ti">${ic(i, 18)}</div><div><b>${t}</b><div class="muted" style="font-size:12.5px">${d}</div></div><span class="val">${esc(v)}</span></div>`).join(''), `<span class="pill ok">la app las hace cumplir</span>`)}
+  <div class="col" style="gap:16px">
+  ${card('Imagen del club', `<div class="row wrap" style="gap:10px"><button class="btn ${S.brand === 'doss' ? 'btn-dark' : 'btn-ghost'}" data-a="brand" data-v="doss" data-cue="brand-doss">DOSS Pádel</button><button class="btn ${S.brand === 'oarso' ? 'btn-dark' : 'btn-ghost'}" data-a="brand" data-v="oarso" data-cue="brand-oarso">Padel Indoor Oarso</button></div><p class="muted" style="font-size:12.5px;margin-top:8px">Colores, tipografía, nombre de la liga y de la escuela. Cambia en el móvil y en el panel a la vez.</p>`)}
+  ${card('Conexiones', `<div class="integ"><div class="it"><b>Playtomic</b><p class="muted" style="font-size:12.5px;margin-top:4px">Reservas y pozos siguen allí. La app enlaza directamente. La lectura de reservas en el panel depende del acceso que dé Playtomic.</p></div><div class="it"><b>Pagos</b><p class="muted" style="font-size:12.5px;margin-top:4px">Bizum y tarjeta por TPV del banco, remesas SEPA y facturas con TicketBAI.</p></div><div class="it"><b>Idiomas</b><p class="muted" style="font-size:12.5px;margin-top:4px">Castellano y euskera en toda la app y en los avisos.</p></div></div>`)}
+  ${card('Quién entra al panel', [['Sergio', 'Administración'], ['Iván', 'Administración'], ['Recepción', 'Cobros, socios y avisos'], ['Entrenadores', 'Solo sus grupos, desde el móvil']].map(([n, r]) => `<div class="row" style="padding:7px 0;border-top:1px solid var(--line-2)"><span class="avatar sm">${PC.ini(n)}</span><b class="grow">${n}</b><span class="muted" style="font-size:12.5px">${r}</span></div>`).join('') + `<div class="checks" style="margin-top:10px">${checkRow(true, 'Servidores en la UE')}${checkRow(true, 'Copia de seguridad diaria')}${checkRow(true, 'Registro de quién cambia qué')}${checkRow(true, 'RGPD y datos de menores')}</div>`)}
+  </div></div></div>`;
+}
+
+/* ---------- render ---------- */
+function render() {
+  S = PC.S;
+  PC.applyBrand();
+  const root = document.getElementById('root');
+  const old = root.querySelector('.content');
+  const sc = old ? old.scrollTop : 0;
+  const map = { hoy: secHoy, liga: secLiga, escuela: secEscuela, cobros: secCobros, socios: secSocios, com: secCom, act: secAct, docs: secDocs, ajustes: secAjustes };
+  root.innerHTML = side() + `<div class="mainp">${(map[ui.sec] || secHoy)()}</div>`;
+  const nc = root.querySelector('.content');
+  if (nc && !ui.resetScroll) nc.scrollTop = sc;
+  ui.resetScroll = false;
+  const layer = document.getElementById('layer');
+  layer.innerHTML = ui.drawer ? groupDrawer(ui.drawer) : ui.modal === 'tv' ? `<div class="modal-bg" data-a="closeLayer" data-self="1"><div class="modal"><button class="x" data-a="closeLayer">${ic('x', 18)}</button><iframe src="tv.html?embed=1" title="Pantalla del club"></iframe></div></div>` : '';
+  applyCue();
+  post({ t: 'ui', frame: 'panel', sec: ui.sec, sub: ui.sub, modal: ui.modal });
+}
+function applyCue() {
+  document.querySelectorAll('.cue').forEach((e) => e.classList.remove('cue'));
+  if (!cueIds.length) return;
+  for (let i = cueIds.length - 1; i >= 0; i--) {
+    const el = document.querySelector(`[data-cue="${cueIds[i]}"]`);
+    if (el) { el.classList.add('cue'); try { el.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {} break; }
+  }
+}
+const commit = (w) => { PC.commit(w); ui.newLog = S.log[0] && S.log[0].id; };
+
+const A = {
+  sec: (d) => { ui.sec = d.v; ui.resetScroll = true; ui.drawer = null; render(); },
+  sub: (d) => { ui.sub[d.k] = d.v; ui.resetScroll = true; render(); },
+  validate: (d) => { const c = S.changes.find((x) => x.id === d.id); PC.validateChange(d.id, +d.court); commit('validate'); render(); toast('Cambio validado', 'Calendario actualizado y aviso enviado a los 4 jugadores.', 'check'); },
+  reject: (d) => { PC.rejectChange(d.id, 'No hay pista disponible en esa franja'); commit('reject'); render(); toast('Cambio rechazado', 'Los capitanes reciben el motivo al momento.', 'x'); },
+  approveSub: (d) => { PC.resolveSub(d.id, true); commit('sub'); render(); toast('Sustituto aprobado', 'El capitán ya lo ve en la ficha del partido.', 'check'); },
+  rejectSub: (d) => { PC.resolveSub(d.id, false); commit('sub'); render(); },
+  dispute: (d) => { PC.resolveDispute(d.id, d.v); commit('dispute'); render(); toast('Resultado cerrado', 'Clasificación del grupo recalculada.', 'trophy'); },
+  inscr: (d) => { const i = S.inscr.find((x) => x.id === d.id); i.st = 'done'; PC.log(`${i.team} asignado al Grupo 6 para la Fase II · bienvenida enviada`, 'liga', 'users'); commit('inscr'); render(); toast('Equipo asignado', 'Les llega la bienvenida con la normativa para aceptar.', 'users'); },
+  offerSpot: (d) => { const w = S.wait.find((x) => x.id === d.id); S.wait = S.wait.filter((x) => x.id !== d.id); const g = S.groups.find((x) => x.kind === w.kind && x.lvl === w.lvl && PC.groupStudents(x.id).length < x.cap); if (g) { const sid = 's-w' + w.id; S.students[sid] = { id: sid, name: w.name, socio: false, group: g.id, age: w.age || null, sepa: false, att: 1 }; } PC.log(`Plaza ofrecida a ${w.name}${g ? ` en ${g.lvl} (${['', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'][g.dow]} ${g.time})` : ''} · tiene 48 h para aceptarla desde el móvil`, 'escuela', 'school'); commit('wait'); render(); toast('Plaza ofrecida', `${w.name} la recibe en el móvil y la confirma con un toque.`, 'school'); },
+  week: (d) => { ui.week = PC.addDays(ui.week + 'T00:00', +d.d).slice(0, 10); render(); },
+  remindCaps: () => toast('Recordatorio enviado', 'A los dos capitanes, con el botón para introducir el resultado.', 'bell'),
+  phasePreview: () => { ui.phasePreview = true; render(); },
+  publishPhase: () => { PC.publishPhase2(); commit('phase'); render(); toast('Borrador de la Fase II publicado', 'Cada equipo ve si sube, baja o se queda, y confirma si sigue.', 'trophy'); },
+  group: (d) => { ui.drawer = d.id; render(); },
+  closeLayer: (d, el, ev) => { if (d.self && ev.target !== el) return; ui.drawer = null; ui.modal = null; render(); },
+  sendT2: () => { PC.sendT2(); commit('t2'); render(); toast('Recibos generados', 'Las familias con enlace ya pueden pagar; el resto se domicilia el 13 de enero.', 'euro'); },
+  sepa: () => { const t2 = S.pay.filter((r) => r.t === 'T2' && r.st === 'sepa'); const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<!-- Demo: remesa SEPA ficticia (pain.008) generada por la demo de Ondora Studio -->\n<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pain.008.001.02"><CstmrDrctDbtInitn><GrpHdr><MsgId>ESCUELA-T2-2027</MsgId><NbOfTxs>${t2.length}</NbOfTxs><CtrlSum>${t2.reduce((t, r) => t + r.amount, 0)}.00</CtrlSum></GrpHdr></CstmrDrctDbtInitn></Document>`; const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([xml], { type: 'application/xml' })); a.download = 'remesa-escuela-T2-demo.xml'; document.body.appendChild(a); a.click(); a.remove(); toast('Remesa generada', `${t2.length} recibos listos para subir a la banca online.`, 'download'); },
+  remind: (d) => { PC.remind(d.id); commit('remind'); render(); toast('Recordatorio enviado', '', 'bell'); },
+  cash: (d) => { PC.payReceipt(d.id, 'efectivo en recepción'); commit('pay'); render(); },
+  seg: (d) => { ui.comp.seg = d.v; render(); },
+  tpl: (d) => { ui.comp.tpl = d.v; const t = PC.TEMPLATES.find((x) => x.id === d.v); if (t) ui.comp.seg = t.seg; render(); },
+  sendMsg: () => { const title = { es: document.getElementById('tes').value, eu: document.getElementById('teu').value }; const body = { es: document.getElementById('bes').value, eu: document.getElementById('beu').value }; PC.sendMessage(ui.comp.seg, title, body); commit('msg'); render(); const sg = PC.SEGMENTS.find((s) => s.id === ui.comp.seg); toast('Aviso enviado', `${sg.n} personas · cada una en su idioma.`, 'send'); },
+  bstart: (d) => { const b = bracketData(); b.qf[+d.i].live = true; render(); },
+  bfin: (d) => { const b = bracketData(); const m = b.qf[+d.i]; m.live = false; m.s = [[6, 4], [6, 3]]; m.w = 'a'; const sf = b.sf[Math.floor(+d.i / 2)]; if (+d.i % 2 === 0) sf.a = m.a; else sf.b = m.a; render(); toast(`${m.a} pasa a semifinales`, 'Aviso automático a todos los inscritos, como en la DOSS Pádel Cup.', 'trophy'); },
+  askSign: (d) => { const doc = S.docs.find((x) => x.id === d.id); toast('Petición enviada', `${doc.of - doc.ok} personas reciben el documento para firmar en el móvil.`, 'doc'); },
+  brand: (d) => { S.brand = d.v; commit('brand'); render(); },
+  tv: () => { ui.modal = 'tv'; render(); },
+  noop: () => toast('Disponible en la versión real', '', 'info'),
+  search: () => {},
+};
+document.addEventListener('click', (ev) => {
+  const el = ev.target.closest('[data-a]');
+  if (!el || el.tagName === 'INPUT') return;
+  const fn = A[el.dataset.a]; if (!fn) return;
+  if (el.tagName === 'A') return;
+  ev.preventDefault();
+  fn(el.dataset, el, ev);
+});
+function checkClub() {
+  S.notifs.filter((n) => n.to === 'club').forEach((n) => { if (!seenClub.has(n.id)) { seenClub.add(n.id); toast(T(n.title), T(n.body), { change: 'swap', sub: 'sub', pay: 'euro' }[n.kind] || 'bell'); } });
+}
+PC.on((what, local) => {
+  if (what && typeof what === 'object') {
+    if (what.t === 'cue' && (what.frame === 'panel' || !what.frame)) { cueIds = what.ids || []; applyCue(); }
+    if (what.t === 'nav' && what.frame === 'panel') applyNav(what);
+    return;
+  }
+  if (what === 'reset') { location.reload(); return; }
+  S = PC.S;
+  if (!local) { ui.newLog = S.log[0] && S.log[0].id; render(); checkClub(); }
+});
+function applyNav(n) { if (n.sec) { ui.sec = n.sec; ui.resetScroll = true; } if (n.sub) ui.sub[n.sec] = n.sub; if ('modal' in n) ui.modal = n.modal; ui.drawer = null; render(); }
+window.addEventListener('message', (e) => { const m = e.data || {}; if (m.t === 'cue' && (m.frame === 'panel' || !m.frame)) { cueIds = m.ids || []; applyCue(); } if (m.t === 'nav' && m.frame === 'panel') applyNav(m); });
+setInterval(() => { if (ui.sec === 'hoy' && !document.querySelector('.drawer-bg, .modal-bg, input:focus, textarea:focus')) render(); }, 60000);
+render();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="es" data-brand="doss">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#070f24">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Club demo">
+<title>Plataforma de club · Demo</title>
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders:wght@700;800;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&display=swap">
+<link rel="stylesheet" href="assets/ui.css">
+<style>
+html, body { height: 100%; }
+body { overflow: hidden; background: #070f24; color: #fff; }
+.shell { height: 100%; display: flex; flex-direction: column; }
+.bar { flex: none; display: flex; align-items: center; gap: 8px; padding: 8px 14px; padding-top: max(8px, env(safe-area-inset-top)); background: #050b1c; border-bottom: 1px solid rgb(255 255 255 / .07); flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.bar .logo .wm { font-size: 20px; }
+.bar .demo { font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: rgb(255 255 255 / .45); font-weight: 700; line-height: 1.2; }
+.bar .grow { flex: 1; }
+.sg { display: inline-flex; background: rgb(255 255 255 / .07); border-radius: 12px; padding: 3px; gap: 2px; }
+.sg button { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border-radius: 9px; font-size: 13px; font-weight: 600; color: rgb(255 255 255 / .7); min-height: 36px; }
+.sg button.on { background: #fff; color: #0b1a3a; }
+.sg.ball button.on { background: var(--ball); color: var(--ball-ink); }
+.tb { display: inline-flex; align-items: center; gap: 7px; padding: 8px 12px; border-radius: 12px; background: rgb(255 255 255 / .07); color: #fff; font-size: 13px; font-weight: 600; min-height: 42px; }
+.tb.primary { background: var(--ball); color: var(--ball-ink); }
+.stage { flex: 1; min-height: 0; display: flex; gap: 18px; padding: 14px 16px 16px; justify-content: center; align-items: stretch; position: relative;
+  background: radial-gradient(90% 70% at 15% 10%, rgb(29 90 230 / .35), transparent 60%), radial-gradient(70% 60% at 100% 100%, rgb(220 255 61 / .07), transparent 60%), #070f24; }
+[data-brand="oarso"] .stage { background: radial-gradient(90% 70% at 15% 10%, rgb(0 61 166 / .4), transparent 60%), radial-gradient(70% 60% at 100% 100%, rgb(217 255 61 / .07), transparent 60%), #050c19; }
+.phonecol { flex: none; display: flex; flex-direction: column; align-items: center; gap: 10px; min-height: 0; }
+.who { display: flex; gap: 6px; }
+.who button { width: 44px; height: 44px; border-radius: 50%; background: rgb(255 255 255 / .08); color: #fff; font-weight: 700; font-size: 12.5px; position: relative; border: 2px solid transparent; }
+.who button.on { background: var(--ball); color: var(--ball-ink); }
+.who button span { position: absolute; left: 50%; transform: translateX(-50%); top: 47px; font-size: 10px; font-weight: 600; color: rgb(255 255 255 / .6); white-space: nowrap; }
+.who button.on span { color: var(--ball); }
+.whocap { font-size: 12px; color: rgb(255 255 255 / .7); text-align: center; margin-top: 12px; min-height: 16px; }
+.phone { position: relative; flex: none; }
+.phone .bezel { position: absolute; left: 0; top: 0; width: 414px; height: 868px; border-radius: 58px; background: #05070d; box-shadow: 0 0 0 2px #2a3245, 0 40px 80px -30px rgb(0 0 0 / .8); transform-origin: top left; padding: 12px; }
+.phone .bezel::after { content: ''; position: absolute; top: 22px; left: 50%; transform: translateX(-50%); width: 112px; height: 30px; border-radius: 20px; background: #05070d; z-index: 3; }
+.phone iframe { width: 390px; height: 844px; border: 0; border-radius: 46px; display: block; background: #fff; }
+.deskwrap { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.desk { flex: 1; min-height: 0; border-radius: 18px; overflow: hidden; background: #fff; box-shadow: 0 30px 70px -30px rgb(0 0 0 / .8), 0 0 0 1px rgb(255 255 255 / .08); }
+.desk iframe { width: 100%; height: 100%; border: 0; display: block; }
+.desklabel { font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: rgb(255 255 255 / .5); font-weight: 700; display: flex; gap: 8px; align-items: center; }
+.side { width: 330px; flex: none; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; padding-right: 2px; }
+.side h2 { font-family: var(--f-display); font-weight: 800; text-transform: uppercase; font-size: 30px; line-height: .95; }
+.side .lead { color: rgb(255 255 255 / .7); font-size: 13.5px; }
+.pc { display: flex; gap: 12px; align-items: center; padding: 12px; border-radius: 16px; background: rgb(255 255 255 / .06); border: 1px solid rgb(255 255 255 / .08); text-align: left; width: 100%; color: #fff; }
+.pc.on { background: rgb(220 255 61 / .14); border-color: var(--ball); }
+.pc .avatar { background: rgb(255 255 255 / .12); color: #fff; }
+.pc.on .avatar { background: var(--ball); color: var(--ball-ink); }
+.pc small { display: block; color: rgb(255 255 255 / .6); font-size: 12px; }
+.mode-movil .deskwrap { display: none; }
+.mode-panel .phonecol, .mode-panel .side { display: none; }
+.mode-completo .side { display: none; }
+.mode-movil .side { display: flex; }
+.mode-panel .deskwrap, .mode-completo .deskwrap { display: flex; }
+.guide { flex: none; display: none; align-items: center; gap: 12px; padding: 10px 14px; background: linear-gradient(90deg, rgb(220 255 61 / .16), rgb(29 90 230 / .18)); border-bottom: 1px solid rgb(220 255 61 / .25); }
+.guide.on { display: flex; }
+.guide .num { width: 34px; height: 34px; border-radius: 10px; background: var(--ball); color: var(--ball-ink); display: grid; place-items: center; font: 700 15px var(--f-score); flex: none; }
+.guide .txt { flex: 1; min-width: 0; }
+.guide .txt small { display: block; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; color: var(--ball); font-weight: 700; }
+.guide .txt b { display: block; font-size: 14.5px; line-height: 1.3; font-weight: 600; }
+.guide .dots { display: flex; gap: 4px; }
+.guide .dots i { width: 7px; height: 7px; border-radius: 50%; background: rgb(255 255 255 / .25); }
+.guide .dots i.on { background: var(--ball); }
+.guide .dots i.done { background: rgb(220 255 61 / .55); }
+.menu-bg { position: fixed; inset: 0; z-index: 80; background: rgb(3 7 18 / .6); display: flex; justify-content: flex-end; animation: fade .2s; }
+@keyframes fade { from { opacity: 0 } }
+.menu { width: min(470px, 100%); height: 100%; overflow-y: auto; background: #0b1328; padding: 18px; border-left: 1px solid rgb(255 255 255 / .08); animation: slide .25s ease-out; }
+@keyframes slide { from { transform: translateX(25%) } }
+.menu h3 { font-family: var(--f-display); font-weight: 800; text-transform: uppercase; font-size: 30px; }
+.mo { display: flex; gap: 12px; align-items: flex-start; padding: 13px; border-radius: 16px; background: rgb(255 255 255 / .05); border: 1px solid rgb(255 255 255 / .07); width: 100%; text-align: left; color: #fff; margin-top: 8px; }
+.mo:hover { background: rgb(255 255 255 / .09); }
+.mo .n { width: 32px; height: 32px; border-radius: 10px; background: rgb(255 255 255 / .1); display: grid; place-items: center; font: 700 14px var(--f-score); flex: none; }
+.mo.done .n { background: var(--ok); }
+.mo b { display: block; font-size: 15px; }
+.mo small { display: block; color: rgb(255 255 255 / .62); font-size: 12.5px; margin-top: 2px; line-height: 1.4; }
+.mo .tag { display: inline-block; margin-top: 6px; font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--ball); font-weight: 700; }
+.foot { position: absolute; left: 16px; bottom: 6px; font-size: 10.5px; color: rgb(255 255 255 / .35); letter-spacing: .04em; }
+.intro { position: fixed; inset: 0; z-index: 90; display: grid; place-items: center; background: radial-gradient(80% 60% at 20% 10%, rgb(29 90 230 / .5), transparent 60%), #070f24; padding: 24px; }
+.intro .box { max-width: 760px; }
+.intro h1 { font-size: clamp(44px, 7vw, 84px); margin: 14px 0 16px; }
+.intro p { color: rgb(255 255 255 / .75); font-size: 17px; max-width: 58ch; }
+.intro .row { margin-top: 26px; gap: 12px; flex-wrap: wrap; }
+.intro .pts { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 26px; }
+.intro .pts div { border-radius: 16px; background: rgb(255 255 255 / .06); padding: 14px; font-size: 13px; color: rgb(255 255 255 / .75); }
+.intro .pts b { display: block; color: #fff; font-size: 14.5px; margin-bottom: 4px; }
+@media (max-width: 1320px) { .bar .demo { display: none; } }
+@media (max-width: 1100px) { .tb .lbl, .sg .lbl { display: none; } }
+@media (max-width: 900px) { .side { display: none !important; } .intro .pts { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="shell" id="shell">
+  <div class="bar" id="bar"></div>
+  <div class="guide" id="guide"></div>
+  <div class="stage mode-completo" id="stage">
+    <div class="phonecol" id="phonecol">
+      <div class="who" id="who"></div>
+      <div class="whocap" id="whocap"></div>
+      <div class="phone" id="phone"><div class="bezel" id="bezel"><iframe id="fApp" src="app.html?embed=1" title="App del club en el móvil"></iframe></div></div>
+    </div>
+    <div class="side" id="side"></div>
+    <div class="deskwrap" id="deskwrap"><div class="desklabel">Panel del club · lo que ve Sergio en recepción o en el móvil</div><div class="desk"><iframe id="fPanel" src="panel.html?embed=1" title="Panel del club"></iframe></div></div>
+    <div class="foot" id="foot"></div>
+  </div>
+</div>
+<div id="layer"></div>
+<script src="assets/core.js" data-frame="shell"></script>
+<script>
+(function () {
+'use strict';
+const ic = PC.ic, esc = PC.esc;
+let S = PC.S;
+const st = { mode: 'completo', menu: false, mo: null, step: 0, ui: { app: {}, panel: {} }, done: {}, intro: true };
+try { const v = localStorage.getItem('pcdemo.shell.mode'); if (v) st.mode = v; if (localStorage.getItem('pcdemo.shell.introSeen')) st.intro = false; } catch (e) {}
+const $ = (id) => document.getElementById(id);
+const fApp = $('fApp'), fPanel = $('fPanel');
+const send = (frame, msg) => { const f = frame === 'app' ? fApp : fPanel; try { f.contentWindow.postMessage({ ...msg, frame }, '*'); } catch (e) {} };
+
+/* ---------- guion de la reunión ---------- */
+const chg = (m) => PC.S.changes.find((c) => c.m === m && !['declined', 'rejected'].includes(c.st));
+const subOf = (team) => PC.S.subs.find((s) => s.team === team);
+const MOMENTS = [
+  { id: 'cambio', t: 'Cambio de partido sin WhatsApp', d: 'Capitán propone, rival elige, el club valida. El calendario se actualiza solo.', tag: 'Liga · móvil + panel', steps: [
+    { frame: 'app', nav: { app: { persona: 'mikel', tab: 'home' }, panel: { sec: 'hoy' } }, cue: ['match-m3-17', 'btn-change'], text: 'Mikel, capitán de Errebote, no puede el viernes. Abre el partido contra Kristalak y pulsa «Cambiar fecha u hora».', done: () => st.ui.app.sheet === 'change' || chg('m3-17') },
+    { frame: 'app', cue: ['btn-suggest', 'btn-send-change'], text: 'Solo salen días de liga (miércoles y jueves bloqueados) y franjas con pista. «Sugerir 3 horarios» y enviar.', done: () => chg('m3-17') },
+    { frame: 'app', cue: ['todo-answer', 'opt-1', 'btn-accept'], act: { label: 'Ver como Iker (rival)', nav: { app: { persona: 'iker', tab: 'home' } } }, text: 'A Iker, capitán de Kristalak, le llega al instante. Elige uno de los tres horarios.', done: () => { const c = chg('m3-17'); return c && c.st !== 'proposed'; } },
+    { frame: 'panel', nav: { panel: { sec: 'hoy' } }, cue: ['nav-hoy', 'q-change-m3-17', 'btn-validate-m3-17'], text: 'Al club solo le llega lo ya acordado, con la normativa comprobada. Un toque: validar.', done: () => { const c = chg('m3-17'); return c && c.st === 'validated'; } },
+    { frame: 'app', nav: { app: { persona: 'mikel', tab: 'liga', sub: 'equipo' } }, cue: ['match-m3-17'], text: 'Aviso a los cuatro jugadores y calendario actualizado. El partido queda «cambiado 1/1»: ya no se puede volver a mover.', final: true },
+  ] },
+  { id: 'resultado', t: 'Resultado y clasificación en directo', d: 'El capitán mete el resultado, el rival confirma y la tabla se recalcula sola con vuestra normativa.', tag: 'Liga', steps: [
+    { frame: 'app', nav: { app: { persona: 'mikel', tab: 'home' }, panel: { sec: 'liga', sub: 'grupos' } }, cue: ['todo-result', 'btn-send-result'], text: 'Ayer jugaron contra Víbora Team y acabaron con supertiebreak, como habían pactado. Mikel introduce el resultado.', done: () => ['awaiting', 'played'].includes(PC.match('m3-15').st) },
+    { frame: 'app', cue: [], text: 'El rival lo confirma desde su móvil (aquí se simula en 3 segundos). Si no coinciden, lo decide el club.', done: () => PC.match('m3-15').st === 'played' },
+    { frame: 'app', nav: { app: { tab: 'liga', sub: 'clasif' } }, cue: ['standings'], text: 'La clasificación del Grupo 3 se ha recalculado en el móvil y en el panel a la vez: Errebote entra en zona de ascenso.', final: true },
+  ] },
+  { id: 'sustituto', t: 'Sustituto con control de nivel', d: 'La app solo deja elegir a quien cumple vuestra norma de nivel. El club aprueba con un toque.', tag: 'Liga', steps: [
+    { frame: 'app', nav: { app: { persona: 'mikel', tab: 'liga', sub: 'equipo' }, panel: { sec: 'hoy' } }, cue: ['btn-sub'], text: 'Jon no puede jugar el próximo partido. Mikel pide un sustituto.', done: () => st.ui.app.sheet === 'sub' || subOf('g3-e') },
+    { frame: 'app', cue: ['cand-pool0', 'btn-send-sub'], text: 'Solo puede elegir a gente de igual o menor nivel que Jon (3,1). Los de más nivel salen bloqueados.', done: () => subOf('g3-e') },
+    { frame: 'panel', nav: { panel: { sec: 'hoy' } }, cue: () => { const s = subOf('g3-e'); return s ? ['nav-hoy', 'q-sub-' + s.m, 'btn-approve-' + s.m] : []; }, text: 'El club ve la comprobación ya hecha y aprueba.', done: () => { const s = subOf('g3-e'); return s && s.st !== 'pending'; } },
+    { frame: 'app', text: 'Mikel recibe la aprobación y el sustituto aparece en la ficha del partido.', final: true },
+  ] },
+  { id: 'falta', t: 'Escuela: falta, hueco y recuperación', d: 'Quien no puede ir lo avisa; su plaza se aprovecha y recupera en otro grupo de su nivel.', tag: 'Escuela', steps: [
+    { frame: 'app', nav: { app: { persona: 'leire', tab: 'escuela', sub: 'grupo' }, panel: { sec: 'escuela', sub: 'horario' } }, cue: ['btn-absence-2026-11-24'], text: 'Leire, alumna de Intermedio, no podrá ir el martes 24. Lo avisa desde la app.', done: () => PC.S.absences.some((a) => a.student === 's-leire' && a.date.startsWith('2026-11-24')) },
+    { frame: 'app', cue: ['makeups', 'btn-makeup-0'], text: 'Su plaza queda libre para otra persona y ella gana una recuperación. La app le ofrece huecos de su nivel.', done: () => PC.S.makeups.some((u) => u.student === 's-leire') },
+    { frame: 'panel', nav: { panel: { sec: 'escuela', sub: 'horario' } }, cue: ['grp-gr-thu19'], text: 'En el panel, el grupo del jueves ya aparece completo y el entrenador lo tiene en su lista. Sin llamadas.', final: true },
+  ] },
+  { id: 'entrenador', t: 'El entrenador: lista y evolución', d: 'Pasar lista en segundos y enviar a cada alumno su evolución con gráfica.', tag: 'Escuela', steps: [
+    { frame: 'app', nav: { app: { persona: 'unai', tab: 'home' } }, cue: ['btn-roll-gr-tue19', 'btn-close-roll'], text: 'Unai pasa lista de la clase de las 19:00. Ya sabe quién avisó y quién viene a recuperar.', done: () => !!PC.S.closed['gr-tue19|2026-11-17'] },
+    { frame: 'app', nav: { app: { tab: 'alumnos' } }, cue: ['student-s-leire', 'btn-save-eval'], text: 'Evalúa a Leire: golpes del 1 al 10 y una nota con el siguiente objetivo.', done: () => PC.S.evals['s-leire'].updated > '2026-11-10T20:05' },
+    { frame: 'app', nav: { app: { persona: 'leire', tab: 'escuela', sub: 'evol' } }, cue: ['radar'], text: 'A Leire le llega con la gráfica actualizada: su evolución desde septiembre, de un vistazo.', final: true },
+  ] },
+  { id: 'cobros', t: 'Cobros del trimestre en dos toques', d: 'Vuestras tarifas aplicadas solas, pago con Bizum y el club lo ve al momento.', tag: 'Cobros · panel + móvil', steps: [
+    { frame: 'panel', nav: { panel: { sec: 'cobros' } }, cue: ['nav-cobros', 'btn-t2-send'], text: 'El club prepara los cobros del 2º trimestre: 145/175, 169/199 y 127/163 €, según grupo y si es socio.', done: () => PC.S.t2 === 'sent' },
+    { frame: 'app', nav: { app: { persona: 'maite', tab: 'home' } }, cue: ['todo-pay', 'btn-do-pay'], text: 'A Maite le llega la cuota de Aimar y la paga con Bizum.', done: () => PC.S.pay.some((r) => r.student === 's-aimar' && r.t === 'T2' && r.st === 'paid') },
+    { frame: 'panel', nav: { panel: { sec: 'cobros' } }, text: 'Y en el panel aparece pagado al instante. Los domiciliados salen en la remesa SEPA para el banco.', final: true },
+  ] },
+  { id: 'aviso', t: 'Aviso a quien toca, en su idioma', d: 'Solo a las familias de infantil, en castellano y euskera, con registro de lectura.', tag: 'Comunicación', steps: [
+    { frame: 'panel', nav: { panel: { sec: 'com' } }, cue: ['seg-escuela-familias', 'tpl-pista', 'btn-send-msg'], text: 'Un cambio de pista solo para las familias de infantil. Se escribe una vez, en los dos idiomas.', done: () => PC.S.msgs.length > 3 },
+    { frame: 'app', nav: { app: { persona: 'maite', tab: 'home', lang: 'eu' } }, cue: ['bell'], text: 'A Maite le llega en euskera, porque es el idioma que tiene en la app. (Vuelve a ES arriba.)', final: true },
+  ] },
+  { id: 'fase', t: 'Fin de fase: ascensos y descensos', d: 'La app aplica la normativa y prepara la Fase II con su calendario.', tag: 'Liga · panel', steps: [
+    { frame: 'panel', nav: { panel: { sec: 'liga', sub: 'fases' } }, cue: ['btn-close-phase', 'btn-publish-phase'], text: 'Con la clasificación de hoy: quién sube, quién baja y quién queda fuera por no presentados. Publicar.', done: () => !!PC.S.phase2 },
+    { frame: 'app', nav: { app: { persona: 'mikel', tab: 'home' } }, cue: ['bell'], text: 'Cada equipo recibe en el móvil si sube, baja o se queda.', final: true },
+  ] },
+  { id: 'tv', t: 'La pantalla del club', d: 'Clasificaciones y partidos del día en la tele de la zona social.', tag: 'Detalle', steps: [
+    { frame: 'panel', nav: { panel: { sec: 'hoy' } }, cue: ['btn-tv'], text: 'Para la tele del club: clasificaciones, partidos de hoy y avisos, en bucle.', done: () => st.ui.panel.modal === 'tv' },
+    { frame: 'panel', text: 'Se abre en cualquier tele con navegador. Los jugadores se ven en pantalla mientras toman algo.', final: true },
+  ] },
+  { id: 'marca', t: 'Y ahora, con vuestra imagen', d: 'Todo lo anterior, con los colores y nombres de Oarso.', tag: 'Cierre', steps: [
+    { frame: 'shell', cue: [], act: { label: 'Cambiar a imagen Oarso', brand: 'oarso' }, text: 'La misma plataforma, con la imagen de Padel Indoor Oarso.', done: () => PC.S.brand === 'oarso' },
+    { frame: 'app', text: 'V Liga Oarso, Escuela Padel Oarso, vuestros colores. Construida solo para vosotros.', final: true },
+  ] },
+];
+
+/* ---------- interfaz ---------- */
+function bar() {
+  const b = PC.brand();
+  $('bar').innerHTML = `${PC.logo()}<div class="demo">Demo de plataforma de club<br>Ondora Studio</div><div class="grow"></div>
+    <div class="sg" role="group" aria-label="Vista">${[['movil', 'phone', 'Móvil'], ['panel', 'desktop', 'Panel'], ['completo', 'split', 'Completo']].map(([id, i, l]) => `<button class="${st.mode === id ? 'on' : ''}" data-a="mode" data-v="${id}">${ic(i, 16)}<span class="lbl">${l}</span></button>`).join('')}</div>
+    <button class="tb primary" data-a="menu">${ic('play', 15)}<span class="lbl">Guion</span></button>
+    <div class="sg ball" role="group" aria-label="Imagen"><button class="${S.brand === 'doss' ? 'on' : ''}" data-a="brand" data-v="doss">DOSS</button><button class="${S.brand === 'oarso' ? 'on' : ''}" data-a="brand" data-v="oarso">Oarso</button></div>
+    <div class="sg" role="group" aria-label="Idioma"><button class="${S.lang === 'es' ? 'on' : ''}" data-a="lang" data-v="es">ES</button><button class="${S.lang === 'eu' ? 'on' : ''}" data-a="lang" data-v="eu">EU</button></div>
+    <button class="tb" data-a="reset" title="Reiniciar la demo">${ic('reset', 16)}<span class="lbl">Reiniciar</span></button>
+    <button class="tb" data-a="fs" title="Pantalla completa">${ic('expand', 16)}</button>`;
+}
+function who() {
+  $('who').innerHTML = Object.values(PC.PERSONAS).map((p) => `<button class="${S.persona === p.id ? 'on' : ''}" data-a="persona" data-v="${p.id}" title="${esc(p.name)}">${PC.ini(p.name)}<span>${esc(p.first)}</span></button>`).join('');
+  $('whocap').textContent = PC.persona().tag.es;
+  $('side').innerHTML = `<div class="eyebrow" style="color:var(--ball)">Ver la app como</div><h2>Cada persona ve su club</h2><p class="lead">La misma app se adapta a quien la abre: capitán, rival, alumna, familia o entrenador.</p>
+    ${Object.values(PC.PERSONAS).map((p) => `<button class="pc ${S.persona === p.id ? 'on' : ''}" data-a="persona" data-v="${p.id}"><span class="avatar">${PC.ini(p.name)}</span><div><b style="font-size:14.5px">${esc(p.name)}</b><small>${esc(p.tag.es)}</small></div></button>`).join('')}
+    <button class="tb" style="margin-top:6px;justify-content:center" data-a="menu">${ic('play', 15)} Abrir el guion de la reunión</button>`;
+}
+function guide() {
+  const g = $('guide');
+  if (!st.mo) { g.classList.remove('on'); g.innerHTML = ''; fit(); return; }
+  const m = MOMENTS.find((x) => x.id === st.mo); const s = m.steps[st.step];
+  const idx = MOMENTS.indexOf(m);
+  g.classList.add('on');
+  g.innerHTML = `<div class="num">${idx + 1}</div><div class="txt"><small>${esc(m.t)} · paso ${st.step + 1} de ${m.steps.length}</small><b>${esc(s.text)}</b></div>
+    <div class="dots">${m.steps.map((_, i) => `<i class="${i === st.step ? 'on' : i < st.step ? 'done' : ''}"></i>`).join('')}</div>
+    ${s.act ? `<button class="tb primary" data-a="stepAct">${esc(s.act.label)}</button>` : ''}
+    <button class="tb" data-a="prev" title="Paso anterior">${ic('back', 16)}</button>
+    ${s.final ? `<button class="tb primary" data-a="nextMo">${idx < MOMENTS.length - 1 ? 'Siguiente momento' : 'Terminar'} ${ic('chev', 15)}</button>` : `<button class="tb" data-a="next" title="Saltar paso">${ic('chev', 16)}</button>`}
+    <button class="tb" data-a="stop" title="Cerrar guion">${ic('x', 16)}</button>`;
+  fit();
+}
+function menu() {
+  const L = $('layer');
+  if (!st.menu) { L.innerHTML = ''; return; }
+  L.innerHTML = `<div class="menu-bg" data-a="closeMenu" data-self="1"><div class="menu"><div class="row between"><div><div class="eyebrow" style="color:var(--ball)">Guion de la reunión</div><h3>10 momentos</h3></div><button class="tb" data-a="closeMenu">${ic('x', 16)}</button></div>
+    <p style="color:rgb(255 255 255 / .65);font-size:13px;margin-top:6px">Cada momento indica qué tocar: lo siguiente se ilumina en amarillo. Puedes hacerlo en cualquier orden y «Reiniciar» deja todo como al principio.</p>
+    ${MOMENTS.map((m, i) => `<button class="mo ${st.done[m.id] ? 'done' : ''}" data-a="start" data-v="${m.id}"><span class="n">${st.done[m.id] ? ic('check', 16) : i + 1}</span><div><b>${esc(m.t)}</b><small>${esc(m.d)}</small><span class="tag">${esc(m.tag)}</span></div></button>`).join('')}</div></div>`;
+}
+function intro() {
+  if (!st.intro) return;
+  const L = $('layer');
+  L.innerHTML = `<div class="intro"><div class="box">${PC.logo()}<div class="eyebrow" style="color:var(--ball);margin-top:28px">Plataforma de club · Liga · Escuela · Socios</div>
+    <h1 class="display">Todo lo que pasa<br>alrededor de la pista</h1>
+    <p>La app que construimos para la DOSS Pádel Cup, convertida en plataforma de club: la liga sin grupos de WhatsApp, la escuela sin llamadas y los socios con su club en el bolsillo. Las pistas, en Playtomic, como siempre.</p>
+    <div class="pts"><div><b>Para los jugadores</b>Cambios, resultados, clasificación y sustitutos desde el móvil.</div><div><b>Para la escuela</b>Grupos, asistencia, recuperaciones, evolución y cuotas.</div><div><b>Para el club</b>Un panel donde solo llega lo que necesita su OK.</div></div>
+    <div class="row"><button class="btn btn-ball" style="min-height:52px;font-size:16px;padding:0 22px" data-a="enter">${ic('play', 18)} Empezar</button><button class="btn" style="min-height:52px;background:rgb(255 255 255 / .08);color:#fff" data-a="enterGuide">Abrir el guion</button></div>
+    <div style="margin-top:22px;font-size:11.5px;color:rgb(255 255 255 / .4)">Demo con datos ficticios · Ondora Studio · Hernani</div></div></div>`;
+}
+function foot() { $('foot').textContent = `Demo con datos ficticios · base: app DOSS Pádel Cup 2026 · Ondora Studio`; }
+function render() {
+  S = PC.S;
+  PC.applyBrand();
+  $('stage').className = 'stage mode-' + st.mode;
+  bar(); who(); guide(); foot();
+  if (st.menu) menu(); else if (!st.intro) $('layer').innerHTML = '';
+  fit();
+}
+function fit() {
+  const stage = $('stage');
+  const extra = ($('who').offsetHeight || 44) + ($('whocap').offsetHeight || 16) + 34;
+  const sh = stage.clientHeight - 30 - extra;
+  const sw = st.mode === 'movil' ? Math.min(stage.clientWidth - 400, 520) : Math.max(300, stage.clientWidth * 0.36);
+  let k = Math.min(1, sh / 868, sw / 414);
+  k = Math.max(0.5, k);
+  $('bezel').style.transform = `scale(${k})`;
+  $('phone').style.width = 414 * k + 'px';
+  $('phone').style.height = 868 * k + 'px';
+}
+window.addEventListener('resize', fit);
+
+/* ---------- motor del guion ---------- */
+function stepCue() {
+  if (!st.mo) { send('app', { t: 'cue', ids: [] }); send('panel', { t: 'cue', ids: [] }); return; }
+  const s = MOMENTS.find((x) => x.id === st.mo).steps[st.step];
+  const ids = typeof s.cue === 'function' ? s.cue() : s.cue || [];
+  send('app', { t: 'cue', ids: s.frame === 'app' ? ids : [] });
+  send('panel', { t: 'cue', ids: s.frame === 'panel' ? ids : [] });
+}
+function applyStep() {
+  const m = MOMENTS.find((x) => x.id === st.mo); const s = m.steps[st.step];
+  const needsPanel = m.steps.some((x) => x.frame === 'panel');
+  if (needsPanel && st.mode === 'movil') setMode('completo');
+  if (s.frame === 'panel' && st.mode === 'movil') setMode('completo');
+  if (s.frame === 'app' && st.mode === 'panel') setMode('completo');
+  if (s.nav) {
+    if (s.nav.app) send('app', { t: 'nav', ...s.nav.app });
+    if (s.nav.panel) send('panel', { t: 'nav', ...s.nav.panel });
+  }
+  render();
+  setTimeout(stepCue, 250);
+}
+function check() {
+  if (!st.mo) return;
+  const m = MOMENTS.find((x) => x.id === st.mo); const s = m.steps[st.step];
+  if (!s.final && s.done && s.done()) {
+    clearTimeout(check.t);
+    check.t = setTimeout(() => { if (st.mo === m.id && m.steps[st.step] === s) { st.step++; if (m.steps[st.step].final) st.done[m.id] = true; applyStep(); } }, 900);
+  } else stepCue();
+}
+function setMode(m) { st.mode = m; try { localStorage.setItem('pcdemo.shell.mode', m); } catch (e) {} $('stage').className = 'stage mode-' + m; bar(); fit(); }
+
+const A = {
+  mode: (d) => { setMode(d.v); },
+  brand: (d) => { S.brand = d.v; PC.commit('brand'); render(); check(); },
+  lang: (d) => { S.lang = d.v; PC.commit('lang'); render(); },
+  persona: (d) => { send('app', { t: 'nav', persona: d.v, tab: 'home' }); },
+  reset: () => { if (!confirm('¿Reiniciar la demo? Todo vuelve al estado inicial.')) return; st.mo = null; st.done = {}; PC.reset(); location.reload(); },
+  fs: () => { const el = document.documentElement; const r = el.requestFullscreen || el.webkitRequestFullscreen; if (document.fullscreenElement || document.webkitFullscreenElement) { (document.exitFullscreen || document.webkitExitFullscreen).call(document); } else if (r) r.call(el); },
+  menu: () => { st.menu = true; menu(); },
+  closeMenu: (d, el, ev) => { if (d.self && ev.target !== el) return; st.menu = false; menu(); },
+  start: (d) => { st.menu = false; menu(); st.mo = d.v; st.step = 0; applyStep(); },
+  next: () => { const m = MOMENTS.find((x) => x.id === st.mo); if (st.step < m.steps.length - 1) { st.step++; if (m.steps[st.step].final) st.done[m.id] = true; applyStep(); } },
+  prev: () => { if (st.step > 0) { st.step--; applyStep(); } },
+  nextMo: () => { const i = MOMENTS.findIndex((x) => x.id === st.mo); if (i < MOMENTS.length - 1) { st.mo = MOMENTS[i + 1].id; st.step = 0; applyStep(); } else { st.mo = null; render(); stepCue(); } },
+  stop: () => { st.mo = null; render(); stepCue(); },
+  stepAct: () => { const s = MOMENTS.find((x) => x.id === st.mo).steps[st.step]; if (s.act.nav && s.act.nav.app) send('app', { t: 'nav', ...s.act.nav.app }); if (s.act.brand) { S.brand = s.act.brand; PC.commit('brand'); render(); check(); } setTimeout(stepCue, 300); },
+  enter: () => { st.intro = false; try { localStorage.setItem('pcdemo.shell.introSeen', '1'); } catch (e) {} $('layer').innerHTML = ''; render(); },
+  enterGuide: () => { A.enter(); st.menu = true; menu(); },
+};
+document.addEventListener('click', (ev) => {
+  const el = ev.target.closest('[data-a]'); if (!el) return;
+  const fn = A[el.dataset.a]; if (!fn) return;
+  ev.preventDefault(); fn(el.dataset, el, ev);
+});
+window.addEventListener('message', (e) => {
+  const m = e.data || {};
+  if (m.t === 'ui') { st.ui[m.frame] = m; check(); }
+});
+PC.on((what) => {
+  if (what && typeof what === 'object') return;
+  if (what === 'reset') return;
+  S = PC.S;
+  bar(); who();
+  check();
+});
+fApp.addEventListener('load', () => setTimeout(stepCue, 300));
+fPanel.addEventListener('load', () => setTimeout(stepCue, 300));
+render();
+intro();
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js').catch(() => {});
+})();
+</script>
+</body>
+</html>
