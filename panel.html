@@ -171,7 +171,7 @@ table.tb { width: 100%; border-collapse: collapse; font-size: 13px; }
 <div class="pn" id="root"></div>
 <div id="layer"></div>
 <div class="toasts" id="toasts" aria-live="polite"></div>
-<script src="assets/core.js" data-frame="panel"></script>
+<script charset="utf-8" src="assets/core.js" data-frame="panel"></script>
 <script>
 (function () {
 'use strict';
@@ -568,6 +568,7 @@ PC.on((what, local) => {
 });
 function applyNav(n) { if (n.sec) { ui.sec = n.sec; ui.resetScroll = true; } if (n.sub) ui.sub[n.sec] = n.sub; if ('modal' in n) ui.modal = n.modal; ui.drawer = null; render(); }
 window.addEventListener('message', (e) => { const m = e.data || {}; if (m.t === 'cue' && (m.frame === 'panel' || !m.frame)) { cueIds = m.ids || []; applyCue(); } if (m.t === 'nav' && m.frame === 'panel') applyNav(m); });
+{ const h = location.hash.slice(1); if (h) { const [a, b] = h.split(':'); ui.sec = a; if (b) ui.sub[a] = b; } }
 setInterval(() => { if (ui.sec === 'hoy' && !document.querySelector('.drawer-bg, .modal-bg, input:focus, textarea:focus')) render(); }, 60000);
 render();
 })();

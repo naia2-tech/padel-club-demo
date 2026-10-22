@@ -194,7 +194,7 @@ main > * + * { margin-top: 16px; }
 <body>
 <div id="app"></div>
 <div class="toasts" id="toasts" aria-live="polite"></div>
-<script src="assets/core.js" data-frame="app"></script>
+<script charset="utf-8" src="assets/core.js" data-frame="app"></script>
 <script>
 (function () {
 'use strict';
@@ -950,6 +950,7 @@ setInterval(() => {
     const el = document.getElementById('tleft'); if (el) el.textContent = `${String(Math.floor(left / 60)).padStart(2, '0')}:${String(left % 60).padStart(2, '0')}`;
   }
 }, 1000);
+{ const h = location.hash.slice(1); if (h) { const [a, b] = h.split(':'); ui.tab = a; if (b) ui.sub[a] = b; } }
 resetSeen();
 render();
 })();
