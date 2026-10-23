@@ -15,6 +15,7 @@
 <link rel="stylesheet" href="assets/ui.css">
 <style>
 html, body { height: 100%; }
+html.fixw, html.fixw body { width: 390px !important; min-width: 390px; max-width: 390px; overflow: hidden; }
 body { overflow: hidden; background: var(--bg); }
 #app { height: 100%; display: flex; flex-direction: column; position: relative; overflow: hidden; }
 .sbar { height: 44px; flex: none; background: var(--head); color: #fff; display: flex; align-items: flex-end; justify-content: space-between; padding: 0 26px 6px 30px; font-size: 14px; font-weight: 600; }
@@ -200,6 +201,7 @@ main > * + * { margin-top: 16px; }
 'use strict';
 const L = PC.L, T = PC.T, ic = PC.ic, esc = PC.esc;
 const EMBED = /embed/.test(location.search);
+if (/w390/.test(location.search)) document.documentElement.classList.add('fixw');
 let S = PC.S;
 const ui = { tab: 'home', sub: { liga: 'equipo', escuela: 'grupo', club: 'carnet' }, sheet: null, ligaGroup: null, flashTeam: null };
 let cueIds = [];
@@ -571,7 +573,7 @@ function clubTab() {
     if (p.member) rs.push([L('Cuota de socio · noviembre', 'Bazkide kuota · azaroa'), p.member === 'Familiar' ? 50 : p.member === 'Pádel + Gym' ? 40 : 30, L('Domiciliado el 2 nov', 'Azaroaren 2an helbideratuta')], [L('Cuota de socio · octubre', 'Bazkide kuota · urria'), p.member === 'Familiar' ? 50 : p.member === 'Pádel + Gym' ? 40 : 30, L('Domiciliado el 2 oct', 'Urriaren 2an helbideratuta')]);
     if (p.team) rs.push([L('Liga · matrícula y partidos Fase I', 'Liga · matrikula eta I. faseko partidak'), null, L('Pagado en recepción el 9 oct', 'Harreran ordainduta urriaren 9an')]);
     S.pay.filter((r) => r.student === (p.student || p.child) && r.st === 'paid').forEach((r) => rs.push([r.concept, r.amount, L('Pagado', 'Ordainduta') + ' · ' + r.method]));
-    body = `<section class="card list">${rs.map(([t, a, s]) => `<div class="li"><div class="ti" style="background:var(--ok-soft);color:var(--ok)">${ic('check', 18)}</div><div class="grow"><b>${t}</b><small>${s}</small></div>${a ? `<b class="mono" style="font-size:14px">${PC.eur(a)}</b>` : ''}<button class="iconbtn" style="background:var(--line-2);color:var(--ink-2);width:34px;height:34px" data-a="receipt">${ic('download', 15)}</button></div>`).join('')}</section><div class="muted" style="font-size:12px;text-align:center">${L('Facturas con TicketBAI, descargables en PDF.', 'TicketBAI fakturak, PDFn deskargagarriak.')}</div>`;
+    body = `<section class="card list">${rs.map(([t, a, s]) => `<div class="li"><div class="ti" style="background:var(--ok-soft);color:var(--ok)">${ic('check', 18)}</div><div class="grow"><b>${t}</b><small>${s}</small></div>${a ? `<b class="mono" style="font-size:14px">${PC.eur(a)}</b>` : ''}<button class="iconbtn" style="background:var(--line-2);color:var(--ink-2);width:34px;height:34px" data-a="receipt">${ic('download', 15)}</button></div>`).join('')}</section><div class="muted" style="font-size:12px;text-align:center">${L('Facturas TicketBAI emitidas por el software de facturación del club, descargables en PDF.', 'Klubaren fakturazio-softwareak igorritako TicketBAI fakturak, PDFn deskargagarriak.')}</div>`;
   } else if (sub === 'docs') {
     const docs = [[L('Normativa de la liga 2026-27', 'Ligako araudia 2026-27'), p.team ? L('Aceptada al inscribiros', 'Izena ematean onartua') : L('Consultar', 'Kontsultatu')], [L('Protección de datos', 'Datuen babesa'), L('Aceptada', 'Onartua')], [L('Normas de uso de la instalación', 'Instalazioaren erabilera-arauak'), L('Consultar', 'Kontsultatu')], [L('Bases de la Americana de Navidad', 'Gabonetako americanaren oinarriak'), L('Consultar', 'Kontsultatu')]];
     if (p.role === 'family') docs.splice(1, 0, [L('Autorización de imagen de Aimar', 'Aimarren irudi-baimena'), L('Firmada el 14 sep', 'Irailaren 14an sinatua')]);
@@ -732,7 +734,7 @@ function renderSheet() {
   }
   if (s.type === 'pay') {
     const r = S.pay.find((x) => x.id === s.id); const st = PC.student(r.student);
-    if (s.done) return sheetWrap(L('Pago completado', 'Ordainketa eginda'), `<div class="payok"><div class="ok">${ic('check', 40)}</div><b style="font-size:18px">${PC.eur(r.amount)}</b><div class="muted">${esc(r.concept)} · ${esc(st.name)}</div><div class="muted" style="font-size:12.5px;margin-top:8px">${L('El club ya lo ve como pagado. Recibo con TicketBAI en Club › Recibos.', 'Klubak ordainduta ikusten du jada. TicketBAI ordainagiria Kluba › Ordainagiriak atalean.')}</div></div><button class="btn btn-primary btn-block" data-a="closeSheet">${L('Hecho', 'Eginda')}</button>`);
+    if (s.done) return sheetWrap(L('Pago completado', 'Ordainketa eginda'), `<div class="payok"><div class="ok">${ic('check', 40)}</div><b style="font-size:18px">${PC.eur(r.amount)}</b><div class="muted">${esc(r.concept)} · ${esc(st.name)}</div><div class="muted" style="font-size:12.5px;margin-top:8px">${L('El club ya lo ve como pagado. Recibo en Club › Recibos; la factura TicketBAI la emite el software de facturación del club.', 'Klubak ordainduta ikusten du jada. TicketBAI ordainagiria Kluba › Ordainagiriak atalean.')}</div></div><button class="btn btn-primary btn-block" data-a="closeSheet">${L('Hecho', 'Eginda')}</button>`);
     return sheetWrap(L('Pagar cuota', 'Kuota ordaindu'), `
       <section class="card pad"><div class="kv"><dt>${L('Concepto', 'Kontzeptua')}</dt><dd>${esc(r.concept)}</dd><dt>${L('Alumno', 'Ikaslea')}</dt><dd>${esc(st.name)}</dd><dt>${L('Tarifa', 'Tarifa')}</dt><dd>${esc(PC.TARIFAS[PC.tarifaOf(st)].es)} · ${st.socio ? L('socio', 'bazkidea') : L('no socio', 'ez bazkidea')}</dd><dt>${L('Importe', 'Zenbatekoa')}</dt><dd class="mono" style="font-size:18px">${PC.eur(r.amount)}</dd></div></section>
       <div class="col">${[['Bizum', 'phone'], [L('Tarjeta', 'Txartela'), 'card'], ['Apple Pay', 'wallet']].map(([t, i]) => `<button class="opt ${(s.method || 'Bizum') === t ? 'on' : ''}" data-a="payMethod" data-v="${t}"><span class="radio"></span>${ic(i, 18)}<b style="font-size:14px">${t}</b></button>`).join('')}</div>
@@ -899,7 +901,7 @@ const A = {
   joinLeague: () => toast(L('Inscripción a la Fase II', 'II. faserako izen-ematea'), L('Formulario de equipo con nivel Playtomic y aceptación de la normativa.', 'Talde-formularioa Playtomic mailarekin eta araudia onartuta.'), 'trophy'),
   askSpot: () => toast(L('Solicitud enviada', 'Eskaera bidalita'), L('Te apuntamos a la lista de espera de ese grupo y te avisamos al quedar plaza.', 'Talde horren itxaron-zerrendan sartu zaitugu.'), 'school'),
   beMember: () => toast(L('Alta de socio', 'Bazkide altan'), L('Mandato SEPA firmado en el móvil. Sin papeles en recepción.', 'SEPA agindua mugikorrean sinatuta. Paperik gabe.'), 'card'),
-  receipt: () => toast(L('Recibo descargado', 'Ordainagiria deskargatuta'), L('PDF con TicketBAI.', 'PDFa TicketBAI-rekin.'), 'download'),
+  receipt: () => toast(L('Recibo descargado', 'Ordainagiria deskargatuta'), L('PDF; la factura TicketBAI la emite el software de facturación del club.', 'PDFa; TicketBAI faktura klubaren fakturazio-softwareak igortzen du.'), 'download'),
   noop: () => toast(L('En la app real abre el teléfono o el mapa', 'Benetako aplikazioan telefonoa edo mapa irekitzen da'), '', 'info'),
 };
 document.addEventListener('click', (ev) => {
@@ -953,6 +955,11 @@ setInterval(() => {
 { const h = location.hash.slice(1); if (h) { const [a, b] = h.split(':'); ui.tab = a; if (b) ui.sub[a] = b; } }
 resetSeen();
 render();
+// #tab:sub:hoja=id para fotografiar una hoja concreta (match, change, result, sub, roll, eval, notifs)
+{ const parts = location.hash.slice(1).split(':'); const sh = parts[2];
+  if (sh) { const [t, id, id2] = sh.split('='); 
+    if (t === 'match') A.openMatch({ id }); else if (t === 'change') { A.openChange({ id }); A.suggest(); } else if (t === 'result') A.openResult({ id });
+    else if (t === 'sub') A.openSub({ id }); else if (t === 'roll') A.openRoll({ g: id, d: id2 }); else if (t === 'eval') A.openEval({ sid: id }); else if (t === 'notifs') A.openNotifs(); } }
 })();
 </script>
 </body>

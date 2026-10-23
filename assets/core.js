@@ -907,9 +907,11 @@
   PC.load();
   // ?brand=oarso&persona=leire en el enlace (también desde el marco del iPad)
   try {
-    let q = new URLSearchParams(location.search);
-    try { if (window.top !== window && window.top.location.search) q = new URLSearchParams(window.top.location.search); } catch (e) {}
-    const b = q.get('brand'), p = q.get('persona'), l = q.get('lang');
+    const own = new URLSearchParams(location.search);
+    let tq = new URLSearchParams('');
+    try { if (window.top !== window) tq = new URLSearchParams(window.top.location.search); } catch (e) {}
+    const g = (k) => own.get(k) || tq.get(k);
+    const b = g('brand'), p = g('persona'), l = g('lang');
     if (b && PC.BRANDS[b]) S.brand = b;
     if (p && PC.PERSONAS[p]) S.persona = p;
     if (l === 'es' || l === 'eu') S.lang = l;
