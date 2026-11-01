@@ -43,7 +43,17 @@ svg.ic { flex: none; display: block; width: 1.2em; height: 1.2em; stroke: curren
   .desk-note { position: fixed; left: 24px; bottom: 20px; font-size: 12px; color: #5f6f91; max-width: 260px; line-height: 1.4; }
   .desk-note b { color: #8b97b3; display: block; margin-bottom: 2px; }
 }
-@media (max-width: 639px) { .desk-note { display: none; } }
+@media (max-width: 639px) {
+  .desk-note { display: none; }
+  /* En el móvil el marco va fijo a la ventana: solo se desplaza el contenido (#app) y la barra inferior no se mueve */
+  html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+  #stage { display: block; min-height: 0; }
+  #frame { position: fixed; inset: 0; width: auto; height: auto; }
+  #app { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+  .tabbar { bottom: calc(12px + env(safe-area-inset-bottom)); }
+  .screen { padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
+  .toast { bottom: calc(96px + env(safe-area-inset-bottom)); }
+}
 
 /* ---------- utilidades ---------- */
 .display { font-family: var(--f-display); font-weight: 800; text-transform: uppercase; letter-spacing: .01em; line-height: .92; }

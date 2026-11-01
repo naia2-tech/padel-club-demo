@@ -491,7 +491,8 @@
       default: html = scrHoy();
     }
     if (!['circuito', 'cardio'].includes(r)) stopTimer();
-    app.innerHTML = html + (showTab ? tabbar(groupOf(r)) : '');
+    app.innerHTML = html;
+    $('#nav').innerHTML = showTab ? tabbar(groupOf(r)) : '';
     app.scrollTop = keep ? y : 0;
     lastKey = location.hash;
     if (r === 'carnet') drawQr();
