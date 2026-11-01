@@ -197,7 +197,7 @@
     const f = G.fichas[ex.id];
     const inMine = S.mine.some((m) => m.ex === ex.id);
     const m = G.machine(ex.m);
-    const dosis = f ? f.dosis : ex.mov ? t('dosisMov') : t('dosis' + ex.lvl);
+    const dosis = f && f.dosis ? f.dosis : (G.dosisX && G.dosisX[ex.id]) || (ex.mov ? t('dosisMov') : t('dosis' + ex.lvl));
     const alt = (aid, label) => { const a = aid ? G.ex(aid) : null; return a ? `<button class="vcard" data-act="nav" data-to="#/e/${a.id}"><img src="${img(a.img)}" alt=""><div><small>${label}</small><b>${N(a)}</b></div></button>` : ''; };
     const alts = f ? [alt(f.facil, t('masFacil')), alt(f.dificil, t('masDificil'))].filter(Boolean) : [];
     // contexto: la lista de la que se viene (región o máquina), para volver y para anterior / siguiente
@@ -218,7 +218,7 @@
       ${f.aj && f.aj.length ? `<section class="sec"><div class="sec-h"><h2>${t('ajusta')}</h2></div><div class="card pad"><ul class="adj">${f.aj.map((s) => `<li>${s}</li>`).join('')}</ul></div></section>` : ''}
       <section class="sec"><div class="sec-h"><h2>${t('hazlo')}</h2></div><div class="card pad"><ol class="steps">${f.haz.map((s) => `<li>${s}</li>`).join('')}</ol></div></section>
       <section class="sec"><div class="sec-h"><h2>${t('evita')}</h2></div><div class="card pad"><ul class="warn">${f.ev.map((s) => `<li>${s}</li>`).join('')}</ul></div></section>` : `<div class="tip warn mt16 small">${ic('info')} ${t('fichaBorrador')}</div>`}
-      <section class="sec"><div class="sec-h"><h2>${t('cuanto')}</h2></div><div class="card pad"><b>${dosis}</b>${(() => { const lt = G.loadType(ex); const title = { ext: 'pesoOk', bw: 'pesoOkBw', band: 'pesoOkBand', iso: 'pesoOkIso' }[lt]; const body = f && f.reg && S.lang === 'es' ? f.reg : { ext: t('pesoTxt'), bw: t('pesoBw'), band: t('pesoBand'), iso: t('pesoIso') }[lt]; return title ? `<div class="eyebrow mt12">${t(title)}</div><div class="small mt8">${body}</div>` : `<div class="small muted mt8">${t('pesoMov')}</div>`; })()}</div></section>
+      <section class="sec"><div class="sec-h"><h2>${t('cuanto')}</h2></div><div class="card pad"><b>${dosis}</b>${(() => { const lt = G.loadType(ex); const title = { ext: 'pesoOk', bw: 'pesoOkBw', band: 'pesoOkBand', iso: 'pesoOkIso', bal: 'pesoOkBal', plio: 'pesoOkPlio', ctrl: 'pesoOkCtrl', carry: 'pesoOkCarry' }[lt]; const generic = { ext: 'pesoTxt', bw: 'pesoBw', band: 'pesoBand', iso: 'pesoIso', bal: 'pesoBal', plio: 'pesoPlio', ctrl: 'pesoCtrl', carry: 'pesoCarry' }[lt]; const own = S.lang === 'eu' ? (f && f.reg_eu) : ((f && f.reg) || (G.regs && G.regs[ex.id])); const body = own || (generic ? t(generic) : ''); return title ? `<div class="eyebrow mt12">${t(title)}</div><div class="small mt8">${body}</div>` : `<div class="small muted mt8">${(S.lang === 'es' && G.regs && G.regs[ex.id]) || t('pesoMov')}</div>`; })()}</div></section>
       ${alts.length ? `<section class="sec"><div class="grid2">${alts.join('')}</div></section>` : ''}
       <section class="sec"><div class="card pad" style="border-color:#5a2222"><div class="eyebrow" style="color:var(--bad)">${t('paraY')}</div><div class="small mt8">${t('paraTxt')}</div><button class="btn btn-ghost btn-sm mt12" data-act="help" data-m="${ex.m}" data-ex="${ex.id}">${ic('help')} ${t('pedirAyuda')}</button></div></section>
       <div class="xs faint mt16">${t('revisado')}: ${f && f.revisado ? esc(f.revisado) : t('pendienteRev') + '.'}</div>
