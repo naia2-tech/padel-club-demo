@@ -50,9 +50,12 @@ svg.ic { flex: none; display: block; width: 1.2em; height: 1.2em; stroke: curren
   #stage { display: block; min-height: 0; }
   #frame { position: fixed; inset: 0; width: auto; height: auto; }
   #app { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
-  .tabbar { bottom: calc(12px + env(safe-area-inset-bottom)); }
-  .screen { padding-bottom: calc(110px + env(safe-area-inset-bottom)); }
-  .toast { bottom: calc(96px + env(safe-area-inset-bottom)); }
+  /* iPhone: nada bajo la isla ni bajo el indicador de inicio; la barra va pegada al borde inferior */
+  .screen { padding-top: calc(14px + env(safe-area-inset-top, 0px)); padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px)); }
+  .onb { padding-top: calc(20px + env(safe-area-inset-top, 0px)); padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)); }
+  .tabbar { left: 0; right: 0; bottom: 0; border-radius: 22px 22px 0 0; border-width: 1px 0 0; padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px)); }
+  .sheet { padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+  .toast { bottom: calc(92px + env(safe-area-inset-bottom, 0px)); }
 }
 
 /* ---------- utilidades ---------- */
@@ -333,7 +336,10 @@ button.qrbox { width: 100%; cursor: pointer; }
 .scanbox.off .scanframe { display: none; }
 
 /* ---------- documentos: vista tipo PDF ---------- */
-.paper { background: #fff; color: #111; border-radius: 14px; padding: 20px 18px 14px; font-size: .92em; line-height: 1.5; box-shadow: 0 20px 50px -20px rgb(0 0 0 / .8); }
+.paper { background: #fff; color: #111; border-radius: 6px; padding: 0 18px 14px; font-size: .92em; line-height: 1.5; box-shadow: 0 20px 50px -20px rgb(0 0 0 / .8); overflow: hidden; }
+.pband { display: flex; justify-content: space-between; align-items: center; background: #061634; color: #fff; margin: 0 -18px 16px; padding: 12px 18px; }
+.pband .pclub { color: var(--lime); } .pclub2 { font-size: .72em; color: #c8d2e6; }
+.pref { font-family: var(--f-mono); font-size: .68em; text-align: right; color: #fff; line-height: 1.4; }
 .paper h1 { font: 800 1.5em/1.1 var(--f-body); margin: 4px 0 2px; color: #061634; }
 .paper h3 { font-size: .95em; margin: 16px 0 6px; color: #061634; }
 .paper p { margin: 10px 0; }

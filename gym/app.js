@@ -44,6 +44,7 @@
     trash: '<path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/>', dl: '<path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/>', lang: '<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>',
     pause: '<path d="M8 5v14M16 5v14"/>', next: '<path d="M5 5l10 7-10 7zM19 5v14"/>', reset: '<path d="M3 12a9 9 0 1 0 3-6.7M3 4v5h5"/>', id: '<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="12" r="2"/><path d="M14 10h4M14 14h4M6 17a3 3 0 0 1 6 0"/>',
     info: '<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>', play: '<path d="M8 5l11 7-11 7z"/>', cal: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>', text: '<path d="M4 7V4h16v3M9 20h6M12 4v16"/>',
+    cam: '<path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
     sound: '<path d="M4 10v4h4l5 4V6L8 10zM16 9a4 4 0 0 1 0 6"/>', vib: '<rect x="8" y="3" width="8" height="18" rx="2"/><path d="M4 9v6M20 9v6"/>', shield: '<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/>', doc: '<path d="M6 3h8l4 4v14H6zM14 3v4h4M9 13h6M9 17h6"/>',
   };
   const ic = (n, s) => `<svg class="ic" viewBox="0 0 24 24"${s ? ` style="width:${s}px;height:${s}px"` : ''}>${P[n] || ''}</svg>`;
@@ -478,44 +479,108 @@
   function closeSheet() { stopScan(); over().innerHTML = ''; }
   let toastT = null;
   function toast(msg) { let el = $('#toast'); if (!el) { el = document.createElement('div'); el.id = 'toast'; el.className = 'toast'; $('#frame').appendChild(el); } el.textContent = msg; clearTimeout(toastT); toastT = setTimeout(() => el.remove(), 2200); }
-  let helpSeq = 0;
+  // ---------- incidencias: el socio avisa al club de lo que ha visto en una máquina ----------
+  const INC_TIPOS = ['nofunciona', 'falta', 'rota', 'limpieza', 'otro'];
   function openHelp(mcode, exid) {
     const m = mcode ? G.machine(mcode) : null; const ex = exid ? G.ex(exid) : null;
-    const where = [ex ? N(ex) : '', m ? `${m.code} · ${N(m)}` : ''].filter(Boolean).join(' · ');
-    sheet(`<div class="eyebrow lime">${t('pedirAyuda')}</div><div class="display h2">${t('ayudaT')}</div>${where ? `<div class="small muted mb12">${where}</div>` : ''}
-      <div class="col" style="gap:8px">${[['maq', 'ayudaMaq', 'tool'], ['ej', 'ayudaEj', 'help'], ['otro', 'ayudaOtro', 'bell']].map(([k, l, i]) => `<button class="opt" data-act="helpsend" data-v="${t(l)}" data-w="${where}"><span class="iconbtn">${ic(i)}</span><b>${t(l)}</b></button>`).join('')}</div>
-      <button class="btn btn-ghost btn-block mt12" data-act="closesheet">${t('cancelar')}</button>`);
+    const where = [m ? `${m.code} · ${N(m)}` : '', ex ? N(ex) : ''].filter(Boolean).join(' · ');
+    sheet(`<div class="eyebrow lime">${t('incidencia')}</div><div class="display h2">${t('incT')}</div>${where ? `<div class="small mb8"><b>${where}</b></div>` : ''}
+      <div class="small muted mb12">${t('incTxt')}</div>
+      <div class="chips" id="inc-tipos">${INC_TIPOS.map((k) => `<button class="chip" data-act="inctipo" data-v="${k}">${t('inc_' + k)}</button>`).join('')}</div>
+      <textarea id="inc-txt" rows="3" placeholder="${t('incPh')}"></textarea>
+      <label class="btn btn-ghost btn-block mt8" style="cursor:pointer">${ic('cam')} <span id="inc-foto-l">${t('incFoto')}</span><input type="file" accept="image/*" capture="environment" id="inc-foto" hidden></label>
+      <div id="inc-prev" class="mt8"></div>
+      <button class="btn btn-lime btn-lg btn-block mt12" id="inc-send" data-act="incsend" data-m="${mcode || ''}" data-ex="${exid || ''}" disabled>${ic('check')} ${t('incEnviar')}</button>
+      <button class="btn btn-ghost btn-block mt8" data-act="closesheet">${t('cancelar')}</button>`);
+    const f = $('#inc-foto'); if (f) f.addEventListener('change', () => { const file = f.files && f.files[0]; if (!file) return; const r = new FileReader(); r.onload = () => { $('#inc-prev').innerHTML = `<img src="${r.result}" alt="" style="width:100%;max-height:180px;object-fit:cover;border-radius:14px">`; $('#inc-foto-l').textContent = file.name.length > 28 ? file.name.slice(0, 26) + '…' : file.name; }; r.readAsDataURL(file); });
   }
-  function helpSend(motivo, where) {
-    const id = ++helpSeq; const at = hm(new Date());
-    sheet(`<div class="help-ok"><div class="big">${ic('check', 30)}</div><div class="display h2">${t('avisoEnviado')}</div><div class="small muted">${at}${where ? ` · ${where}` : ''}</div><div class="small mt8"><b>${motivo}</b></div>
-      <div class="tip mt16 small" id="help-status">${t('recepcionTarda')}</div>
+  function incSend(mcode, exid) {
+    const tipo = ($('#inc-tipos .chip.on') || {}).dataset; if (!tipo) return;
+    const txt = ($('#inc-txt') || {}).value || ''; const foto = !!($('#inc-prev img'));
+    S.inc = S.inc || []; const n = 41 + S.inc.length; const ref = `INC-2026-${String(n).padStart(4, '0')}`;
+    const rec = { ref, m: mcode || null, ex: exid ? +exid : null, tipo: tipo.v, txt: txt.trim(), foto, at: new Date().toISOString(), estado: 'abierta' };
+    S.inc.push(rec); save();
+    const m = mcode ? G.machine(mcode) : null;
+    sheet(`<div class="help-ok"><div class="big">${ic('check', 30)}</div><div class="display h2">${t('incGracias')}</div><div class="small muted">${ref} · ${hm(new Date())}${m ? ` · ${m.code} ${N(m)}` : ''}</div><div class="small mt8"><b>${t('inc_' + tipo.v)}</b>${rec.txt ? `<div class="muted mt8">«${esc(rec.txt)}»</div>` : ''}</div>
+      <div class="tip lime mt16 small">${t('incOk')}</div>
       <button class="btn btn-lime btn-block mt16" data-act="closesheet">${t('cerrar')}</button></div>`);
-    setTimeout(() => { const el = $('#help-status'); if (el && helpSeq === id) { el.className = 'tip lime mt16 small'; el.innerHTML = `<b>${t('vanParaAlla')}</b> · Mikel, ${S.lang === 'eu' ? 'harrera' : 'recepción'} · ${hm(new Date())}`; } }, 6000);
   }
 
-  // ---------- documentos firmados (vista tipo PDF) ----------
+  // ---------- documentos firmados: una sola fuente de datos para la vista y para el PDF ----------
   const SIG = '<svg class="sig" viewBox="0 0 300 80"><path d="M14 56c22-38 36-38 30-6-4 22 16-30 36-24s-8 30 12 24 22-32 40-26 4 26 24 22 30-36 46-28-10 28 10 26 36-16 60-24" fill="none" stroke="#1b2a6b" stroke-width="2.2" stroke-linecap="round"/></svg>';
-  function scrDoc(id) {
-    const kv = (rows) => `<dl class="pkv">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`;
-    const stamp = '<div class="pstamp">PADEL INDOOR<br>OARSO<br><small>Gimnasio · Errenteria</small></div>';
-    const sigBlock = (when, ref, extra) => `<div class="psig"><div class="row between" style="align-items:flex-end"><div><div class="plab">Firma del socio</div>${SIG}<div class="pname">Naia Alberdi · socio nº 0421</div></div>${stamp}</div><div class="pmeta">${t('firmado')} ${when} · tableta de recepción · IP 88.···.···.12<br>Documento ${ref} · huella SHA-256 9f3a1c77…d2e4${extra ? ' · ' + extra : ''}</div></div>`;
-    const Q = ['¿Le ha dicho alguna vez su médico que tiene una enfermedad del corazón o hipertensión?', '¿Siente dolor en el pecho en reposo, en sus actividades diarias o al hacer actividad física?', '¿Pierde el equilibrio por mareos o ha perdido el conocimiento en los últimos 12 meses?', '¿Le han diagnosticado otra enfermedad crónica, distinta de las del corazón o la hipertensión?', '¿Toma actualmente medicación prescrita para una enfermedad crónica?', '¿Tiene, o ha tenido en los últimos 12 meses, un problema de huesos, articulaciones o tejidos blandos que pueda empeorar al ser más activo?', '¿Le ha dicho su médico que solo debe hacer actividad física supervisada?'];
-    const R = ['El acceso a la sala es personal, con el carné de la app o el nombre en recepción.', 'Toalla obligatoria en bancos y máquinas, y limpieza del puesto al terminar.', 'El material vuelve a su sitio: discos en los soportes, mancuernas en el mancuernero.', 'Calzado deportivo limpio y ropa adecuada.', 'Los menores de 18 años necesitan autorización firmada de madre, padre o tutor.', 'No se graba ni se fotografía a otras personas sin su permiso.', 'Cualquier incidencia con una máquina, molestia o malestar se comunica en recepción.', 'Se respetan el horario, el aforo y las indicaciones del personal.'];
+  const PARQ = ['¿Le ha dicho alguna vez su médico que tiene una enfermedad del corazón o hipertensión?', '¿Siente dolor en el pecho en reposo, en sus actividades diarias o al hacer actividad física?', '¿Pierde el equilibrio por mareos o ha perdido el conocimiento en los últimos 12 meses?', '¿Le han diagnosticado otra enfermedad crónica, distinta de las del corazón o la hipertensión?', '¿Toma actualmente medicación prescrita para una enfermedad crónica?', '¿Tiene, o ha tenido en los últimos 12 meses, un problema de huesos, articulaciones o tejidos blandos que pueda empeorar al ser más activo?', '¿Le ha dicho su médico que solo debe hacer actividad física supervisada?'];
+  const NORMAS = ['El acceso a la sala es personal, con el carné de la app o el nombre en recepción.', 'Toalla obligatoria en bancos y máquinas, y limpieza del puesto al terminar.', 'El material vuelve a su sitio: discos en los soportes, mancuernas en el mancuernero.', 'Calzado deportivo limpio y ropa adecuada.', 'Los menores de 18 años necesitan autorización firmada de madre, padre o tutor.', 'No se graba ni se fotografía a otras personas sin su permiso.', 'Cualquier incidencia con una máquina, molestia o malestar se comunica en recepción.', 'Se respetan el horario, el aforo y las indicaciones del personal.'];
+  const socioName = () => `${S.name} Alberdi`;
+  function docData(id) {
+    const socio = [['Socio', `${socioName()} · nº 0421`]];
     const D = {
-      aptitud: { title: t('docAptitud'), sub: 'Cuestionario PAR-Q+ (versión 2025), sin modificaciones · Documento v1 · castellano',
-        body: kv([['Socio', 'Naia Alberdi · nº 0421'], ['Fecha', '03/11/2026'], ['Validez', '12 meses · hasta el 03/11/2027'], ['Idioma', 'Castellano']]) + `<h3>Siete preguntas sobre su salud</h3><ol class="pq">${Q.map((q) => `<li><span>${q}</span><b>NO</b></li>`).join('')}</ol><div class="pres"><b>Resultado:</b> todas las respuestas son NO. Puede empezar a hacer actividad física, despacio y progresando poco a poco. Esta declaración deja de ser válida si cambia su estado de salud.</div><p>Declaro que he leído y comprendido las preguntas y que las he respondido con sinceridad. Sé que debo avisar al personal del gimnasio si mi estado de salud cambia.</p>` + sigBlock('el 03/11/2026 a las 18:41', 'OG-APT-2026-0421', 'acceso restringido al responsable del gimnasio') },
-      normas: { title: t('docNormas'), sub: 'Normas de uso de la sala · Documento v1 · castellano',
-        body: kv([['Socio', 'Naia Alberdi · nº 0421'], ['Fecha', '03/11/2026'], ['Vigencia', 'Desde el 01/01/2027']]) + `<h3>Normas de uso</h3><ol class="pn">${R.map((r) => `<li>${r}</li>`).join('')}</ol><p>He leído y acepto las normas de uso del gimnasio de Padel Indoor Oarso.</p>` + sigBlock('el 03/11/2026 a las 18:43', 'OG-NOR-2026-0421', '') },
-      cuota: { title: t('docCuota'), sub: 'Justificante de cuota al día · no es una factura',
-        body: kv([['Socio', 'Naia Alberdi · nº 0421'], ['Modalidad', 'Gimnasio'], ['Periodo', 'Noviembre de 2026 · del 1 al 30'], ['Forma de pago', 'Domiciliación bancaria'], ['Estado', 'Al día']]) + `<p>Padel Indoor Oarso certifica que la persona indicada tiene la cuota del gimnasio al día para el periodo señalado.</p><div class="psig"><div class="row between" style="align-items:flex-end"><div><div class="plab">Emitido</div><div class="pname">01/11/2026 · 09:00 · recepción</div></div>${stamp}</div><div class="pmeta">Documento OG-CUO-2026-11-0421 · La factura se emite con TicketBAI desde el programa de facturación del club.</div></div>` },
+      aptitud: { title: t('docAptitud'), sub: 'Cuestionario PAR-Q+ (versión 2025), sin modificaciones · Documento v1 · castellano', ref: 'OG-APT-2026-0421', fecha: '03/11/2026',
+        kv: [...socio, ['Fecha', '03/11/2026'], ['Validez', '12 meses · hasta el 03/11/2027'], ['Idioma', 'Castellano']],
+        blocks: [{ h: 'Siete preguntas sobre su salud', type: 'qa', items: PARQ.map((q) => [q, 'NO']) }, { type: 'box', text: 'Resultado: todas las respuestas son NO. Puede empezar a hacer actividad física, despacio y progresando poco a poco. Esta declaración deja de ser válida si cambia su estado de salud.' }, { type: 'p', text: 'Declaro que he leído y comprendido las preguntas y que las he respondido con sinceridad. Sé que debo avisar al personal del gimnasio si mi estado de salud cambia.' }],
+        sign: { when: '03/11/2026 · 18:41', extra: 'Acceso restringido al responsable del gimnasio' } },
+      normas: { title: t('docNormas'), sub: 'Normas de uso de la sala · Documento v1 · castellano', ref: 'OG-NOR-2026-0421', fecha: '03/11/2026',
+        kv: [...socio, ['Fecha', '03/11/2026'], ['Vigencia', 'Desde el 01/01/2027']],
+        blocks: [{ h: 'Normas de uso', type: 'ol', items: NORMAS }, { type: 'p', text: 'He leído y acepto las normas de uso del gimnasio de Padel Indoor Oarso.' }],
+        sign: { when: '03/11/2026 · 18:43', extra: '' } },
+      cuota: { title: t('docCuota'), sub: 'Justificante de cuota al día · no es una factura', ref: 'OG-CUO-2026-11-0421', fecha: '01/11/2026',
+        kv: [...socio, ['Modalidad', 'Gimnasio'], ['Periodo', 'Noviembre de 2026 · del 1 al 30'], ['Forma de pago', 'Domiciliación bancaria'], ['Estado', 'Al día']],
+        blocks: [{ type: 'p', text: 'Padel Indoor Oarso certifica que la persona indicada tiene la cuota del gimnasio al día para el periodo señalado.' }, { type: 'p', text: 'La factura correspondiente se emite con TicketBAI desde el programa de facturación del club.' }],
+        sign: null, emitted: '01/11/2026 · 09:00 · recepción' },
     };
-    const d = D[id]; if (!d) return scrCarnet();
-    return `<div class="screen">${top(d.title, `<button class="iconbtn noprint" data-act="print" aria-label="${t('descargarPdf')}">${ic('dl')}</button>`)}
-      <div class="paper"><div class="phead"><div class="pclub">Padel Indoor Oarso · Gimnasio</div><h1>${d.title}</h1><div class="psub">${d.sub}</div></div>${d.body}<div class="pfoot">${t('ejemploDoc')}</div></div>
-      <button class="btn btn-lime btn-lg btn-block mt16 noprint" data-act="print">${ic('dl')} ${t('descargarPdf')}</button>
+    return D[id];
+  }
+  function scrDoc(id) {
+    const d = docData(id); if (!d) return scrCarnet();
+    const kv = `<dl class="pkv">${d.kv.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`;
+    const blocks = d.blocks.map((b) => (b.h ? `<h3>${b.h}</h3>` : '') + (b.type === 'qa' ? `<ol class="pq">${b.items.map(([q, a]) => `<li><span>${q}</span><b>${a}</b></li>`).join('')}</ol>` : b.type === 'ol' ? `<ol class="pn">${b.items.map((r) => `<li>${r}</li>`).join('')}</ol>` : b.type === 'box' ? `<div class="pres">${b.text}</div>` : `<p>${b.text}</p>`)).join('');
+    const stamp = '<div class="pstamp">PADEL INDOOR<br>OARSO<br><small>Gimnasio · Errenteria</small></div>';
+    const foot = d.sign
+      ? `<div class="psig"><div class="row between" style="align-items:flex-end"><div><div class="plab">Firma del socio</div>${SIG}<div class="pname">${socioName()} · socio nº 0421</div></div>${stamp}</div><div class="pmeta">${t('firmado')} ${d.sign.when} · tableta de recepción · IP 88.···.···.12<br>Documento ${d.ref} · huella SHA-256 9f3a1c77…d2e4${d.sign.extra ? ' · ' + d.sign.extra : ''}</div></div>`
+      : `<div class="psig"><div class="row between" style="align-items:flex-end"><div><div class="plab">Emitido</div><div class="pname">${d.emitted}</div></div>${stamp}</div><div class="pmeta">Documento ${d.ref}</div></div>`;
+    return `<div class="screen">${top(d.title, `<button class="iconbtn noprint" data-act="pdf" data-v="${id}" aria-label="${t('descargarPdf')}">${ic('dl')}</button>`)}
+      <div class="paper"><div class="pband"><div><div class="pclub">Padel Indoor Oarso · Gimnasio</div><div class="pclub2">Errenteria · Gipuzkoa</div></div><div class="pref">${d.ref}<br>${d.fecha}</div></div><h1>${d.title}</h1><div class="psub">${d.sub}</div>${kv}${blocks}${foot}<div class="pfoot">${t('ejemploDoc')}</div></div>
+      <button class="btn btn-lime btn-lg btn-block mt16 noprint" data-act="pdf" data-v="${id}">${ic('dl')} ${t('descargarPdf')}</button>
       <div class="xs faint mt8 center noprint">${t('custodia')}</div>
     </div>`;
+  }
+  function sigPng() {
+    return new Promise((res) => { const im = new Image(); im.onload = () => { const c = document.createElement('canvas'); c.width = 600; c.height = 160; c.getContext('2d').drawImage(im, 0, 0, 600, 160); res(c.toDataURL('image/png')); }; im.onerror = () => res(null); im.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(SIG.replace('class="sig" ', 'xmlns="http://www.w3.org/2000/svg" ')))); });
+  }
+  async function downloadPdf(id) {
+    const d = docData(id); if (!d || !window.jspdf) { toast('PDF…'); return; }
+    const { jsPDF } = window.jspdf; const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
+    const W = 210, L = 18, R = 192, TW = R - L; let y = 0;
+    const page = () => { pdf.setFillColor(6, 22, 52); pdf.rect(0, 0, W, 24, 'F'); pdf.setTextColor(217, 255, 61); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(10.5); pdf.text('PADEL INDOOR OARSO · GIMNASIO', L, 10.5); pdf.setTextColor(200, 210, 230); pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8.5); pdf.text('Errenteria · Gipuzkoa', L, 16.5); pdf.setTextColor(255, 255, 255); pdf.text(d.ref, R, 10.5, { align: 'right' }); pdf.text(d.fecha, R, 16.5, { align: 'right' }); y = 36; };
+    const need = (h) => { if (y + h > 272) { pdf.addPage(); page(); } };
+    const para = (text, size = 10, color = [20, 20, 20], style = 'normal', gap = 4.6) => { pdf.setFont('helvetica', style); pdf.setFontSize(size); pdf.setTextColor(...color); const lines = pdf.splitTextToSize(text, TW); need(lines.length * gap + 2); pdf.text(lines, L, y); y += lines.length * gap + 2; };
+    page();
+    pdf.setTextColor(6, 22, 52); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(18); pdf.text(d.title, L, y); y += 7;
+    pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9); pdf.setTextColor(90, 100, 120); pdf.text(pdf.splitTextToSize(d.sub, TW), L, y); y += 9;
+    // datos
+    const rowH = 6.4; need(d.kv.length * rowH + 6); pdf.setFillColor(243, 245, 250); pdf.roundedRect(L, y - 1, TW, d.kv.length * rowH + 4, 2, 2, 'F'); y += 4;
+    d.kv.forEach(([k, v]) => { pdf.setFontSize(9.5); pdf.setFont('helvetica', 'normal'); pdf.setTextColor(90, 100, 120); pdf.text(k, L + 4, y); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(20, 20, 20); pdf.text(String(v), L + 46, y); y += rowH; });
+    y += 6;
+    d.blocks.forEach((b) => {
+      if (b.h) { need(10); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(11); pdf.setTextColor(6, 22, 52); pdf.text(b.h, L, y); y += 6; }
+      if (b.type === 'qa') b.items.forEach(([q, a], i) => { pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9.5); pdf.setTextColor(20, 20, 20); const lines = pdf.splitTextToSize(`${i + 1}. ${q}`, TW - 16); need(lines.length * 4.4 + 3); pdf.text(lines, L, y); pdf.setFont('helvetica', 'bold'); pdf.setTextColor(10, 71, 184); pdf.text(a, R, y, { align: 'right' }); y += lines.length * 4.4 + 1.5; pdf.setDrawColor(229, 233, 242); pdf.line(L, y, R, y); y += 2.5; });
+      else if (b.type === 'ol') b.items.forEach((r, i) => { pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9.5); pdf.setTextColor(20, 20, 20); const lines = pdf.splitTextToSize(`${i + 1}. ${r}`, TW); need(lines.length * 4.4 + 3); pdf.text(lines, L, y); y += lines.length * 4.4 + 1.5; pdf.setDrawColor(229, 233, 242); pdf.line(L, y, R, y); y += 2.5; });
+      else if (b.type === 'box') { pdf.setFont('helvetica', 'normal'); pdf.setFontSize(9.5); const lines = pdf.splitTextToSize(b.text, TW - 8); need(lines.length * 4.4 + 8); pdf.setFillColor(247, 255, 214); pdf.rect(L, y - 1, TW, lines.length * 4.4 + 5, 'F'); pdf.setFillColor(184, 224, 0); pdf.rect(L, y - 1, 1.2, lines.length * 4.4 + 5, 'F'); pdf.setTextColor(20, 20, 20); pdf.text(lines, L + 4, y + 3.5); y += lines.length * 4.4 + 8; }
+      else para(b.text);
+    });
+    // firma y sello
+    need(50); y += 4; pdf.setDrawColor(203, 213, 225); pdf.setLineDashPattern([1, 1], 0); pdf.line(L, y, R, y); pdf.setLineDashPattern([], 0); y += 7;
+    if (d.sign) { const png = await sigPng(); pdf.setFontSize(7.5); pdf.setTextColor(90, 100, 120); pdf.setFont('helvetica', 'normal'); pdf.text('FIRMA DEL SOCIO', L, y); if (png) pdf.addImage(png, 'PNG', L, y + 2, 60, 16); pdf.setFontSize(9.5); pdf.setTextColor(20, 20, 20); pdf.setFont('helvetica', 'bold'); pdf.text(`${socioName()} · socio nº 0421`, L, y + 23); pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8); pdf.setTextColor(90, 100, 120); pdf.text(`Firmado el ${d.sign.when} · tableta de recepción · IP 88.···.···.12`, L, y + 28); }
+    else { pdf.setFontSize(7.5); pdf.setTextColor(90, 100, 120); pdf.text('EMITIDO', L, y); pdf.setFontSize(9.5); pdf.setTextColor(20, 20, 20); pdf.setFont('helvetica', 'bold'); pdf.text(d.emitted, L, y + 6); pdf.setFont('helvetica', 'normal'); }
+    // sello
+    const cx = R - 18, cy = y + 12; pdf.setDrawColor(10, 71, 184); pdf.setLineWidth(.6); pdf.circle(cx, cy, 15, 'S'); pdf.setLineWidth(.2); pdf.setTextColor(10, 71, 184); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(7); pdf.text('PADEL INDOOR', cx, cy - 3, { align: 'center' }); pdf.text('OARSO', cx, cy + 1, { align: 'center' }); pdf.setFont('helvetica', 'normal'); pdf.setFontSize(5.5); pdf.text('Gimnasio · Errenteria', cx, cy + 6, { align: 'center' });
+    y += 36;
+    // verificación
+    need(20); pdf.setDrawColor(229, 233, 242); pdf.line(L, y, R, y); y += 5; pdf.setFont('courier', 'normal'); pdf.setFontSize(7.5); pdf.setTextColor(100, 110, 130);
+    pdf.text(`Documento ${d.ref} · huella SHA-256 9f3a1c77 4b2e 90aa 11c0 … d2e4${d.sign && d.sign.extra ? ' · ' + d.sign.extra : ''}`, L, y); y += 4;
+    pdf.text('Generado por Oarso Gym para Padel Indoor Oarso. El original lo custodia el club.', L, y); y += 4;
+    pdf.setFont('helvetica', 'italic'); pdf.text(t('ejemploDoc'), L, y);
+    const n = pdf.getNumberOfPages(); for (let i = 1; i <= n; i++) { pdf.setPage(i); pdf.setFont('helvetica', 'normal'); pdf.setFontSize(7.5); pdf.setTextColor(140, 150, 170); pdf.text(`${d.title} · ${i}/${n}`, W / 2, 290, { align: 'center' }); }
+    pdf.save(`Oarso-Gym-${id}-0421.pdf`);
   }
 
   // ---------- escáner de QR dentro de la app ----------
@@ -659,7 +724,9 @@
       case 'scan': openScanner(); break;
       case 'scanto': closeSheet(); nav(el.dataset.to); break;
       case 'mqr': machineQr(el.dataset.m); break;
-      case 'helpsend': helpSend(v, el.dataset.w); break;
+      case 'inctipo': { document.querySelectorAll('#inc-tipos .chip').forEach((c) => c.classList.toggle('on', c === el)); const b = $('#inc-send'); if (b) b.disabled = false; break; }
+      case 'incsend': incSend(el.dataset.m, el.dataset.ex); break;
+      case 'pdf': downloadPdf(v); break;
       case 'closesheet': closeSheet(); break;
       case 'tmgo': tmGo(); break;
       case 'tmnext': tmNext(); break;
