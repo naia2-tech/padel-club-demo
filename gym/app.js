@@ -6,7 +6,7 @@
   const VERSION = '0.1 · 31/10/2026';
 
   // ---------- estado ----------
-  const defaults = () => ({ lang: 'es', size: 0, onboarded: false, name: 'Naia', plan: null, done: {}, mine: [], short: false, sound: true, vib: true, ans: {} });
+  const defaults = () => ({ lang: 'es', size: 0, onboarded: false, name: 'Naia', plan: null, done: {}, mine: [], short: false, sound: true, vib: true, motion: true, chk: { d: '', on: {} }, ans: {} });
   let S = (() => { try { const j = JSON.parse(localStorage.getItem(KEY)); if (j) return Object.assign(defaults(), j); } catch (e) {} return defaults(); })();
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
 
@@ -62,7 +62,7 @@
     const keys = p.sched.map((d) => d.k);
     const seq = p.alt ? (week % 2 ? ['A', 'B', 'A'] : ['B', 'A', 'B']) : keys;
     const idx = doneWeek.length;
-    return { p, week, seq, idx, k: seq[Math.min(idx, seq.length - 1)], complete: idx >= seq.length, doneWeek };
+    return { p, week, seq, idx, k: seq[Math.min(idx, seq.length - 1)], complete: idx >= seq.length, finished: days >= p.weeks * 7, doneWeek };
   }
   const progFor = (p, week) => { let k = 1; Object.keys(p.prog).map(Number).sort((a, b) => a - b).forEach((w) => { if (week >= w) k = w; }); return L2(p.prog[k]); };
   const isDoneToday = (type, extra) => doneList(today()).some((e) => e.type === type && (!extra || (e.plan === extra.plan && e.k === extra.k)));
@@ -85,16 +85,17 @@
   const lvlPill = (l) => `<span class="pill ${l === 'I' ? 'ok' : l === 'M' ? '' : 'warn'}">${lvlName(l)}</span>`;
   function exRow(ex, opts = {}) {
     const meta = opts.meta !== undefined ? opts.meta : `${whereLabel(ex)} · ${lvlName(ex.lvl)}`;
-    return `<button class="exrow ${opts.cls || ''}" data-act="nav" data-to="#/e/${ex.id}">${opts.num ? `<span class="num">${opts.num}</span>` : ''}<img class="th ${opts.sm ? 'sm' : ''}" src="${img(ex.img)}" alt=""><div class="grow"><b>${N(ex)}</b><small>${meta}</small></div>${opts.tail || `<span class="chev">${ic('chev')}</span>`}</button>`;
+    return `<button class="exrow ${opts.cls || ''}" data-act="nav" data-to="#/e/${ex.id}">${opts.num ? `<span class="num">${opts.num}</span>` : ''}<img class="th ${opts.sm ? 'sm' : ''}" src="${img(ex.img)}" alt="" loading="lazy" decoding="async"><div class="grow"><b>${N(ex)}</b><small>${meta}</small></div>${opts.tail || `<span class="chev">${ic('chev')}</span>`}</button>`;
   }
   function machineCard(m) {
-    const ph = m.img ? `<img src="${img(m.img)}" alt="">` : `<div class="mcode"><b>${m.code}</b></div>`;
+    const ph = m.img ? `<img src="${img(m.img)}" alt="" loading="lazy" decoding="async">` : `<div class="mcode"><b>${m.code}</b></div>`;
     return `<button class="mcard" data-act="nav" data-to="#/m/${m.code.toLowerCase()}"><div class="ph ${m.prod ? "prod" : ""}">${ph}<span class="pill lime">${m.code}</span></div><div class="tx"><b>${N(m)}</b><small>${m.zone === 'libre' ? m.model || '' : m.model.split(' · ')[0]}</small></div></button>`;
   }
   const planCard = (p) => `<button class="pcard" data-act="nav" data-to="#/plan/${p.id}"><img src="${img(p.img)}" alt=""><div class="sh"></div><div class="in"><div class="row between"><span class="eyebrow lime">${p.days} ${t('diasSemana')} · ${p.min} ${t('min')}</span>${S.plan && S.plan.id === p.id ? `<span class="pill lime">${ic('check', 12)} ${t('siguiendo')}</span>` : ''}</div><div class="display">${N(p)}</div><div class="small muted">${L2(p.who).split('.')[0]}.</div></div></button>`;
-  const videoHero = (ex, cls = '') => `<div class="hero kb ${cls}"><img src="${img(ex.img)}" alt=""><div class="sh"></div><div class="tl"><span class="pill lime">${ic('play', 11)} ${t('videoPend')}</span></div><div class="play">${ic('play')}</div><div class="in"><div class="eyebrow lime">${ex.regions.map((r) => N(G.regions.find((x) => x.id === r))).join(' · ')} · ${lvlName(ex.lvl)}</div><h1 class="display h1">${N(ex)}</h1></div></div>`;
+  const videoHero = (ex, cls = '') => `<div class="hero kb ${cls}"><img src="${img(ex.img)}" alt=""><div class="sh"></div><div class="tl"><span class="pill lime">${ic('play', 11)} ${t('videoPend')}</span></div><button class="play" data-act="video" aria-label="${t('videoT')}">${ic('play')}</button><div class="in"><div class="eyebrow lime">${ex.regions.map((r) => N(G.regions.find((x) => x.id === r))).join(' · ')} · ${lvlName(ex.lvl)}</div><h1 class="display h1">${N(ex)}</h1></div></div>`;
   const musclePair = (p, s, w = 72) => `<div class="musc"><div class="bodybox">${ANAT('f', p, s, w)}</div><div class="bodybox">${ANAT('b', p, s, w)}</div></div>`;
-  const tabbar = (active) => `<nav class="tabbar">${[['hoy', 'home'], ['explorar', 'body'], ['planes', 'list'], ['sesiones', 'timer'], ['yo', 'user']].map(([k, i]) => `<button class="${active === k ? 'on' : ''}" data-act="nav" data-to="#/${k}">${ic(i)}<span>${t(k)}</span></button>`).join('')}</nav>`;
+  const tabbar = (active) => `<nav class="tabbar" aria-label="Oarso Gym">${[['hoy', 'home'], ['explorar', 'body'], ['planes', 'list'], ['sesiones', 'timer'], ['yo', 'user']].map(([k, i]) => `<button class="${active === k ? 'on' : ''}" data-act="nav" data-to="#/${k}" aria-current="${active === k ? 'page' : 'false'}">${ic(i)}<span>${t(k)}</span></button>`).join('')}</nav>`;
+  function qrSvg(text, level) { try { if (window.qrcode) { const q = qrcode(0, level || 'M'); q.addData(text); q.make(); return q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }); } } catch (e) {} return `<div class="xs" style="color:#061634;word-break:break-all">${text}</div>`; }
   const euNote = () => S.lang === 'eu' ? `<div class="tip mt12 small">${t('euTrad')}</div>` : '';
 
   // ---------- pantallas ----------
@@ -103,15 +104,19 @@
     const greet = h < 13 ? t('buenosDias') : h < 21 ? t('buenasTardes') : t('buenasNoches');
     const ps = planState();
     let planHtml;
-    if (ps) {
+    if (ps && ps.finished) {
+      planHtml = `<section class="card pad"><div class="eyebrow lime">${t('planFin')} · ${ps.p.weeks} ${t('semanas')}</div><div class="display h2">${N(ps.p)}</div><div class="row mt12"><button class="btn btn-lime grow" data-act="repeatplan">${ic('reset')} ${t('repetir')}</button><button class="btn btn-ghost" data-act="nav" data-to="#/planes">${t('otroPlan')}</button></div></section>`;
+    } else if (ps) {
       const day = ps.p.sched.find((d) => d.k === ps.k);
       const thumbs = day.main.slice(0, 5).map(([id]) => `<img src="${img(G.ex(id).img)}" style="width:44px;height:44px;border-radius:12px;object-fit:cover;border:2px solid var(--card)" alt="">`).join('');
+      const prog = ps.seq.map((k, i) => `<span class="pill ${i < ps.idx ? 'ok' : i === ps.idx && !ps.complete ? 'lime' : 'line'}">${i < ps.idx ? ic('check', 11) + ' ' : ''}${t('dia')} ${k}</span>`).join('');
       planHtml = `<section class="card pad">
-        <div class="eyebrow lime">${t('semana')} ${ps.week} ${t('de')} ${ps.p.weeks} · ${ps.complete ? t('hecho') : `${t('hoyDia')} ${ps.k}`}</div>
+        <div class="eyebrow lime">${t('semana')} ${ps.week} ${t('de')} ${ps.p.weeks}${ps.complete ? '' : ` · ${t('hoyDia')} ${ps.k}`}</div>
         <div class="display h2">${N(ps.p)}</div>
-        <div class="small muted">${progFor(ps.p, ps.week)}</div>
-        <div class="row mt12" style="gap:0">${thumbs}<span class="small muted" style="margin-left:10px">${day.main.length} ${t('ejercicios')} · ${ps.p.min} ${t('min')}</span></div>
-        <div class="row mt16"><button class="btn btn-lime grow" data-act="nav" data-to="#/dia/${ps.p.id}/${ps.k}">${ic('play')} ${t('empezar')}</button><button class="btn btn-ghost" data-act="nav" data-to="#/plan/${ps.p.id}">${t('verPlan')}</button></div>
+        <div class="row mt8 wrap" style="gap:6px">${prog}</div>
+        <div class="small muted mt8">${ps.complete ? t('semanaHecha') : progFor(ps.p, ps.week)}</div>
+        ${ps.complete ? '' : `<div class="row mt12" style="gap:0">${thumbs}<span class="small muted" style="margin-left:10px">${day.main.length} ${t('ejercicios')} · ${ps.p.min} ${t('min')}</span></div>`}
+        <div class="row mt16">${ps.complete ? `<button class="btn btn-ghost grow" data-act="nav" data-to="#/sesiones">${ic('timer')} ${t('sesiones')}</button>` : `<button class="btn btn-lime grow" data-act="nav" data-to="#/dia/${ps.p.id}/${ps.k}">${ic('play')} ${t('empezar')}</button>`}<button class="btn btn-ghost" data-act="nav" data-to="#/plan/${ps.p.id}">${t('verPlan')}</button></div>
         ${ps.p.alt ? `<div class="xs muted mt8">${t('alternancia')}</div>` : ''}
       </section>`;
     } else {
@@ -120,7 +125,7 @@
     return `<div class="screen">
       <div class="top"><div class="grow"><div class="eyebrow">${longDate(now)}</div><h1 class="display h1">${greet},<br><span class="lime">${S.name}</span></h1></div><button class="iconbtn lime" data-act="nav" data-to="#/carnet" aria-label="${t('carnet')}">${ic('qr')}</button></div>
       ${planHtml}
-      <section class="sec"><div class="sec-h"><h2>${t('avisos')}</h2></div><div class="card">${G.notices.map((n) => `<div class="notice"><span class="ni">${ic(n.icon)}</span><div class="small">${L(n)}</div></div>`).join('')}</div></section>
+      <section class="sec"><div class="sec-h"><h2>${t('avisos')}</h2></div><div class="card">${G.notices.map((n, i) => `<button class="notice" data-act="notice" data-i="${i}"><span class="ni">${ic(n.icon)}</span><div class="small grow">${L(n)}</div><span class="chev">${ic('chev')}</span></button>`).join('')}</div></section>
       <button class="card lime pad mt16" data-act="scan" style="width:100%;text-align:left"><div class="row"><span class="iconbtn" style="background:var(--lime-ink);color:var(--lime)">${ic('qr')}</span><div class="grow"><b>${t('escanear')}</b><div class="small muted">${t('escanearTxt')}</div></div>${ic('chev')}</div></button>
       <section class="sec"><div class="sec-h"><h2>${t('enLaSala')}</h2></div><div class="grid2">
         <button class="card pad" data-act="nav" data-to="#/explorar/maquina" style="text-align:left;color:#fff"><span class="iconbtn lime" style="margin-bottom:10px">${ic('qr')}</span><b>${t('maquinas')}</b><div class="xs muted mt8">${t('qrHint')}</div></button>
@@ -149,7 +154,7 @@
   function searchResults(q) {
     q = q.trim().toLowerCase();
     const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
-    const list = q.length < 2 ? G.exercises.filter((e) => e.lvl === 'I' && !e.mov).slice(0, 8) : G.exercises.filter((e) => norm(e.es + ' ' + e.eu + ' ' + whereLabel(e)).includes(norm(q)));
+    const list = q.length < 2 ? G.exercises.filter((e) => e.lvl === 'I' && !e.mov).slice(0, 8) : G.exercises.filter((e) => norm(e.es + ' ' + e.eu + ' ' + e.where + ' ' + whereLabel(e) + ' ' + e.p.map(gname).join(' ')).includes(norm(q)));
     if (!list.length) return `<div class="tip">${t('sinResultados')}</div>`;
     return (q.length < 2 ? `<div class="eyebrow mb8">${t('paraEmpezar')}</div>` : `<div class="eyebrow mb8">${list.length} ${t('ejercicios')}</div>`) + list.map((e) => exRow(e)).join('');
   }
@@ -209,9 +214,9 @@
       ${m.model ? `<div class="xs muted mt8">${t('modelo')}: ${m.model}</div>` : ''}
       <p class="mt12">${L2(m.desc)}</p>
       ${m.adjust.length ? `<section class="sec"><div class="sec-h"><h2>${t('comoSeAjusta')}</h2></div><div class="card pad"><dl class="kv">${m.adjust.map((a) => `<dt>${S.lang === 'eu' ? a[2] : a[0]}</dt><dd>${S.lang === 'eu' ? a[3] : a[1]}</dd>`).join('')}</dl></div></section>` : ''}
-      ${m.stations ? `<section class="sec"><div class="sec-h"><h2>${t('puestos')}</h2></div><div class="chips">${m.stations.map((s, i) => `<span class="chip">${i + 1} · ${L2(s)}</span>`).join('')}</div></section>` : ''}
+      ${m.stations ? `<section class="sec"><div class="sec-h"><h2>${t('puestos')}</h2><span class="small muted">${m.stations.length}</span></div>${m.stations.map((s, i) => `<div class="card pad mb8"><div class="row"><span class="num">${i + 1}</span><b>${L2(s)}</b></div>${(m.stEx && m.stEx[i] ? m.stEx[i] : []).map((eid) => exRow(G.ex(eid), { sm: true, meta: lvlName(G.ex(eid).lvl) })).join('')}</div>`).join('')}</section>` : ''}
       ${cardio ? `<section class="sec"><div class="sec-h"><h2>${t('protocolos')}</h2></div>${cardio.prot.map((p) => `<button class="exrow" data-act="nav" data-to="#/cardio/${m.code.toLowerCase()}/${p.id}"><span class="num">${p.total}'</span><div class="grow"><b>${N(p)}</b><small>${t(p.kind === 'int' ? 'intervalos' : 'continuo')}</small></div><span class="chev">${ic('chev')}</span></button>`).join('')}</section>` : ''}
-      ${list.length ? `<section class="sec"><div class="sec-h"><h2>${t('enEstaMaquina')}</h2><span class="small muted">${list.length} ${t('ejercicios')}</span></div>${list.map((e) => exRow(e, { meta: lvlName(e.lvl) + (e.where !== m.code ? ' · ' + whereLabel(e) : '') })).join('')}</section>` : ''}
+      ${list.length && !m.stations ? `<section class="sec"><div class="sec-h"><h2>${t('enEstaMaquina')}</h2><span class="small muted">${list.length} ${t('ejercicios')}</span></div>${list.map((e) => exRow(e, { meta: lvlName(e.lvl) + (e.where !== m.code ? ' · ' + whereLabel(e) : '') })).join('')}</section>` : ''}
       ${altEx ? `<section class="sec"><div class="sec-h"><h2>${t('siOcupada')}</h2></div>${exRow(altEx, { meta: t('alternativa') + ' · ' + whereLabel(altEx) })}</section>` : ''}
       <div class="row mt16"><button class="btn btn-ghost grow" data-act="help" data-m="${m.code}">${ic('help')} ${t('pedirAyuda')}</button><button class="btn btn-ghost" data-act="mqr" data-m="${m.code}">${ic('qr')} ${t('qrMaquina')}</button></div>
       ${!S.onboarded ? `<button class="btn btn-lime btn-block mt8" data-act="nav" data-to="#/onb/1">${t('abrirApp')}</button>` : ''}
@@ -236,6 +241,7 @@
     return `<div class="screen">${top(N(p))}
       <div class="hero wide"><img src="${img(p.img)}" alt=""><div class="sh"></div><div class="in"><div class="eyebrow lime">${N(G.objectives.find((o) => o.id === p.obj))}</div><h1 class="display h1">${N(p)}</h1></div></div>
       <div class="row mt12 wrap"><span class="pill">${p.days} ${t('diasSemana')}</span><span class="pill">${p.min} ${t('min')}</span><span class="pill">${p.weeks} ${t('semanas')}</span>${following ? `<span class="pill lime">${ic('check', 12)} ${t('siguiendo')} · ${t('semana')} ${ps.week}</span>` : ''}</div>
+      ${following ? `<div class="wk mt12" aria-label="${t('semanas')}">${Array.from({ length: p.weeks }, (_, i) => `<span class="${i + 1 < ps.week ? 'done' : i + 1 === ps.week ? 'now' : ''}">${i + 1}</span>`).join('')}</div>` : ''}
       <section class="sec"><div class="sec-h"><h2>${t('paraQuien')}</h2></div><p class="small">${L2(p.who)}</p></section>
       <section class="sec"><div class="sec-h"><h2>${t('progresion')}</h2></div><div class="card pad"><ol class="steps">${weeks.map((w) => `<li>${L2(p.prog[w])}</li>`).join('')}</ol>${p.alt ? `<div class="xs muted mt8">${t('alternancia')}</div>` : ''}</div></section>
       <section class="sec"><div class="sec-h"><h2>${t('losDias')}</h2></div>${p.sched.map((d) => `<button class="exrow" data-act="nav" data-to="#/dia/${p.id}/${d.k}"><span class="num">${d.k}</span><div class="grow"><b>${t('dia')} ${d.k}</b><small>${d.main.map(([i]) => N(G.ex(i))).slice(0, 3).join(', ')}${d.main.length > 3 ? ` +${d.main.length - 3}` : ''}</small></div><span class="chev">${ic('chev')}</span></button>`).join('')}</section>
@@ -248,12 +254,16 @@
     const done = isDoneToday('plan', { plan: pid, k });
     const items = d.main.filter(([, , opt]) => !(S.short && opt));
     const hidden = d.main.length - items.length;
-    const block = (title, inner) => inner ? `<section class="sec"><div class="sec-h"><h2>${title}</h2></div>${inner}</section>` : '';
+    const block = (title, inner, right = '') => inner ? `<section class="sec"><div class="sec-h"><h2>${title}</h2>${right}</div>${inner}</section>` : '';
+    if (S.chk.d !== iso(today())) S.chk = { d: iso(today()), on: {} };
+    const ckKey = (id) => `${pid}:${k}:${id}`;
+    const nDone = items.filter(([id]) => S.chk.on[ckKey(id)]).length;
+    const ck = (id) => { const on = !!S.chk.on[ckKey(id)]; return `<span class="ck ${on ? 'on' : ''}" role="checkbox" aria-checked="${on}" aria-label="${t('hechoCk')}" data-act="chk" data-key="${ckKey(id)}">${ic('check')}</span>`; };
     return `<div class="screen">${top(N(p))}
       <div class="eyebrow lime">${N(p)} · ${p.min} ${t('min')}</div><h1 class="display h1">${t('dia')} ${k}</h1>
       <button class="chip ${S.short ? 'on' : ''}" data-act="short">${ic('clock', 14)} ${t('menosTiempo')}</button>${S.short ? `<div class="xs muted mt8">${t('menosTiempoOn')}${hidden ? ` (${hidden})` : ''}</div>` : ''}
       ${block(t('calentamiento'), d.warm ? `<div class="tip small">${L(d.warm)}</div>` : '')}
-      ${block(t('principalBloque'), items.map(([id, dose, opt], i) => exRow(G.ex(id), { num: i + 1, meta: dose + (opt ? ` · <span class="lime">${t('opcional')}</span>` : '') })).join(''))}
+      ${block(t('principalBloque'), items.map(([id, dose, opt], i) => exRow(G.ex(id), { num: i + 1, cls: S.chk.on[ckKey(id)] ? 'ckd' : '', meta: dose + (opt ? ` · <span class="lime">${t('opcional')}</span>` : ''), tail: ck(id) })).join(''), `<span class="small muted">${nDone}/${items.length} ${t('hechoCk')}</span>`)}
       ${block(t('cardioBloque'), d.cardio ? `<div class="tip small">${L2(d.cardio)}</div>` : '')}
       ${block(t('vuelta'), d.cool.length ? d.cool.map((id) => exRow(G.ex(id), { sm: true, meta: t('dosisMov') })).join('') : '')}
       <div class="mt24">${done ? `<div class="tip lime center"><b>${ic('check', 16)} ${t('hechoHoy')}</b><div class="xs mt8">${t('leyenda')}</div></div>` : `<button class="btn btn-lime btn-lg btn-block" data-act="doneplan" data-p="${pid}" data-k="${k}">${ic('check')} ${t('marcarHecho')}</button><div class="xs faint mt8 center">${t('leyenda')}</div>`}</div>
@@ -268,13 +278,13 @@
   }
 
   function timerHtml() {
-    return `<section class="sec"><div class="card timer" id="tm"><div class="eyebrow" id="tm-round"></div><div class="time" id="tm-time">0:00</div><div class="lab" id="tm-label"></div><div class="nxt" id="tm-next"></div><div class="bar"><i id="tm-bar"></i></div>
+    return `<section class="sec"><div class="card timer" id="tm"><div class="eyebrow" id="tm-round"></div><img id="tm-img" class="tm-img" alt="" hidden><div class="time" id="tm-time">0:00</div><div class="lab" id="tm-label"></div><div class="nxt" id="tm-next"></div><div class="bar"><i id="tm-bar"></i></div>
       <div class="tbtns"><button class="btn btn-lime" id="tm-go" data-act="tmgo">${ic('play')} ${t('empezarTimer')}</button><button class="btn btn-ghost" data-act="tmnext">${ic('next')} ${t('siguiente')}</button><button class="btn btn-ghost" data-act="tmreset">${ic('reset')} ${t('reiniciar')}</button></div>
-      <div class="xs faint mt12">${t('noArranca')}</div></div></section>`;
+      <div class="xs faint mt12">${t('noArranca')} ${t('pantallaOn')}</div></div></section>`;
   }
   function scrCircuito(id) {
     const c = G.circuits.find((x) => x.id === id); if (!c) return scrSesiones();
-    ensureTimer('c:' + id, () => { const segs = []; for (let r = 1; r <= c.rounds; r++) { c.st.forEach((eid, i) => { segs.push({ t: c.work, label: N(G.ex(eid)), work: true, sub: `${t('ronda')} ${r}/${c.rounds} · ${i + 1}/${c.st.length}` }); if (i < c.st.length - 1) segs.push({ t: c.rest, label: t('descanso'), work: false, sub: `${t('ronda')} ${r}/${c.rounds}` }); }); if (r < c.rounds) segs.push({ t: 60, label: `${t('descanso')} · ${t('ronda')} ${r + 1}`, work: false, sub: '' }); } return segs; });
+    ensureTimer('c:' + id, () => { const segs = []; for (let r = 1; r <= c.rounds; r++) { c.st.forEach((eid, i) => { segs.push({ t: c.work, label: N(G.ex(eid)), work: true, img: G.ex(eid).img, sub: `${t('ronda')} ${r}/${c.rounds} · ${i + 1}/${c.st.length}` }); if (i < c.st.length - 1) segs.push({ t: c.rest, label: t('descanso'), work: false, img: G.ex(c.st[i + 1]).img, sub: `${t('ronda')} ${r}/${c.rounds}` }); }); if (r < c.rounds) segs.push({ t: 60, label: `${t('descanso')} · ${t('ronda')} ${r + 1}`, work: false, img: G.ex(c.st[0]).img, sub: '' }); } return segs; });
     return `<div class="screen">${top(N(c))}
       <div class="hero wide"><img src="${img(c.img)}" alt=""><div class="sh"></div><div class="in"><div class="eyebrow lime">${c.min} ${t('min')} · ${c.rounds} ${t('rondas')} · ${c.work}" ${t('trabajo')} / ${c.rest}" ${t('descanso')}</div><h1 class="display h1">${N(c)}</h1></div></div>
       <p class="small mt12">${L2(c.goal)}</p>
@@ -335,7 +345,7 @@
     const first = new Date(y, m, 1); const start = (first.getDay() + 6) % 7; const n = new Date(y, m + 1, 0).getDate(); const tod = iso(today());
     let cells = t('lunes').map((d) => `<div class="dh">${d}</div>`).join('');
     for (let i = 0; i < start; i++) cells += '<div></div>';
-    for (let d = 1; d <= n; d++) { const k = iso(new Date(y, m, d)); const has = (S.done[k] || []).length; cells += `<div class="d ${has ? 'has' : ''} ${k === tod ? 'today' : ''} ${k > tod ? 'off' : ''}">${d}</div>`; }
+    for (let d = 1; d <= n; d++) { const k = iso(new Date(y, m, d)); const has = (S.done[k] || []).length; cells += has ? `<button class="d has ${k === tod ? 'today' : ''}" data-act="day" data-d="${k}" aria-label="${d}">${d}</button>` : `<div class="d ${k === tod ? 'today' : ''} ${k > tod ? 'off' : ''}">${d}</div>`; }
     return `<div class="card pad"><div class="row between mb8"><b style="text-transform:capitalize">${t('meses')[m]} ${y}</b></div><div class="cal">${cells}</div></div>`;
   }
   function scrDias() {
@@ -353,8 +363,8 @@
   function scrCarnet() {
     return `<div class="screen">${top(t('carnet'))}
       <section class="card carnet pad"><div class="eyebrow lime">${t('socio')} · nº 0421</div><div class="display h1">${S.name} Alberdi</div>
-        <div class="qrbox mt12" id="qr"></div>
-        <div class="small muted mt12 center">${t('enseñar')}</div></section>
+        <button class="qrbox mt12" id="qr" data-act="bigqr" aria-label="${t('verGrande')}"></button>
+        <div class="small muted mt12 center">${t('enseñar')} <span class="lime">${t('verGrande')}</span></div></section>
       <div class="sec-h mt16"><h2>${t('misDocs')}</h2><span class="small muted">PDF</span></div>
       <div class="card">
         <button class="set" data-act="nav" data-to="#/doc/cuota"><span class="row"><span class="iconbtn" style="color:var(--ok)">${ic('check')}</span><span><b>${t('cuota')}</b><br><small class="muted">${t('hasta')} 30/11/2026</small></span></span><span class="pill">${ic('doc', 12)} PDF</span></button>
@@ -364,21 +374,36 @@
       <div class="xs faint mt8">${t('custodia')}</div>
     </div>`;
   }
-  function drawQr() {
-    const el = $('#qr'); if (!el) return;
-    try { if (window.qrcode) { const q = qrcode(0, 'M'); q.addData('OARSO-GYM-0421'); q.make(); el.innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }); return; } } catch (e) {}
-    let s = 0x2545f491; const r = () => ((s = (s * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
-    let d = ''; const n = 29; for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) { const f = (x < 8 && y < 8) || (x > n - 9 && y < 8) || (x < 8 && y > n - 9); if (f) { const fx = x < 8 ? x : x - (n - 7), fy = y < 8 ? y : y - (n - 7); if (fx < 7 && fy < 7 && (fx === 0 || fx === 6 || fy === 0 || fy === 6 || (fx > 1 && fx < 5 && fy > 1 && fy < 5))) d += `M${x} ${y}h1v1h-1z`; } else if (r() > .55) d += `M${x} ${y}h1v1h-1z`; }
-    el.innerHTML = `<svg viewBox="0 0 ${n} ${n}" shape-rendering="crispEdges"><path d="${d}" fill="#061634"/></svg>`;
+  function drawQr() { const el = $('#qr'); if (el) el.innerHTML = qrSvg('OARSO-GYM-0421', 'M'); }
+
+  // ---------- pegatinas QR para las máquinas (hoja imprimible para el club) ----------
+  function scrPegatinas() {
+    const list = G.machines.filter((m) => m.zone !== 'libre' || ['P1', 'P2', 'F4'].includes(m.code));
+    const base = location.origin + location.pathname;
+    return `<div class="screen">${top(t('pegatinas'), `<button class="iconbtn noprint" data-act="print" aria-label="${t('imprimir')}">${ic('dl')}</button>`)}
+      <h1 class="display h1 noprint">${t('pegatinas')}</h1><p class="small muted noprint">${t('pegatinasTxt')}</p>
+      <div class="stks mt12">${list.map((m) => `<div class="stk"><div class="stk-top"><span class="stk-code">${m.code}</span><span class="stk-logo"><span class="mark">O</span>Oarso <b>Gym</b></span></div><div class="stk-qr" data-url="${base}#/m/${m.code.toLowerCase()}"></div><div class="stk-name">${m.es}<br><span class="stk-eu">${m.eu}</span></div><div class="stk-txt">Escanea y mira cómo se usa · Eskaneatu eta ikusi nola erabiltzen den</div><div class="stk-url">${base.replace(/^https?:\/\//, '')}#/m/${m.code.toLowerCase()}</div></div>`).join('')}</div>
+      <button class="btn btn-lime btn-lg btn-block mt16 noprint" data-act="print">${ic('dl')} ${t('imprimir')}</button>
+    </div>`;
+  }
+  function drawStickers() { document.querySelectorAll('.stk-qr[data-url]').forEach((el) => { el.innerHTML = qrSvg(el.dataset.url, 'H'); }); }
+
+  // ---------- instalación como app ----------
+  let IP = null;
+  window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); IP = e; });
+  function installSheet() {
+    const ios = /iphone|ipad|ipod/i.test(navigator.userAgent); const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+    sheet(`<div class="eyebrow lime">${t('instalar')}</div><div class="display h2">Oarso Gym</div><p class="small mt8">${t('instalarTxt')}</p>${standalone ? `<div class="tip lime mt12">${ic('check')} ${t('instalada')}</div>` : IP ? `<button class="btn btn-lime btn-lg btn-block mt12" data-act="installgo">${ic('dl')} ${t('instalarBtn')}</button>` : `<div class="tip mt12 small">${ios ? t('instalarIos') : t('instalarAnd')}</div>`}<button class="btn btn-ghost btn-block mt8" data-act="closesheet">${t('cerrar')}</button>`);
   }
 
   function scrAjustes() {
-    const sw = (k, on) => `<button class="set" data-act="toggle" data-k="${k}"><span class="row"><span class="iconbtn">${ic(k === 'sound' ? 'sound' : 'vib')}</span><b>${t(k === 'sound' ? 'sonidos' : 'vibracion')}</b></span><span class="switch ${on ? 'on' : ''}"></span></button>`;
+    const sw = (k, on) => { const icon = { sound: 'sound', vib: 'vib', motion: 'reset' }[k]; const label = { sound: 'sonidos', vib: 'vibracion', motion: 'motion' }[k]; return `<button class="set" data-act="toggle" data-k="${k}" role="switch" aria-checked="${on}"><span class="row"><span class="iconbtn">${ic(icon)}</span><b>${t(label)}</b></span><span class="switch ${on ? 'on' : ''}"></span></button>`; };
     const link = (to, icon, l) => `<button class="set" data-act="nav" data-to="${to}"><span class="row"><span class="iconbtn">${ic(icon)}</span><b>${l}</b></span>${ic('chev')}</button>`;
     return `<div class="screen">${top(t('ajustes'))}<h1 class="display h1">${t('ajustes')}</h1>
       <div class="card pad"><div class="row between mb8"><b class="row">${ic('lang')} ${t('idioma')}</b></div><div class="seg">${[['es', 'Castellano'], ['eu', 'Euskara']].map(([k, l]) => `<button class="${S.lang === k ? 'on' : ''}" data-act="lang" data-v="${k}">${l}</button>`).join('')}</div>
         <div class="row between mb8 mt16"><b class="row">${ic('text')} ${t('tamano')}</b></div><div class="seg">${[[0, 'normal'], [1, 'grande'], [2, 'muyGrande']].map(([k, l]) => `<button class="${S.size === k ? 'on' : ''}" data-act="size" data-v="${k}">${t(l)}</button>`).join('')}</div></div>
-      <div class="card mt12">${sw('sound', S.sound)}${sw('vib', S.vib)}</div>
+      <div class="card mt12">${sw('sound', S.sound)}${sw('vib', S.vib)}${sw('motion', !S.motion)}</div>
+      <div class="card mt12"><button class="set" data-act="install"><span class="row"><span class="iconbtn lime">${ic('dl')}</span><span><b>${t('instalar')}</b><br><small class="muted">${t('sinCobertura')}</small></span></span>${ic('chev')}</button>${link('#/pegatinas', 'qr', t('pegatinas'))}</div>
       <div class="card mt12">${link('#/legal', 'doc', t('legal'))}${link('#/privacidad', 'shield', t('privacidad'))}<button class="set" data-act="export"><span class="row"><span class="iconbtn">${ic('dl')}</span><b>${t('exportar')}</b></span>${ic('chev')}</button></div>
       <div class="card mt12"><button class="set" data-act="confirmreset" data-v="cuenta"><span class="row"><span class="iconbtn" style="color:var(--bad)">${ic('trash')}</span><b style="color:var(--bad)">${t('borrar')}</b></span></button><button class="set" data-act="confirmreset" data-v="demo"><span class="row"><span class="iconbtn">${ic('reset')}</span><b>${t('borrarDemo')}</b></span></button></div>
       <div class="xs faint mt16 center">Oarso Gym · ${t('version')} ${VERSION} · ${t('demoTag')}</div>
@@ -415,10 +440,15 @@
   // ---------- temporizador ----------
   let TM = null;
   function ensureTimer(key, build) { if (TM && TM.key === key) return; stopTimer(); TM = { key, segs: build(), i: 0, left: 0, running: false, iv: null, finished: false }; TM.left = TM.segs[0].t; }
-  function stopTimer() { if (TM && TM.iv) clearInterval(TM.iv); TM = null; }
+  function stopTimer() { if (TM && TM.iv) clearInterval(TM.iv); TM = null; wakeOff(); }
+  let WL = null;
+  async function wakeOn() { try { if ('wakeLock' in navigator && !WL) { WL = await navigator.wakeLock.request('screen'); WL.addEventListener('release', () => { WL = null; }); } } catch (e) {} }
+  function wakeOff() { try { if (WL) { WL.release(); WL = null; } } catch (e) {} }
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && TM && TM.running) wakeOn(); });
   function tmDom() {
     if (!TM || !$('#tm')) return;
     const s = TM.segs[TM.i]; const nx = TM.segs[TM.i + 1];
+    const im = $('#tm-img'); if (im) { if (s.img && !TM.finished) { im.src = img(s.img); im.hidden = false; } else im.hidden = true; }
     $('#tm-time').textContent = mmss(TM.left);
     $('#tm-label').textContent = TM.finished ? t('listo') : s.label;
     $('#tm-next').textContent = TM.finished ? '' : nx ? `${t('siguiente')}: ${nx.label} · ${mmss(nx.t)}` : '';
@@ -435,10 +465,10 @@
   function tmTick() {
     if (!TM) return;
     TM.left--;
-    if (TM.left <= 0) { TM.i++; if (TM.i >= TM.segs.length) { TM.i = TM.segs.length - 1; TM.left = 0; TM.finished = true; TM.running = false; clearInterval(TM.iv); TM.iv = null; beep(3); } else { TM.left = TM.segs[TM.i].t; beep(1); } }
+    if (TM.left <= 0) { TM.i++; if (TM.i >= TM.segs.length) { TM.i = TM.segs.length - 1; TM.left = 0; TM.finished = true; TM.running = false; clearInterval(TM.iv); TM.iv = null; beep(3); wakeOff(); } else { TM.left = TM.segs[TM.i].t; beep(1); } }
     tmDom();
   }
-  function tmGo() { if (!TM) return; if (TM.finished) { tmReset(); } if (TM.running) { clearInterval(TM.iv); TM.iv = null; TM.running = false; } else { TM.running = true; TM.iv = setInterval(tmTick, 1000); beep(1); } tmDom(); }
+  function tmGo() { if (!TM) return; if (TM.finished) { tmReset(); } if (TM.running) { clearInterval(TM.iv); TM.iv = null; TM.running = false; wakeOff(); } else { TM.running = true; TM.iv = setInterval(tmTick, 1000); beep(1); wakeOn(); } tmDom(); }
   function tmNext() { if (!TM) return; if (TM.i < TM.segs.length - 1) { TM.i++; TM.left = TM.segs[TM.i].t; TM.finished = false; } tmDom(); }
   function tmReset() { if (!TM) return; clearInterval(TM.iv); TM.iv = null; TM.running = false; TM.finished = false; TM.i = 0; TM.left = TM.segs[0].t; tmDom(); }
 
@@ -530,12 +560,17 @@
 
   // ---------- enrutado ----------
   function parts() { return location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent); }
-  const groupOf = (r) => ({ hoy: 'hoy', explorar: 'explorar', region: 'explorar', e: 'explorar', m: 'explorar', planes: 'planes', plan: 'planes', dia: 'planes', sesiones: 'sesiones', circuito: 'sesiones', cardio: 'sesiones', yo: 'yo', mi: 'yo', dias: 'yo', carnet: 'yo', ajustes: 'yo', legal: 'yo', privacidad: 'yo', doc: 'yo' })[r] || 'hoy';
+  const groupOf = (r) => ({ hoy: 'hoy', explorar: 'explorar', region: 'explorar', e: 'explorar', m: 'explorar', planes: 'planes', plan: 'planes', dia: 'planes', sesiones: 'sesiones', circuito: 'sesiones', cardio: 'sesiones', yo: 'yo', mi: 'yo', dias: 'yo', carnet: 'yo', ajustes: 'yo', legal: 'yo', privacidad: 'yo', doc: 'yo', pegatinas: 'yo' })[r] || 'hoy';
+  // Volver: si hay historial propio, atrás; si no (por ejemplo, se llegó por un QR), a la pantalla madre
+  const PARENT = { region: () => '#/explorar', e: () => '#/explorar', m: () => '#/explorar/maquina', plan: () => '#/planes', dia: (p) => '#/plan/' + p[1], circuito: () => '#/sesiones', cardio: (p) => (p[2] ? '#/cardio/' + p[1] : '#/sesiones'), doc: () => '#/carnet', carnet: () => '#/yo', mi: () => '#/yo', dias: () => '#/yo', ajustes: () => '#/yo', legal: () => '#/ajustes', privacidad: () => '#/ajustes', pegatinas: () => '#/ajustes', onb: () => '#/onb/1' };
+  const STACK = [];
+  function goBack() { if (STACK.length > 1) { history.back(); return; } const p = parts(); const f = PARENT[p[0]]; nav(f ? f(p) : '#/hoy'); }
+  function onHash() { const h = location.hash; if (STACK.length > 1 && STACK[STACK.length - 2] === h) STACK.pop(); else if (STACK[STACK.length - 1] !== h) STACK.push(h); render(); }
   let lastKey = '';
   function render(keep) {
     const p = parts(); let r = p[0] || 'hoy';
     const app = $('#app'); const y = app.scrollTop;
-    document.documentElement.setAttribute('data-size', S.size); document.documentElement.lang = S.lang;
+    document.documentElement.setAttribute('data-size', S.size); document.documentElement.setAttribute('data-motion', S.motion ? '1' : '0'); document.documentElement.lang = S.lang;
     if (!S.onboarded && !['m', 'onb', 'e'].includes(r)) r = 'onb';
     let html = '', showTab = true;
     switch (r) {
@@ -559,14 +594,17 @@
       case 'legal': html = scrText(t('legal'), t('legalTxt')); break;
       case 'privacidad': html = scrText(t('privacidad'), t('privTxt')); break;
       case 'doc': html = scrDoc(p[1]); break;
+      case 'pegatinas': html = scrPegatinas(); break;
       default: html = scrHoy();
     }
     if (!['circuito', 'cardio'].includes(r)) stopTimer();
     app.innerHTML = html;
     $('#nav').innerHTML = showTab ? tabbar(groupOf(r)) : '';
     app.scrollTop = keep ? y : 0;
+    if (!keep) { app.setAttribute('tabindex', '-1'); try { app.focus({ preventScroll: true }); } catch (e) {} }
     lastKey = location.hash;
     if (r === 'carnet') drawQr();
+    if (r === 'pegatinas') drawStickers();
     if (r === 'explorar' && p[1] === 'buscar') { const q = $('#q'); if (q) { q.focus(); q.addEventListener('input', () => { $('#results').innerHTML = searchResults(q.value); }); } }
     if (TM) tmDom();
     const tag = $('.demo-tag'); if (tag) tag.textContent = t('demoTag');
@@ -580,10 +618,18 @@
     const a = el.dataset.act, v = el.dataset.v;
     switch (a) {
       case 'nav': nav(el.dataset.to); break;
-      case 'back': if (history.length > 1) history.back(); else nav('#/hoy'); break;
+      case 'back': goBack(); break;
+      case 'video': sheet(`<div class="eyebrow lime">${t('video')}</div><div class="display h2">${t('videoT')}</div><p class="small mt8">${t('videoTxt')}</p><button class="btn btn-lime btn-block mt12" data-act="closesheet">${t('cerrar')}</button>`); break;
+      case 'notice': { const n = G.notices[+el.dataset.i]; sheet(`<div class="row"><span class="ni" style="width:34px;height:34px;border-radius:10px;background:#15254a;color:var(--lime);display:grid;place-items:center">${ic(n.icon)}</span><div class="eyebrow lime">${t('avisos')}</div></div><p class="mt12">${L(n)}</p><div class="xs muted mt8">${t('publicado')} · 31/10/2026</div><button class="btn btn-ghost btn-block mt12" data-act="closesheet">${t('cerrar')}</button>`); break; }
+      case 'chk': { const d = iso(today()); if (S.chk.d !== d) S.chk = { d, on: {} }; S.chk.on[el.dataset.key] = !S.chk.on[el.dataset.key]; save(); render(true); break; }
+      case 'day': { const k = el.dataset.d; const dd = new Date(k + 'T00:00:00'); const rows = (S.done[k] || []).map((e) => e.type === 'entrada' ? `${t('entrada')} · ${e.at}` : e.type === 'plan' ? `${t('sesion')} · ${N(G.plan(e.plan) || { es: '', eu: '' })} · ${t('dia')} ${e.k}` : t('miEntreno')); sheet(`<div class="eyebrow lime">${t('esteDia')}</div><div class="display h2" style="text-transform:capitalize">${longDate(dd)}</div><div class="card mt12">${rows.map((r) => `<div class="notice"><span class="ni">${ic('check')}</span><div class="small">${r}</div></div>`).join('')}</div><div class="xs faint mt8">${t('leyenda')}</div><button class="btn btn-ghost btn-block mt12" data-act="closesheet">${t('cerrar')}</button>`); break; }
+      case 'bigqr': sheet(`<div class="eyebrow lime center">${t('socio')} · nº 0421</div><div class="display h2 center">${S.name} Alberdi</div><div class="qrbox big mt12">${qrSvg('OARSO-GYM-0421', 'M')}</div><div class="small muted mt12 center">${t('enseñar')}</div><button class="btn btn-ghost btn-block mt12" data-act="closesheet">${t('cerrar')}</button>`); break;
+      case 'install': installSheet(); break;
+      case 'installgo': if (IP) { IP.prompt(); IP = null; } closeSheet(); break;
+      case 'repeatplan': if (S.plan) { S.plan.start = iso(today()); save(); toast(t('siguiendo')); render(true); } break;
       case 'lang': S.lang = v; save(); render(true); break;
       case 'size': S.size = +v; save(); render(true); break;
-      case 'toggle': S[el.dataset.k] = !S[el.dataset.k]; save(); render(true); if (el.dataset.k === 'sound' && S.sound) beep(1); break;
+      case 'toggle': S[el.dataset.k] = !S[el.dataset.k]; save(); render(true); if (el.dataset.k === 'sound' && S.sound) beep(1); if (el.dataset.k === 'vib' && S.vib && navigator.vibrate) navigator.vibrate(120); break;
       case 'ans': S.ans[el.dataset.k] = isNaN(+v) ? v : +v; save(); render(true); break;
       case 'finish': { const plan = el.dataset.skip ? G.plans[0] : suggest(); S.onboarded = true; seed(plan.id); nav('#/hoy'); break; }
       case 'flvl': F.lvl = v; render(true); break;
@@ -638,7 +684,9 @@
   });
   document.addEventListener('input', (ev) => { const n = ev.target.dataset && ev.target.dataset.note; if (n !== undefined) { S.mine[+n].note = ev.target.value; save(); } });
 
-  window.addEventListener('hashchange', () => render());
+  window.addEventListener('hashchange', onHash);
   if (!location.hash) location.hash = S.onboarded ? '#/hoy' : '#/onb/1';
+  STACK.push(location.hash);
   render();
+  if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {});
 })();

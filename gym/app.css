@@ -281,6 +281,44 @@ svg.ic { flex: none; display: block; width: 1.2em; height: 1.2em; stroke: curren
 .help-ok { text-align: center; padding: 10px 0 4px; }
 .help-ok .big { width: 64px; height: 64px; border-radius: 50%; background: var(--ok-soft); color: var(--ok); display: grid; place-items: center; margin: 0 auto 12px; }
 
+/* ---------- accesibilidad y movimiento ---------- */
+:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+#app:focus { outline: none; }
+@media (prefers-reduced-motion: reduce) { .hero.kb img, .screen, .sheet, .sheet-bg, .toast { animation: none !important; } #app { scroll-behavior: auto; } }
+html[data-motion="0"] .hero.kb img, html[data-motion="0"] .screen, html[data-motion="0"] .sheet, html[data-motion="0"] .sheet-bg, html[data-motion="0"] .toast { animation: none !important; }
+html[data-motion="0"] #app { scroll-behavior: auto; }
+
+/* ---------- piezas sueltas ---------- */
+.num { width: 26px; height: 26px; border-radius: 8px; background: var(--card-2); color: var(--lime); font-family: var(--f-mono); font-size: .8em; display: grid; place-items: center; flex: none; }
+.card .exrow { margin-top: 8px; background: var(--card-2); border-color: var(--line-2); }
+button.notice { width: 100%; text-align: left; color: #fff; align-items: center; }
+button.notice .chev { color: var(--faint); }
+.ck { width: 36px; height: 36px; border-radius: 50%; border: 2px solid var(--line-2); display: grid; place-items: center; color: transparent; flex: none; transition: background .15s; }
+.ck.on { background: var(--lime); border-color: var(--lime); color: var(--lime-ink); }
+.exrow.ckd b { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--faint); }
+.wk { display: flex; gap: 6px; }
+.wk span { flex: 1; height: 32px; border-radius: 9px; background: var(--card-2); display: grid; place-items: center; font-size: .8em; color: var(--muted); font-weight: 700; }
+.wk .done { background: #1b2f5e; color: #fff; }
+.wk .now { background: var(--lime); color: var(--lime-ink); }
+.tm-img { width: 112px; height: 112px; border-radius: 18px; object-fit: cover; margin: 6px auto 8px; display: block; border: 2px solid var(--line-2); }
+.cal button.d { border: 0; padding: 0; width: 100%; font: inherit; cursor: pointer; }
+.qrbox.big svg { width: 280px; height: 280px; }
+button.qrbox { width: 100%; cursor: pointer; }
+
+/* ---------- pegatinas QR ---------- */
+.stks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stk { background: #fff; color: #061634; border-radius: 14px; padding: 10px; display: flex; flex-direction: column; gap: 6px; border: 1px dashed #c8d0e0; break-inside: avoid; }
+.stk-top { display: flex; justify-content: space-between; align-items: center; }
+.stk-code { font-family: var(--f-display); font-size: 1.6em; font-weight: 800; background: #061634; color: var(--lime); padding: 2px 8px; border-radius: 8px; line-height: 1.1; }
+.stk-logo { font-family: var(--f-display); font-weight: 800; text-transform: uppercase; font-size: .8em; display: inline-flex; gap: 4px; align-items: center; }
+.stk-logo .mark { width: 16px; height: 16px; border-radius: 5px; background: var(--lime); color: #061634; display: grid; place-items: center; font-size: 10px; font-family: var(--f-mono); }
+.stk-logo b { color: #0a47b8; }
+.stk-qr svg { width: 100%; height: auto; display: block; }
+.stk-name { font-weight: 700; font-size: .85em; line-height: 1.15; }
+.stk-eu { font-weight: 500; color: #475569; }
+.stk-txt { font-size: .66em; color: #334155; line-height: 1.25; }
+.stk-url { font-size: .55em; color: #8892a6; font-family: var(--f-mono); word-break: break-all; }
+
 /* ---------- fotos de producto de las máquinas (fondo claro) ---------- */
 .ph.prod, .hero.prod { background: #eef2f8; }
 .ph.prod img, .hero.prod img { object-fit: contain; padding: 10px; }
@@ -329,4 +367,6 @@ svg.ic { flex: none; display: block; width: 1.2em; height: 1.2em; stroke: curren
   .lime, .eyebrow.lime { color: #000; }
   .paper { box-shadow: none; border-radius: 0; padding: 0; font-size: 11pt; }
   .top { display: none; }
+  .stks { grid-template-columns: 1fr 1fr; gap: 6mm; }
+  .stk { width: 74mm; height: 74mm; border: .3mm dashed #999; border-radius: 4mm; page-break-inside: avoid; }
 }
