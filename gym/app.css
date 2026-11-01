@@ -308,6 +308,33 @@ button.notice .chev { color: var(--faint); }
 .qrbox.big svg { width: 280px; height: 280px; }
 button.qrbox { width: 100%; cursor: pointer; }
 
+/* ---------- miga y anterior / siguiente en la ficha ---------- */
+.crumb { font-size: .92em; font-weight: 600; color: var(--ink-2); text-align: left; padding: 0 4px; min-width: 0; }
+.crumb .faint { font-weight: 500; }
+.pn-nav { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.pn { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); color: #fff; min-width: 0; text-align: left; }
+.pn.r { text-align: right; justify-content: flex-end; }
+.pn span { min-width: 0; display: flex; flex-direction: column; }
+.pn small { color: var(--muted); font-size: .72em; } .pn b { font-size: .86em; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pn svg { color: var(--faint); flex: none; }
+.link-s { color: var(--lime); font-weight: 600; font-size: .82em; display: inline-flex; align-items: center; gap: 4px; padding: 6px 2px; }
+
+/* ---------- acceso y registro ---------- */
+.fld { display: block; margin-top: 10px; }
+.fld span { display: block; font-size: .78em; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+.fld .input { padding-left: 14px; }
+.sep { display: flex; align-items: center; gap: 10px; margin: 16px 0 10px; color: var(--muted); font-size: .8em; text-align: center; }
+.sep::before, .sep::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.ckl { display: flex; align-items: center; gap: 10px; font-size: .92em; cursor: pointer; }
+.ckl input { width: 22px; height: 22px; accent-color: var(--lime); flex: none; }
+.yn { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); }
+.yn .seg { flex: none; padding: 3px; }
+.yn .seg button { min-height: 32px; font-size: .85em; }
+.sigpad { background: #fff; border-radius: 14px; overflow: hidden; border: 1px solid var(--line-2); }
+.sigpad canvas { width: 100%; height: auto; display: block; touch-action: none; }
+.loginbar { position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; gap: 8px; z-index: 20; }
+@media (max-width: 639px) { .loginbar { left: 10px; right: 10px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); } }
+
 /* ---------- pegatinas QR ---------- */
 .stks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .stk { background: #fff; color: #061634; border-radius: 14px; padding: 10px; display: flex; flex-direction: column; gap: 6px; border: 1px dashed #c8d0e0; break-inside: avoid; }

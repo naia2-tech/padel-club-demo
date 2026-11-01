@@ -6,7 +6,7 @@
   const VERSION = '0.1 · 31/10/2026';
 
   // ---------- estado ----------
-  const defaults = () => ({ lang: 'es', size: 0, onboarded: false, name: 'Naia', plan: null, done: {}, mine: [], short: false, sound: true, vib: true, motion: true, chk: { d: '', on: {} }, ans: {} });
+  const defaults = () => ({ lang: 'es', size: 0, onboarded: false, name: 'Naia', auth: null, reg: {}, plan: null, done: {}, mine: [], inc: [], short: false, sound: true, vib: true, motion: true, chk: { d: '', on: {} }, ans: {} });
   let S = (() => { try { const j = JSON.parse(localStorage.getItem(KEY)); if (j) return Object.assign(defaults(), j); } catch (e) {} return defaults(); })();
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
 
@@ -118,7 +118,7 @@
         <div class="small muted mt8">${ps.complete ? t('semanaHecha') : progFor(ps.p, ps.week)}</div>
         ${ps.complete ? '' : `<div class="row mt12" style="gap:0">${thumbs}<span class="small muted" style="margin-left:10px">${day.main.length} ${t('ejercicios')} · ${ps.p.min} ${t('min')}</span></div>`}
         <div class="row mt16">${ps.complete ? `<button class="btn btn-ghost grow" data-act="nav" data-to="#/sesiones">${ic('timer')} ${t('sesiones')}</button>` : `<button class="btn btn-lime grow" data-act="nav" data-to="#/dia/${ps.p.id}/${ps.k}">${ic('play')} ${t('empezar')}</button>`}<button class="btn btn-ghost" data-act="nav" data-to="#/plan/${ps.p.id}">${t('verPlan')}</button></div>
-        ${ps.p.alt ? `<div class="xs muted mt8">${t('alternancia')}</div>` : ''}
+        <div class="row between mt8"><span class="xs muted">${ps.p.alt ? t('alternancia') : ''}</span><button class="link-s" data-act="planadj">${ic('tool', 13)} ${t('ajustarPlan')}</button></div>
       </section>`;
     } else {
       planHtml = `<section class="card pad"><div class="eyebrow">${t('planes')}</div><div class="display h2">${t('sinPlan')}</div><div class="row mt12"><button class="btn btn-lime" data-act="nav" data-to="#/planes">${t('elegirPlan')}</button><button class="btn btn-ghost" data-act="nav" data-to="#/explorar">${t('oExplorar')}</button></div></section>`;
@@ -127,7 +127,6 @@
       <div class="top"><div class="grow"><div class="eyebrow">${longDate(now)}</div><h1 class="display h1">${greet},<br><span class="lime">${S.name}</span></h1></div><button class="iconbtn lime" data-act="nav" data-to="#/carnet" aria-label="${t('carnet')}">${ic('qr')}</button></div>
       ${planHtml}
       <section class="sec"><div class="sec-h"><h2>${t('avisos')}</h2></div><div class="card">${G.notices.map((n, i) => `<button class="notice" data-act="notice" data-i="${i}"><span class="ni">${ic(n.icon)}</span><div class="small grow">${L(n)}</div><span class="chev">${ic('chev')}</span></button>`).join('')}</div></section>
-      <button class="card lime pad mt16" data-act="scan" style="width:100%;text-align:left"><div class="row"><span class="iconbtn" style="background:var(--lime-ink);color:var(--lime)">${ic('qr')}</span><div class="grow"><b>${t('escanear')}</b><div class="small muted">${t('escanearTxt')}</div></div>${ic('chev')}</div></button>
       <section class="sec"><div class="sec-h"><h2>${t('enLaSala')}</h2></div><div class="grid2">
         <button class="card pad" data-act="nav" data-to="#/explorar/maquina" style="text-align:left;color:#fff"><span class="iconbtn lime" style="margin-bottom:10px">${ic('qr')}</span><b>${t('maquinas')}</b><div class="xs muted mt8">${t('qrHint')}</div></button>
         <button class="card pad" data-act="nav" data-to="#/sesiones" style="text-align:left;color:#fff"><span class="iconbtn" style="margin-bottom:10px">${ic('timer')}</span><b>${t('sesiones')}</b><div class="xs muted mt8">${t('circuitos')} · ${t('cardioMaquina')}</div></button>
@@ -161,14 +160,19 @@
   }
 
   const F = { lvl: 'all', mat: null };
+  const CTX = { region: null, machine: null }; // de dónde se llegó a la ficha, para volver al catálogo y pasar al siguiente
+  const ORDER = { I: 0, M: 1, A: 2 };
+  function regionList(id, filtered = true) {
+    let list = G.exercises.filter((e) => e.regions.includes(id));
+    if (filtered && F.lvl !== 'all') list = list.filter((e) => e.lvl === F.lvl);
+    if (filtered && F.mat) list = list.filter((e) => e.mat.includes(F.mat));
+    return list.sort((a, b) => ORDER[a.lvl] - ORDER[b.lvl] || (a.mov - b.mov));
+  }
   function scrRegion(id) {
     const r = G.regions.find((x) => x.id === id); if (!r) return scrExplorar();
-    let list = G.exercises.filter((e) => e.regions.includes(id));
-    const mats = [...new Set(list.flatMap((e) => e.mat))];
-    if (F.lvl !== 'all') list = list.filter((e) => e.lvl === F.lvl);
-    if (F.mat) list = list.filter((e) => e.mat.includes(F.mat));
-    const order = { I: 0, M: 1, A: 2 };
-    list.sort((a, b) => order[a.lvl] - order[b.lvl] || (a.mov - b.mov));
+    CTX.region = id; CTX.machine = null;
+    const mats = [...new Set(G.exercises.filter((e) => e.regions.includes(id)).flatMap((e) => e.mat))];
+    const list = regionList(id);
     return `<div class="screen">${top(t('porMusculo'))}
       <div class="row" style="align-items:flex-start;gap:14px"><div class="bodybox">${ANAT(r.view, r.groups, [], 96)}</div><div class="grow"><div class="eyebrow lime">${r.groups.map(gname).join(' · ')}</div><h1 class="display h1">${N(r)}</h1><div class="muted small">${G.exercises.filter((e) => e.regions.includes(id)).length} ${t('ejercicios')}</div></div></div>
       <div class="seg s4 mt12">${[['all', 'todos'], ['I', 'paraEmpezar'], ['M', 'siguientePaso'], ['A', 'avanzado']].map(([k, l]) => `<button class="${F.lvl === k ? 'on' : ''}" data-act="flvl" data-v="${k}">${t(l)}</button>`).join('')}</div>
@@ -185,7 +189,16 @@
     const dosis = f ? f.dosis : ex.mov ? t('dosisMov') : t('dosis' + ex.lvl);
     const alt = (aid, label) => { const a = aid ? G.ex(aid) : null; return a ? `<button class="vcard" data-act="nav" data-to="#/e/${a.id}"><img src="${img(a.img)}" alt=""><div><small>${label}</small><b>${N(a)}</b></div></button>` : ''; };
     const alts = f ? [alt(f.facil, t('masFacil')), alt(f.dificil, t('masDificil'))].filter(Boolean) : [];
-    return `<div class="screen">${top('', `<button class="iconbtn" data-act="help" data-m="${ex.m}" data-ex="${ex.id}" aria-label="${t('pedirAyuda')}">${ic('help')}</button>`)}
+    // contexto: la lista de la que se viene (región o máquina), para volver y para anterior / siguiente
+    let ctxList = null, ctxTo = null, ctxName = '';
+    if (CTX.region && ex.regions.includes(CTX.region)) { ctxList = regionList(CTX.region); ctxTo = '#/region/' + CTX.region; ctxName = N(G.regions.find((x) => x.id === CTX.region)); }
+    else if (CTX.machine && ex.where.includes(CTX.machine)) { ctxList = G.exercises.filter((e) => e.where.includes(CTX.machine)).sort((a, b) => ORDER[a.lvl] - ORDER[b.lvl]); ctxTo = '#/m/' + CTX.machine.toLowerCase(); ctxName = `${CTX.machine} · ${N(G.machine(CTX.machine))}`; }
+    else { const r0 = G.regions.find((x) => x.id === ex.regions[0]); if (r0) { ctxList = regionList(r0.id, false); ctxTo = '#/region/' + r0.id; ctxName = N(r0); } }
+    const pos = ctxList ? ctxList.findIndex((e) => e.id === ex.id) : -1;
+    const prev = pos > 0 ? ctxList[pos - 1] : null, next = pos >= 0 && pos < ctxList.length - 1 ? ctxList[pos + 1] : null;
+    const crumb = ctxTo ? `<button class="crumb grow ellipsis" data-act="nav" data-to="${ctxTo}">${ctxName}${pos >= 0 ? ` <span class="faint">· ${pos + 1} ${t('deLista')} ${ctxList.length}</span>` : ''}</button>` : `<div class="ttl grow"></div>`;
+    const pn = (prev || next) ? `<div class="pn-nav mt12">${prev ? `<button class="pn" data-act="nav" data-to="#/e/${prev.id}">${ic('back')}<span><small>${t('anterior')}</small><b>${N(prev)}</b></span></button>` : '<span></span>'}${next ? `<button class="pn r" data-act="nav" data-to="#/e/${next.id}"><span><small>${t('siguienteEj')}</small><b>${N(next)}</b></span>${ic('chev')}</button>` : ''}</div>` : '';
+    return `<div class="screen"><div class="top"><button class="iconbtn" data-act="back" aria-label="${t('volver')}">${ic('back')}</button>${crumb}<button class="iconbtn" data-act="help" data-m="${ex.m}" data-ex="${ex.id}" aria-label="${t('pedirAyuda')}">${ic('help')}</button></div>
       ${videoHero(ex)}
       <div class="row mt12 wrap">${lvlPill(ex.lvl)}${ex.mat.map((x) => `<span class="pill line">${matName(x)}</span>`).join('')}${m ? `<button class="pill lime" data-act="nav" data-to="#/m/${m.code.toLowerCase()}">${m.code} · ${N(m)}</button>` : ''}</div>
       <section class="sec"><div class="sec-h"><h2>${t('queTrabaja')}</h2></div><div class="card pad"><div class="row" style="align-items:flex-start;gap:14px">${musclePair(ex.p, ex.s)}<div class="grow"><div class="eyebrow lime">${t('principal')}</div><b>${ex.p.map(gname).join(', ')}</b>${ex.s.length ? `<div class="eyebrow mt8">${t('tambien')}</div><div class="small">${ex.s.map(gname).join(', ')}</div>` : ''}</div></div>${ex.pad ? `<div class="tip lime mt12 small"><b>${t('enElPadel')}:</b> ${ex.pad}</div>` : ''}</div></section>
@@ -194,23 +207,26 @@
       ${f.aj && f.aj.length ? `<section class="sec"><div class="sec-h"><h2>${t('ajusta')}</h2></div><div class="card pad"><ul class="adj">${f.aj.map((s) => `<li>${s}</li>`).join('')}</ul></div></section>` : ''}
       <section class="sec"><div class="sec-h"><h2>${t('hazlo')}</h2></div><div class="card pad"><ol class="steps">${f.haz.map((s) => `<li>${s}</li>`).join('')}</ol></div></section>
       <section class="sec"><div class="sec-h"><h2>${t('evita')}</h2></div><div class="card pad"><ul class="warn">${f.ev.map((s) => `<li>${s}</li>`).join('')}</ul></div></section>` : `<div class="tip warn mt16 small">${ic('info')} ${t('fichaBorrador')}</div>`}
-      <section class="sec"><div class="sec-h"><h2>${t('cuanto')}</h2></div><div class="card pad"><b>${dosis}</b>${!ex.mov ? `<div class="eyebrow mt12">${t('pesoOk')}</div><div class="small mt8">${t('pesoTxt')}</div>` : ''}</div></section>
+      <section class="sec"><div class="sec-h"><h2>${t('cuanto')}</h2></div><div class="card pad"><b>${dosis}</b>${(() => { const lt = G.loadType(ex); const title = { ext: 'pesoOk', bw: 'pesoOkBw', band: 'pesoOkBand', iso: 'pesoOkIso' }[lt]; const body = f && f.reg && S.lang === 'es' ? f.reg : { ext: t('pesoTxt'), bw: t('pesoBw'), band: t('pesoBand'), iso: t('pesoIso') }[lt]; return title ? `<div class="eyebrow mt12">${t(title)}</div><div class="small mt8">${body}</div>` : `<div class="small muted mt8">${t('pesoMov')}</div>`; })()}</div></section>
       ${alts.length ? `<section class="sec"><div class="grid2">${alts.join('')}</div></section>` : ''}
       <section class="sec"><div class="card pad" style="border-color:#5a2222"><div class="eyebrow" style="color:var(--bad)">${t('paraY')}</div><div class="small mt8">${t('paraTxt')}</div><button class="btn btn-ghost btn-sm mt12" data-act="help" data-m="${ex.m}" data-ex="${ex.id}">${ic('help')} ${t('pedirAyuda')}</button></div></section>
       <div class="xs faint mt16">${t('revisado')}: ${t('pendienteRev')}.</div>
       <button class="btn btn-lime btn-lg btn-block mt16" data-act="addmine" data-ex="${ex.id}" ${inMine ? 'disabled' : ''}>${ic(inMine ? 'check' : 'plus')} ${inMine ? t('yaEsta') : t('anadir')}</button>
+      ${pn}
+      ${ctxTo ? `<button class="btn btn-ghost btn-sm mt12" data-act="nav" data-to="${ctxTo}">${ic('back', 14)} ${t('volverA')} ${ctxName}</button>` : ''}
     </div>`;
   }
 
   function scrMachine(code) {
     const m = G.machine(code.toUpperCase()); if (!m) return scrExplorar('maquina');
-    const list = G.exercises.filter((e) => e.where.includes(m.code)).sort((a, b) => ({ I: 0, M: 1, A: 2 })[a.lvl] - ({ I: 0, M: 1, A: 2 })[b.lvl]);
+    CTX.machine = m.code; CTX.region = null;
+    const list = G.exercises.filter((e) => e.where.includes(m.code)).sort((a, b) => ORDER[a.lvl] - ORDER[b.lvl]);
     const main = list[0];
     const altEx = main ? G.exercises.find((e) => e.p[0] === main.p[0] && e.m !== m.code && !e.mov && e.lvl !== 'A') : null;
     const cardio = G.cardio.find((c) => c.m === m.code);
     const ph = m.img ? `<img src="${img(m.img)}" alt="">` : `<div class="mcode"><b>${m.code}</b></div>`;
     return `<div class="screen">${top('', `<button class="iconbtn" data-act="help" data-m="${m.code}" aria-label="${t('pedirAyuda')}">${ic('help')}</button>`)}
-      ${!S.onboarded ? `<div class="tip lime small mb12">${ic('qr')} ${t('desdeQr')}</div>` : ''}
+      ${!S.auth ? `<div class="tip lime small mb12">${ic('qr')} ${t('desdeQr')}</div>` : ''}
       <div class="hero ${m.prod ? "prod" : m.img ? "kb" : ""}">${ph}<div class="sh"></div><div class="tl"><span class="pill lime">${m.code}</span>${m.img ? `<span class="pill">${ic('play', 11)} ${t('video')}</span>` : ''}</div><div class="in"><div class="eyebrow lime">${t(m.zone === 'fuerza' ? 'zonaFuerza' : m.zone === 'cardio' ? 'zonaCardio' : 'zonaLibre')}</div><h1 class="display h1">${N(m)}</h1></div></div>
       ${m.model ? `<div class="xs muted mt8">${t('modelo')}: ${m.model}</div>` : ''}
       <p class="mt12">${L2(m.desc)}</p>
@@ -220,7 +236,7 @@
       ${list.length && !m.stations ? `<section class="sec"><div class="sec-h"><h2>${t('enEstaMaquina')}</h2><span class="small muted">${list.length} ${t('ejercicios')}</span></div>${list.map((e) => exRow(e, { meta: lvlName(e.lvl) + (e.where !== m.code ? ' · ' + whereLabel(e) : '') })).join('')}</section>` : ''}
       ${altEx ? `<section class="sec"><div class="sec-h"><h2>${t('siOcupada')}</h2></div>${exRow(altEx, { meta: t('alternativa') + ' · ' + whereLabel(altEx) })}</section>` : ''}
       <div class="row mt16"><button class="btn btn-ghost grow" data-act="help" data-m="${m.code}">${ic('help')} ${t('pedirAyuda')}</button><button class="btn btn-ghost" data-act="mqr" data-m="${m.code}">${ic('qr')} ${t('qrMaquina')}</button></div>
-      ${!S.onboarded ? `<button class="btn btn-lime btn-block mt8" data-act="nav" data-to="#/onb/1">${t('abrirApp')}</button>` : ''}
+      ${!S.auth ? `<button class="btn btn-lime btn-block mt8" data-act="nav" data-to="#/login">${t('abrirApp')}</button>` : ''}
     </div>`;
   }
 
@@ -242,7 +258,7 @@
     return `<div class="screen">${top(N(p))}
       <div class="hero wide"><img src="${img(p.img)}" alt=""><div class="sh"></div><div class="in"><div class="eyebrow lime">${N(G.objectives.find((o) => o.id === p.obj))}</div><h1 class="display h1">${N(p)}</h1></div></div>
       <div class="row mt12 wrap"><span class="pill">${p.days} ${t('diasSemana')}</span><span class="pill">${p.min} ${t('min')}</span><span class="pill">${p.weeks} ${t('semanas')}</span>${following ? `<span class="pill lime">${ic('check', 12)} ${t('siguiendo')} · ${t('semana')} ${ps.week}</span>` : ''}</div>
-      ${following ? `<div class="wk mt12" aria-label="${t('semanas')}">${Array.from({ length: p.weeks }, (_, i) => `<span class="${i + 1 < ps.week ? 'done' : i + 1 === ps.week ? 'now' : ''}">${i + 1}</span>`).join('')}</div>` : ''}
+      ${following ? `<div class="row between mt12 mb8"><span class="eyebrow">${t('semanasPlan')} · ${t('estasEn')} ${ps.week}</span><button class="link-s" data-act="planadj">${ic('tool', 13)} ${t('ajustarPlan')}</button></div><div class="wk" aria-label="${t('semanasPlan')}">${Array.from({ length: p.weeks }, (_, i) => `<span class="${i + 1 < ps.week ? 'done' : i + 1 === ps.week ? 'now' : ''}">${i + 1}</span>`).join('')}</div>` : ''}
       <section class="sec"><div class="sec-h"><h2>${t('paraQuien')}</h2></div><p class="small">${L2(p.who)}</p></section>
       <section class="sec"><div class="sec-h"><h2>${t('progresion')}</h2></div><div class="card pad"><ol class="steps">${weeks.map((w) => `<li>${L2(p.prog[w])}</li>`).join('')}</ol>${p.alt ? `<div class="xs muted mt8">${t('alternancia')}</div>` : ''}</div></section>
       <section class="sec"><div class="sec-h"><h2>${t('losDias')}</h2></div>${p.sched.map((d) => `<button class="exrow" data-act="nav" data-to="#/dia/${p.id}/${d.k}"><span class="num">${d.k}</span><div class="grow"><b>${t('dia')} ${d.k}</b><small>${d.main.map(([i]) => N(G.ex(i))).slice(0, 3).join(', ')}${d.main.length > 3 ? ` +${d.main.length - 3}` : ''}</small></div><span class="chev">${ic('chev')}</span></button>`).join('')}</section>
@@ -317,7 +333,7 @@
     const days = Object.keys(S.done).filter((d) => d.startsWith(month) && S.done[d].length).length;
     const item = (to, icon, title, sub) => `<button class="set" data-act="nav" data-to="${to}"><span class="row"><span class="iconbtn">${ic(icon)}</span><span><b>${title}</b><br><small class="muted">${sub}</small></span></span>${ic('chev')}</button>`;
     return `<div class="screen"><div class="top"><h1 class="display h1 grow" style="margin:0">${t('yo')}</h1></div>
-      <section class="card carnet pad"><div class="row between"><div><div class="eyebrow lime">${t('socio')}</div><div class="display h2">${S.name} A.</div><div class="small muted">${t('cuota')} · ${t('hasta')} 30/11/2026</div></div><button class="iconbtn lime" data-act="nav" data-to="#/carnet">${ic('qr')}</button></div></section>
+      ${isClub() ? `<section class="card carnet pad"><div class="eyebrow lime">${t('cuentaClub')}</div><div class="display h2">Padel Indoor Oarso</div><div class="small muted">${t('cuentaClubTxt')}</div><a class="btn btn-lime btn-block mt12" href="panel/">${ic('tool')} ${t('abrirPanel')}</a></section>` : `<section class="card carnet pad"><div class="row between"><div><div class="eyebrow lime">${t('socio')} · nº ${socioNum()}</div><div class="display h2">${socioName()}</div><div class="small muted">${t('cuota')} · ${t('hasta')} ${endOfMonth()}</div></div><button class="iconbtn lime" data-act="nav" data-to="#/carnet">${ic('qr')}</button></div></section>`}
       <div class="card mt16">
         ${item('#/mi', 'list', t('miEntreno'), `${S.mine.length} ${t('ejercicios')}`)}
         ${item('#/dias', 'cal', t('misDias'), `${days} ${t('diasVenidos')}`)}
@@ -362,20 +378,22 @@
   }
 
   function scrCarnet() {
+    if (isClub()) return `<div class="screen">${top(t('carnet'))}
+      <section class="card carnet pad"><div class="eyebrow lime">${t('cuentaClub')}</div><div class="display h1">Padel Indoor Oarso</div><div class="small muted mt8">${t('cuentaClubTxt')}</div></section>
+      <div class="card pad mt12 small muted">${t('sinDocsClub')}</div>
+      <a class="btn btn-lime btn-lg btn-block mt12" href="panel/">${ic('tool')} ${t('abrirPanel')}</a></div>`;
+    const a = S.auth || {}; const d0 = a.docs || {}; const tf = tarifaDe(a.tarifa);
+    const rows = [['cuota', 'check', t('cuota'), `${tf ? N(tf) + ' · ' : ''}${t('hasta')} ${endOfMonth()}`], d0.aptitud ? ['aptitud', 'doc', t('declaracion'), `${dmyIso(d0.aptitud)} · ${t('caduca')} ${dmyIso(d0.aptitud, 12)}`] : null, d0.normas ? ['normas', 'shield', t('normas'), dmyIso(d0.normas)] : null, d0.sepa ? ['sepa', 'doc', t('docSepa'), `${dmyIso(d0.sepa)} · IBAN ····${a.iban4 || ''}`] : null, d0.imagen ? ['imagen', 'doc', t('docImagen'), dmyIso(d0.imagen)] : null].filter(Boolean);
     return `<div class="screen">${top(t('carnet'))}
-      <section class="card carnet pad"><div class="eyebrow lime">${t('socio')} · nº 0421</div><div class="display h1">${S.name} Alberdi</div>
+      <section class="card carnet pad"><div class="eyebrow lime">${t('socio')} · nº ${socioNum()}</div><div class="display h1">${socioName()}</div>
         <button class="qrbox mt12" id="qr" data-act="bigqr" aria-label="${t('verGrande')}"></button>
         <div class="small muted mt12 center">${t('enseñar')} <span class="lime">${t('verGrande')}</span></div></section>
       <div class="sec-h mt16"><h2>${t('misDocs')}</h2><span class="small muted">PDF</span></div>
-      <div class="card">
-        <button class="set" data-act="nav" data-to="#/doc/cuota"><span class="row"><span class="iconbtn" style="color:var(--ok)">${ic('check')}</span><span><b>${t('cuota')}</b><br><small class="muted">${t('hasta')} 30/11/2026</small></span></span><span class="pill">${ic('doc', 12)} PDF</span></button>
-        <button class="set" data-act="nav" data-to="#/doc/aptitud"><span class="row"><span class="iconbtn" style="color:var(--ok)">${ic('doc')}</span><span><b>${t('declaracion')}</b><br><small class="muted">03/11/2026 · ${t('caduca')} 03/11/2027</small></span></span><span class="pill">${ic('doc', 12)} PDF</span></button>
-        <button class="set" data-act="nav" data-to="#/doc/normas"><span class="row"><span class="iconbtn" style="color:var(--ok)">${ic('shield')}</span><span><b>${t('normas')}</b><br><small class="muted">03/11/2026</small></span></span><span class="pill">${ic('doc', 12)} PDF</span></button>
-      </div>
+      <div class="card">${rows.map(([k, i, title, sub]) => `<button class="set" data-act="nav" data-to="#/doc/${k}"><span class="row"><span class="iconbtn" style="color:var(--ok)">${ic(i)}</span><span><b>${title}</b><br><small class="muted">${sub}</small></span></span><span class="pill">${ic('doc', 12)} PDF</span></button>`).join('')}</div>
       <div class="xs faint mt8">${t('custodia')}</div>
     </div>`;
   }
-  function drawQr() { const el = $('#qr'); if (el) el.innerHTML = qrSvg('OARSO-GYM-0421', 'M'); }
+  function drawQr() { const el = $('#qr'); if (el) el.innerHTML = qrSvg('OARSO-GYM-' + socioNum(), 'M'); }
 
   // ---------- pegatinas QR para las máquinas (hoja imprimible para el club) ----------
   function scrPegatinas() {
@@ -388,6 +406,108 @@
     </div>`;
   }
   function drawStickers() { document.querySelectorAll('.stk-qr[data-url]').forEach((el) => { el.innerHTML = qrSvg(el.dataset.url, 'H'); }); }
+
+  // ---------- cuentas: acceso, registro con firmas y domiciliación, cuenta de gestión del club ----------
+  // En la demo las cuentas viven en el navegador. En la app real: Supabase Auth, contraseñas nunca en claro (07 § 11).
+  const ACCK = 'oarsogym.accounts';
+  const DEMO_ACC = {
+    'naia@demo.oarso': { pass: 'demo1234', role: 'socio', nombre: 'Naia', apellidos: 'Alberdi', num: '0421', tarifa: 'club', iban4: '1332', titular: 'Naia Alberdi', docs: { normas: '2026-11-03T18:43:00', aptitud: '2026-11-03T18:41:00', imagen: '2026-11-03T18:44:00', sepa: '2026-11-03T18:45:00' }, sig: null, parq: 'apto', demo: true },
+    'club@oarso': { pass: 'club1234', role: 'club', nombre: 'Oarso', apellidos: '', num: 'CLUB', tarifa: null, docs: {}, sig: null, demo: true },
+  };
+  const accStore = () => { try { return JSON.parse(localStorage.getItem(ACCK)) || {}; } catch (e) { return {}; } };
+  const accAll = () => Object.assign({}, DEMO_ACC, accStore());
+  function accPut(email, acc) { const a = accStore(); a[email] = acc; try { localStorage.setItem(ACCK, JSON.stringify(a)); } catch (e) {} }
+  function tarifas() { try { const x = JSON.parse(localStorage.getItem('oarsogym.tarifas')); if (Array.isArray(x) && x.length) return x; } catch (e) {} return [{ id: 'club', es: 'Socio del club · gimnasio', eu: 'Klubeko bazkidea · gimnasioa', precio: 25, nota_es: 'Para quien ya es socio del club de pádel', nota_eu: 'Dagoeneko padel-klubeko bazkidea denarentzat' }, { id: 'gym', es: 'Solo gimnasio', eu: 'Gimnasioa bakarrik', precio: 35, nota_es: 'Sin cuota de pádel', nota_eu: 'Padel-kuotarik gabe' }]; }
+  const tarifaDe = (id) => tarifas().find((x) => x.id === id) || null;
+  const isClub = () => !!(S.auth && S.auth.role === 'club');
+  const socioNum = () => (S.auth && S.auth.num) || '0421';
+  const dmyIso = (s, addMonths = 0) => { if (!s) return ''; const d = new Date(s); if (addMonths) d.setMonth(d.getMonth() + addMonths); return dmy(d); };
+  const hmIso = (s) => (s ? hm(new Date(s)) : '');
+  const endOfMonth = () => { const d = today(); return dmy(new Date(d.getFullYear(), d.getMonth() + 1, 0)); };
+  const SEPA_TXT = 'Mediante la firma de este mandato, el deudor autoriza a Padel Indoor Oarso a enviar instrucciones a su entidad para adeudar en su cuenta y a la entidad para efectuar los adeudos siguiendo las instrucciones del acreedor. Como parte de sus derechos, el deudor está legitimado al reembolso por su entidad en los términos y condiciones del contrato suscrito con la misma. La solicitud de reembolso deberá efectuarse dentro de las ocho semanas que siguen a la fecha de adeudo en cuenta. Tipo de pago: recurrente. La cuota mensual de la tarifa elegida se carga el día 1 de cada mes.';
+  const IMAGEN_TXT = 'Autorizo a Padel Indoor Oarso a captar y utilizar mi imagen en fotografías y vídeos realizados en el gimnasio, exclusivamente para las fichas de ejercicios de la aplicación Oarso Gym y las redes sociales del club, sin límite temporal y sin contraprestación. Puedo retirar esta autorización en cualquier momento en recepción; la retirada no afecta a los usos anteriores.';
+  function doLogin(email, pass) { email = (email || '').trim().toLowerCase(); const acc = accAll()[email]; if (!acc || acc.pass !== pass) return false; S.auth = Object.assign({ email }, acc); delete S.auth.pass; S.name = acc.nombre; save(); return true; }
+  function doLogout() { const keep = { lang: S.lang, size: S.size, motion: S.motion }; S = Object.assign(defaults(), keep); save(); stopTimer(); closeSheet(); nav('#/login'); }
+  const ibanOk = (s) => { s = (s || '').replace(/\s+/g, '').toUpperCase(); if (!/^[A-Z]{2}\d{2}[A-Z0-9]{11,30}$/.test(s)) return false; const r = (s.slice(4) + s.slice(0, 4)).replace(/[A-Z]/g, (c) => String(c.charCodeAt(0) - 55)); let m = 0; for (const ch of r) m = (m * 10 + +ch) % 97; return m === 1; };
+  function regCreate() {
+    const R = S.reg; const now = new Date().toISOString(); const store = accStore(); const num = String(422 + Object.keys(store).length).padStart(4, '0'); const email = R.email.trim().toLowerCase();
+    const acc = { pass: R.pass, role: 'socio', nombre: R.nombre.trim(), apellidos: R.apellidos.trim(), num, tarifa: R.tarifa || (R.club ? 'club' : 'gym'), iban4: R.iban.replace(/\s+/g, '').slice(-4), titular: (R.titular || '').trim(), movil: R.movil || '', nac: R.nac || '', docs: { normas: now, aptitud: now, sepa: now, imagen: R.ok && R.ok.imagen ? now : null }, sig: R.sig || null, parq: (R.parq || []).some((v) => v === true) ? 'valoracion' : 'apto', alta: now, demo: false };
+    accPut(email, acc); S.auth = Object.assign({ email }, acc); delete S.auth.pass; S.name = acc.nombre; S.reg = {}; S.onboarded = false; S.plan = null; S.done = {}; S.mine = []; S.inc = []; save();
+  }
+  const loginBar = () => `<div class="loginbar"><button class="btn btn-lime grow" data-act="nav" data-to="#/login">${t('login')}</button><button class="btn btn-ghost" data-act="nav" data-to="#/registro/1">${t('crearCuenta')}</button></div>`;
+  function scrLogin() {
+    return `<div class="onb"><div class="art" style="aspect-ratio:4/2.4"><img src="${img(12)}" alt=""><div class="sh"></div><div class="logo"><span class="mark">O</span><span class="wm">Oarso <b>Gym</b></span></div></div>
+      <h1 class="display h1 mt16">${t('loginT')}</h1>
+      <label class="fld"><span>${t('correo')}</span><input class="input" id="lg-email" type="email" autocomplete="username" inputmode="email" autocapitalize="off"></label>
+      <label class="fld"><span>${t('contrasena')}</span><input class="input" id="lg-pass" type="password" autocomplete="current-password"></label>
+      <div class="xs mt8" style="color:var(--bad);min-height:16px" id="lg-err"></div>
+      <button class="btn btn-lime btn-lg btn-block" data-act="login">${t('login')}</button>
+      <button class="btn btn-ghost btn-block mt8" data-act="olvide">${t('olvide')}</button>
+      <div class="sep"><span>${t('sinCuenta')}</span></div>
+      <button class="btn btn-dark btn-block" data-act="nav" data-to="#/registro/1">${ic('plus')} ${t('crearCuenta')}</button>
+      <div class="xs muted mt8 center">${t('recepcionAlta')}</div>
+      <div class="grow"></div>
+      <div class="row mt16 wrap" style="justify-content:center;gap:6px"><span class="xs faint">${t('probarComo')}:</span><button class="chip" data-act="demofill" data-v="naia@demo.oarso|demo1234">${t('demoSocia')}</button><button class="chip" data-act="demofill" data-v="club@oarso|club1234">${t('demoClub')}</button></div>
+      <div class="row mt8" style="justify-content:center;gap:6px">${[['es', 'Castellano'], ['eu', 'Euskara']].map(([k, l]) => `<button class="chip ${S.lang === k ? 'on' : ''}" data-act="lang" data-v="${k}">${l}</button>`).join('')}</div>
+    </div>`;
+  }
+  function scrRegistro(step) {
+    const R = S.reg || (S.reg = {}); R.ok = R.ok || {};
+    const head = (n, title) => `<div class="top"><button class="iconbtn" data-act="back" aria-label="${t('volver')}">${ic('back')}</button><div class="grow"><div class="eyebrow lime">${t('paso')} ${n}/4</div><div class="ttl">${title}</div></div></div><div class="dots mb12">${[1, 2, 3, 4].map((i) => `<i class="${i <= n ? 'on' : ''}"></i>`).join('')}</div>`;
+    const fld = (k, label, type = 'text', extra = '') => `<label class="fld"><span>${label}</span><input class="input" data-reg="${k}" type="${type}" value="${esc(R[k] || '')}" ${extra}></label>`;
+    if (step === '1') return `<div class="screen">${head(1, t('reg1'))}
+      ${fld('nombre', t('nombre'), 'text', 'autocomplete="given-name"')}${fld('apellidos', t('apellidos'), 'text', 'autocomplete="family-name"')}${fld('email', t('correo'), 'email', 'autocomplete="email" inputmode="email" autocapitalize="off"')}${fld('movil', t('movil'), 'tel', 'autocomplete="tel" inputmode="tel"')}${fld('nac', t('nacimiento'), 'date', '')}${fld('pass', t('contrasena'), 'password', 'autocomplete="new-password"')}${fld('pass2', t('repetirPass'), 'password', 'autocomplete="new-password"')}
+      <button class="set card mt12" data-act="regtoggle" data-k="club" role="switch" aria-checked="${!!R.club}"><span class="row"><span class="iconbtn">${ic('star')}</span><b>${t('soyClub')}</b></span><span class="switch ${R.club ? 'on' : ''}"></span></button>
+      <div class="xs mt8" style="color:var(--bad);min-height:16px" id="reg-err"></div>
+      <button class="btn btn-lime btn-lg btn-block mt8" data-act="reg1">${t('siguiente')} ${ic('chev')}</button></div>`;
+    if (step === '2') { const T = tarifas(); const sel = R.tarifa || (R.club ? 'club' : 'gym'); return `<div class="screen">${head(2, t('reg2'))}<p class="small muted">${t('tarifaTxt')}</p>
+      <div class="col mt12" style="gap:8px">${T.map((x) => `<button class="opt ${sel === x.id ? 'on' : ''}" data-act="regtarifa" data-v="${x.id}"><span class="radio"></span><span class="grow"><b>${N(x)}</b><br><small class="muted">${S.lang === 'eu' ? x.nota_eu : x.nota_es}</small></span><span class="display" style="font-size:1.5em;color:var(--lime)">${x.precio}<small style="font-size:.5em;color:var(--muted)"> ${t('alMes')}</small></span></button>`).join('')}</div>
+      <div class="xs faint mt8">${t('ejemploPrecio')}</div>
+      <button class="btn btn-lime btn-lg btn-block mt16" data-act="reg2" data-v="${sel}">${t('siguiente')} ${ic('chev')}</button></div>`; }
+    if (step === '3') { const P = R.parq || []; const ok = R.ok; const tf = tarifaDe(R.tarifa || (R.club ? 'club' : 'gym'));
+      return `<div class="screen">${head(3, t('reg3'))}<p class="small muted">${t('docsTxt')}</p>
+      <section class="card pad mt12"><div class="row between"><b>${t('docNormas')}</b><button class="btn btn-ghost btn-sm" data-act="leer" data-v="normas">${t('leer')}</button></div><label class="ckl mt8"><input type="checkbox" data-ok="normas" ${ok.normas ? 'checked' : ''}> ${t('aceptoDoc')}</label></section>
+      <section class="card pad mt12"><b>${t('docAptitud')}</b><div class="small muted mt8 mb8">${t('aptitudTxt')}</div>${PARQ.map((q, i) => `<div class="yn"><span class="grow small">${i + 1}. ${q}</span><div class="seg"><button class="${P[i] === true ? 'on' : ''}" data-act="parq" data-i="${i}" data-v="1">${t('si')}</button><button class="${P[i] === false ? 'on' : ''}" data-act="parq" data-i="${i}" data-v="0">${t('no')}</button></div></div>`).join('')}${P.some((v) => v === true) ? `<div class="tip warn small mt8">${t('necesitaVal')}</div>` : ''}<label class="ckl mt12"><input type="checkbox" data-ok="aptitud" ${ok.aptitud ? 'checked' : ''}> ${t('aceptoDoc')}</label></section>
+      <section class="card pad mt12"><div class="row between"><b>${t('docImagen')}</b><span class="pill">${t('opcional')}</span></div><div class="small muted mt8">${t('imagenTxt')}</div><label class="ckl mt8"><input type="checkbox" data-ok="imagen" ${ok.imagen ? 'checked' : ''}> ${t('aceptoDoc')}</label></section>
+      <section class="card pad mt12"><b>${t('sepaT')}</b><div class="small muted mt8">${t('sepaTxt')} <b class="lime">${tf ? tf.precio + ' ' + t('alMes') : ''}</b></div>${fld('titular', t('titular'), 'text', 'autocomplete="name"')}${fld('iban', t('iban'), 'text', 'inputmode="text" autocapitalize="characters" spellcheck="false" placeholder="ES00 0000 0000 0000 0000 0000"')}<div class="xs faint mt8">${t('ibanDemo')}</div><label class="ckl mt8"><input type="checkbox" data-ok="sepa" ${ok.sepa ? 'checked' : ''}> ${t('aceptoDoc')}</label></section>
+      <section class="card pad mt12"><b>${t('firma')}</b><div class="small muted mt8">${t('firmaTxt')}</div><div class="sigpad mt8"><canvas id="sigc" width="700" height="240"></canvas></div><button class="btn btn-ghost btn-sm mt8" data-act="sigclear">${t('borrarFirma')}</button></section>
+      <div class="xs mt12" style="color:var(--bad);min-height:16px" id="reg-err"></div>
+      <button class="btn btn-lime btn-lg btn-block mt8" data-act="reg3">${ic('check')} ${t('firmarTodo')}</button></div>`; }
+    const a = S.auth; if (!a) return scrLogin();
+    const dn = { normas: 'docNormas', aptitud: 'docAptitud', imagen: 'docImagen', sepa: 'docSepa' };
+    return `<div class="screen">${head(4, t('reg4'))}<div class="help-ok"><div class="big">${ic('check', 30)}</div><div class="display h1">${t('creada')}</div><p class="small muted">${t('creadaTxt')}</p></div>
+      <div class="card mt12"><div class="set"><span class="row"><span class="iconbtn lime">${ic('id')}</span><span><b>${t('numSocio')} ${a.num}</b><br><small class="muted">${a.nombre} ${a.apellidos} · ${a.email}</small></span></span></div>${['normas', 'aptitud', 'imagen', 'sepa'].filter((k) => a.docs[k]).map((k) => `<div class="set"><span class="row"><span class="iconbtn" style="color:var(--ok)">${ic('doc')}</span><span><b>${t(dn[k])}</b><br><small class="muted">${t('firmado')} ${dmyIso(a.docs[k])} · ${hmIso(a.docs[k])}</small></span></span><span class="pill">PDF</span></div>`).join('')}</div>
+      <button class="btn btn-lime btn-lg btn-block mt16" data-act="nav" data-to="#/onb/1">${t('entrarApp')} ${ic('chev')}</button></div>`;
+  }
+  let SIGH = null;
+  function initSig() {
+    const c = $('#sigc'); if (!c) return; const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.lineWidth = 4; g.lineCap = 'round'; g.lineJoin = 'round'; g.strokeStyle = '#1b2a6b';
+    if (S.reg.sig) { const im = new Image(); im.onload = () => g.drawImage(im, 0, 0); im.src = S.reg.sig; }
+    if (SIGH) { SIGH.forEach(([ev, fn]) => window.removeEventListener(ev, fn)); SIGH = null; }
+    let drawing = false;
+    const pt = (ev) => { const r = c.getBoundingClientRect(); const s = ev.touches ? ev.touches[0] : ev; return [(s.clientX - r.left) * c.width / r.width, (s.clientY - r.top) * c.height / r.height]; };
+    const down = (ev) => { drawing = true; const [x, y] = pt(ev); g.beginPath(); g.moveTo(x, y); g.lineTo(x + .1, y + .1); g.stroke(); if (ev.cancelable) ev.preventDefault(); };
+    const move = (ev) => { if (!drawing) return; const [x, y] = pt(ev); g.lineTo(x, y); g.stroke(); if (ev.cancelable) ev.preventDefault(); };
+    const up = () => { if (!drawing) return; drawing = false; S.reg.sig = c.toDataURL('image/png'); save(); };
+    if (window.PointerEvent) { c.onpointerdown = down; SIGH = [['pointermove', move], ['pointerup', up], ['pointercancel', up]]; }
+    else { c.onmousedown = down; c.ontouchstart = down; c.ontouchmove = move; c.ontouchend = up; SIGH = [['mousemove', move], ['mouseup', up]]; }
+    SIGH.forEach(([ev, fn]) => window.addEventListener(ev, fn, { passive: false }));
+  }
+
+  // ---------- ajustar el plan en curso: objetivo y días a la semana, cuando se quiera ----------
+  const PA = { obj: null, days: null };
+  function planAdjust() {
+    const cur = S.plan ? G.plan(S.plan.id) : null;
+    if (PA.obj === null) { PA.obj = cur ? cur.obj : 'empezar'; PA.days = cur ? cur.days : 2; }
+    const target = G.plans.find((p) => p.obj === PA.obj && p.days === PA.days) || G.plans[0];
+    sheet(`<div class="eyebrow lime">${t('ajustarPlan')}</div><div class="display h2">${N(target)}</div>
+      <div class="eyebrow mt12 mb8">${t('objetivo')}</div><div class="chips">${G.objectives.map((o) => `<button class="chip ${PA.obj === o.id ? 'on' : ''}" data-act="paobj" data-v="${o.id}">${N(o)}</button>`).join('')}</div>
+      <div class="eyebrow mt12 mb8">${t('diasSemana')}</div><div class="seg">${[2, 3].map((d) => `<button class="${PA.days === d ? 'on' : ''}" data-act="padays" data-v="${d}">${d} ${t('diasSemana')}</button>`).join('')}</div>
+      <div class="card soft pad mt12"><div class="row between"><b>${N(target)}</b><span class="pill">${target.min} ${t('min')} · ${target.weeks} ${t('semanas')}</span></div><div class="small muted mt8">${L2(target.who).split('.')[0]}.</div></div>
+      <div class="xs muted mt8">${t('cambioObjetivo')}</div>
+      <button class="btn btn-lime btn-lg btn-block mt12" data-act="pasave" data-v="${target.id}">${ic('check')} ${t('guardarCambios')}</button>
+      <button class="btn btn-ghost btn-block mt8" data-act="closesheet">${t('cancelar')}</button>`);
+  }
 
   // ---------- instalación como app ----------
   let IP = null;
@@ -406,7 +526,7 @@
       <div class="card mt12">${sw('sound', S.sound)}${sw('vib', S.vib)}${sw('motion', !S.motion)}</div>
       <div class="card mt12"><button class="set" data-act="install"><span class="row"><span class="iconbtn lime">${ic('dl')}</span><span><b>${t('instalar')}</b><br><small class="muted">${t('sinCobertura')}</small></span></span>${ic('chev')}</button>${link('#/pegatinas', 'qr', t('pegatinas'))}</div>
       <div class="card mt12">${link('#/legal', 'doc', t('legal'))}${link('#/privacidad', 'shield', t('privacidad'))}<button class="set" data-act="export"><span class="row"><span class="iconbtn">${ic('dl')}</span><b>${t('exportar')}</b></span>${ic('chev')}</button></div>
-      <div class="card mt12"><button class="set" data-act="confirmreset" data-v="cuenta"><span class="row"><span class="iconbtn" style="color:var(--bad)">${ic('trash')}</span><b style="color:var(--bad)">${t('borrar')}</b></span></button><button class="set" data-act="confirmreset" data-v="demo"><span class="row"><span class="iconbtn">${ic('reset')}</span><b>${t('borrarDemo')}</b></span></button></div>
+      <div class="card mt12"><button class="set" data-act="logout"><span class="row"><span class="iconbtn">${ic('user')}</span><span><b>${t('cerrarSesion')}</b><br><small class="muted">${S.auth ? S.auth.email : ''}</small></span></span>${ic('chev')}</button><button class="set" data-act="confirmreset" data-v="cuenta"><span class="row"><span class="iconbtn" style="color:var(--bad)">${ic('trash')}</span><b style="color:var(--bad)">${t('borrar')}</b></span></button><button class="set" data-act="confirmreset" data-v="demo"><span class="row"><span class="iconbtn">${ic('reset')}</span><b>${t('borrarDemo')}</b></span></button></div>
       <div class="xs faint mt16 center">Oarso Gym · ${t('version')} ${VERSION} · ${t('demoTag')}</div>
     </div>`;
   }
@@ -510,32 +630,46 @@
   const SIG = '<svg class="sig" viewBox="0 0 300 80"><path d="M14 56c22-38 36-38 30-6-4 22 16-30 36-24s-8 30 12 24 22-32 40-26 4 26 24 22 30-36 46-28-10 28 10 26 36-16 60-24" fill="none" stroke="#1b2a6b" stroke-width="2.2" stroke-linecap="round"/></svg>';
   const PARQ = ['¿Le ha dicho alguna vez su médico que tiene una enfermedad del corazón o hipertensión?', '¿Siente dolor en el pecho en reposo, en sus actividades diarias o al hacer actividad física?', '¿Pierde el equilibrio por mareos o ha perdido el conocimiento en los últimos 12 meses?', '¿Le han diagnosticado otra enfermedad crónica, distinta de las del corazón o la hipertensión?', '¿Toma actualmente medicación prescrita para una enfermedad crónica?', '¿Tiene, o ha tenido en los últimos 12 meses, un problema de huesos, articulaciones o tejidos blandos que pueda empeorar al ser más activo?', '¿Le ha dicho su médico que solo debe hacer actividad física supervisada?'];
   const NORMAS = ['El acceso a la sala es personal, con el carné de la app o el nombre en recepción.', 'Toalla obligatoria en bancos y máquinas, y limpieza del puesto al terminar.', 'El material vuelve a su sitio: discos en los soportes, mancuernas en el mancuernero.', 'Calzado deportivo limpio y ropa adecuada.', 'Los menores de 18 años necesitan autorización firmada de madre, padre o tutor.', 'No se graba ni se fotografía a otras personas sin su permiso.', 'Cualquier incidencia con una máquina, molestia o malestar se comunica en recepción.', 'Se respetan el horario, el aforo y las indicaciones del personal.'];
-  const socioName = () => `${S.name} Alberdi`;
+  const socioName = () => (S.auth ? `${S.auth.nombre} ${S.auth.apellidos || ''}`.trim() : `${S.name} Alberdi`);
   function docData(id) {
-    const socio = [['Socio', `${socioName()} · nº 0421`]];
+    const a = S.auth || {}; const num = socioNum(); const d0 = a.docs || {}; const tf = tarifaDe(a.tarifa) || tarifas()[0];
+    const when = (k, fb) => (d0[k] ? `${dmyIso(d0[k])} · ${hmIso(d0[k])}` : fb);
+    const fecha = (k, fb) => (d0[k] ? dmyIso(d0[k]) : fb);
+    const socio = [['Socio', `${socioName()} · nº ${num}`]];
+    const d = today(); const mes = `${t('meses')[d.getMonth()]} de ${d.getFullYear()} · del 1 al ${new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()}`;
+    const parqSi = a.parq === 'valoracion';
     const D = {
-      aptitud: { title: t('docAptitud'), sub: 'Cuestionario PAR-Q+ (versión 2025), sin modificaciones · Documento v1 · castellano', ref: 'OG-APT-2026-0421', fecha: '03/11/2026',
-        kv: [...socio, ['Fecha', '03/11/2026'], ['Validez', '12 meses · hasta el 03/11/2027'], ['Idioma', 'Castellano']],
-        blocks: [{ h: 'Siete preguntas sobre su salud', type: 'qa', items: PARQ.map((q) => [q, 'NO']) }, { type: 'box', text: 'Resultado: todas las respuestas son NO. Puede empezar a hacer actividad física, despacio y progresando poco a poco. Esta declaración deja de ser válida si cambia su estado de salud.' }, { type: 'p', text: 'Declaro que he leído y comprendido las preguntas y que las he respondido con sinceridad. Sé que debo avisar al personal del gimnasio si mi estado de salud cambia.' }],
-        sign: { when: '03/11/2026 · 18:41', extra: 'Acceso restringido al responsable del gimnasio' } },
-      normas: { title: t('docNormas'), sub: 'Normas de uso de la sala · Documento v1 · castellano', ref: 'OG-NOR-2026-0421', fecha: '03/11/2026',
-        kv: [...socio, ['Fecha', '03/11/2026'], ['Vigencia', 'Desde el 01/01/2027']],
+      aptitud: { title: t('docAptitud'), sub: 'Cuestionario PAR-Q+ (versión 2025), sin modificaciones · Documento v1 · castellano', ref: `OG-APT-${num}`, fecha: fecha('aptitud', '03/11/2026'),
+        kv: [...socio, ['Fecha', fecha('aptitud', '03/11/2026')], ['Validez', `12 meses · hasta el ${d0.aptitud ? dmyIso(d0.aptitud, 12) : '03/11/2027'}`], ['Idioma', 'Castellano']],
+        blocks: [{ h: 'Siete preguntas sobre su salud', type: 'qa', items: PARQ.map((q) => [q, parqSi ? '—' : 'NO']) }, { type: 'box', text: parqSi ? 'Resultado: alguna respuesta es SÍ. Antes de entrenar con intensidad, la persona consultará con recepción o con su médico. Las respuestas concretas no se guardan en la aplicación; constan solo en este documento custodiado por el club.' : 'Resultado: todas las respuestas son NO. Puede empezar a hacer actividad física, despacio y progresando poco a poco. Esta declaración deja de ser válida si cambia su estado de salud.' }, { type: 'p', text: 'Declaro que he leído y comprendido las preguntas y que las he respondido con sinceridad. Sé que debo avisar al personal del gimnasio si mi estado de salud cambia.' }],
+        sign: { when: when('aptitud', '03/11/2026 · 18:41'), extra: 'Acceso restringido al responsable del gimnasio' } },
+      normas: { title: t('docNormas'), sub: 'Normas de uso de la sala · Documento v1 · castellano', ref: `OG-NOR-${num}`, fecha: fecha('normas', '03/11/2026'),
+        kv: [...socio, ['Fecha', fecha('normas', '03/11/2026')], ['Vigencia', 'Desde el 01/01/2027']],
         blocks: [{ h: 'Normas de uso', type: 'ol', items: NORMAS }, { type: 'p', text: 'He leído y acepto las normas de uso del gimnasio de Padel Indoor Oarso.' }],
-        sign: { when: '03/11/2026 · 18:43', extra: '' } },
-      cuota: { title: t('docCuota'), sub: 'Justificante de cuota al día · no es una factura', ref: 'OG-CUO-2026-11-0421', fecha: '01/11/2026',
-        kv: [...socio, ['Modalidad', 'Gimnasio'], ['Periodo', 'Noviembre de 2026 · del 1 al 30'], ['Forma de pago', 'Domiciliación bancaria'], ['Estado', 'Al día']],
+        sign: { when: when('normas', '03/11/2026 · 18:43'), extra: '' } },
+      sepa: { title: t('docSepa'), sub: 'Adeudo directo SEPA · pago recurrente · Documento v1 · castellano', ref: `OG-SEPA-${num}`, fecha: fecha('sepa', '03/11/2026'),
+        kv: [['Acreedor', 'Padel Indoor Oarso · Errenteria (Gipuzkoa)'], ['Identificador del acreedor', 'Lo asigna la entidad bancaria del club'], ['Referencia del mandato', `OG-SEPA-${num}`], ['Deudor', socioName()], ['Titular de la cuenta', a.titular || socioName()], ['IBAN', `ES·· **** **** **** **** ${a.iban4 || '1332'}`], ['Tipo de pago', 'Recurrente · cuota mensual'], ['Importe', `${tf.precio} ${t('alMes')} · ${N(tf)}`]],
+        blocks: [{ type: 'p', text: SEPA_TXT }],
+        sign: { when: when('sepa', '03/11/2026 · 18:45'), extra: '' } },
+      imagen: { title: t('docImagen'), sub: 'Autorización voluntaria · revocable en recepción · Documento v1 · castellano', ref: `OG-IMG-${num}`, fecha: fecha('imagen', '03/11/2026'),
+        kv: [...socio, ['Fecha', fecha('imagen', '03/11/2026')]],
+        blocks: [{ type: 'p', text: IMAGEN_TXT }],
+        sign: { when: when('imagen', '03/11/2026 · 18:44'), extra: '' } },
+      cuota: { title: t('docCuota'), sub: 'Justificante de cuota al día · no es una factura', ref: `OG-CUO-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${num}`, fecha: `01/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`,
+        kv: [...socio, ['Modalidad', N(tf)], ['Periodo', mes.charAt(0).toUpperCase() + mes.slice(1)], ['Cuota', `${tf.precio} ${t('alMes')}`], ['Forma de pago', 'Domiciliación bancaria'], ['Estado', 'Al día']],
         blocks: [{ type: 'p', text: 'Padel Indoor Oarso certifica que la persona indicada tiene la cuota del gimnasio al día para el periodo señalado.' }, { type: 'p', text: 'La factura correspondiente se emite con TicketBAI desde el programa de facturación del club.' }],
-        sign: null, emitted: '01/11/2026 · 09:00 · recepción' },
+        sign: null, emitted: `01/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()} · 09:00 · recepción` },
     };
     return D[id];
   }
+  const sigHtml = () => (S.auth && S.auth.sig ? `<img class="sig" src="${S.auth.sig}" alt="">` : SIG);
   function scrDoc(id) {
     const d = docData(id); if (!d) return scrCarnet();
     const kv = `<dl class="pkv">${d.kv.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`;
     const blocks = d.blocks.map((b) => (b.h ? `<h3>${b.h}</h3>` : '') + (b.type === 'qa' ? `<ol class="pq">${b.items.map(([q, a]) => `<li><span>${q}</span><b>${a}</b></li>`).join('')}</ol>` : b.type === 'ol' ? `<ol class="pn">${b.items.map((r) => `<li>${r}</li>`).join('')}</ol>` : b.type === 'box' ? `<div class="pres">${b.text}</div>` : `<p>${b.text}</p>`)).join('');
     const stamp = '<div class="pstamp">PADEL INDOOR<br>OARSO<br><small>Gimnasio · Errenteria</small></div>';
     const foot = d.sign
-      ? `<div class="psig"><div class="row between" style="align-items:flex-end"><div><div class="plab">Firma del socio</div>${SIG}<div class="pname">${socioName()} · socio nº 0421</div></div>${stamp}</div><div class="pmeta">${t('firmado')} ${d.sign.when} · tableta de recepción · IP 88.···.···.12<br>Documento ${d.ref} · huella SHA-256 9f3a1c77…d2e4${d.sign.extra ? ' · ' + d.sign.extra : ''}</div></div>`
+      ? `<div class="psig"><div class="row between" style="align-items:flex-end"><div><div class="plab">Firma del socio</div>${sigHtml()}<div class="pname">${socioName()} · socio nº ${socioNum()}</div></div>${stamp}</div><div class="pmeta">${t('firmado')} ${d.sign.when} · ${S.auth && !S.auth.demo ? 'desde la app' : 'tableta de recepción'} · IP 88.···.···.12<br>Documento ${d.ref} · huella SHA-256 9f3a1c77…d2e4${d.sign.extra ? ' · ' + d.sign.extra : ''}</div></div>`
       : `<div class="psig"><div class="row between" style="align-items:flex-end"><div><div class="plab">Emitido</div><div class="pname">${d.emitted}</div></div>${stamp}</div><div class="pmeta">Documento ${d.ref}</div></div>`;
     return `<div class="screen">${top(d.title, `<button class="iconbtn noprint" data-act="pdf" data-v="${id}" aria-label="${t('descargarPdf')}">${ic('dl')}</button>`)}
       <div class="paper"><div class="pband"><div><div class="pclub">Padel Indoor Oarso · Gimnasio</div><div class="pclub2">Errenteria · Gipuzkoa</div></div><div class="pref">${d.ref}<br>${d.fecha}</div></div><h1>${d.title}</h1><div class="psub">${d.sub}</div>${kv}${blocks}${foot}<div class="pfoot">${t('ejemploDoc')}</div></div>
@@ -569,7 +703,7 @@
     });
     // firma y sello
     need(50); y += 4; pdf.setDrawColor(203, 213, 225); pdf.setLineDashPattern([1, 1], 0); pdf.line(L, y, R, y); pdf.setLineDashPattern([], 0); y += 7;
-    if (d.sign) { const png = await sigPng(); pdf.setFontSize(7.5); pdf.setTextColor(90, 100, 120); pdf.setFont('helvetica', 'normal'); pdf.text('FIRMA DEL SOCIO', L, y); if (png) pdf.addImage(png, 'PNG', L, y + 2, 60, 16); pdf.setFontSize(9.5); pdf.setTextColor(20, 20, 20); pdf.setFont('helvetica', 'bold'); pdf.text(`${socioName()} · socio nº 0421`, L, y + 23); pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8); pdf.setTextColor(90, 100, 120); pdf.text(`Firmado el ${d.sign.when} · tableta de recepción · IP 88.···.···.12`, L, y + 28); }
+    if (d.sign) { const png = S.auth && S.auth.sig ? S.auth.sig : await sigPng(); pdf.setFontSize(7.5); pdf.setTextColor(90, 100, 120); pdf.setFont('helvetica', 'normal'); pdf.text('FIRMA DEL SOCIO', L, y); if (png) pdf.addImage(png, 'PNG', L, y + 2, 60, S.auth && S.auth.sig ? 20.6 : 16); pdf.setFontSize(9.5); pdf.setTextColor(20, 20, 20); pdf.setFont('helvetica', 'bold'); pdf.text(`${socioName()} · socio nº ${socioNum()}`, L, y + 27); pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8); pdf.setTextColor(90, 100, 120); pdf.text(`Firmado el ${d.sign.when} · ${S.auth && !S.auth.demo ? 'desde la app' : 'tableta de recepción'} · IP 88.···.···.12`, L, y + 32); }
     else { pdf.setFontSize(7.5); pdf.setTextColor(90, 100, 120); pdf.text('EMITIDO', L, y); pdf.setFontSize(9.5); pdf.setTextColor(20, 20, 20); pdf.setFont('helvetica', 'bold'); pdf.text(d.emitted, L, y + 6); pdf.setFont('helvetica', 'normal'); }
     // sello
     const cx = R - 18, cy = y + 12; pdf.setDrawColor(10, 71, 184); pdf.setLineWidth(.6); pdf.circle(cx, cy, 15, 'S'); pdf.setLineWidth(.2); pdf.setTextColor(10, 71, 184); pdf.setFont('helvetica', 'bold'); pdf.setFontSize(7); pdf.text('PADEL INDOOR', cx, cy - 3, { align: 'center' }); pdf.text('OARSO', cx, cy + 1, { align: 'center' }); pdf.setFont('helvetica', 'normal'); pdf.setFontSize(5.5); pdf.text('Gimnasio · Errenteria', cx, cy + 6, { align: 'center' });
@@ -580,7 +714,7 @@
     pdf.text('Generado por Oarso Gym para Padel Indoor Oarso. El original lo custodia el club.', L, y); y += 4;
     pdf.setFont('helvetica', 'italic'); pdf.text(t('ejemploDoc'), L, y);
     const n = pdf.getNumberOfPages(); for (let i = 1; i <= n; i++) { pdf.setPage(i); pdf.setFont('helvetica', 'normal'); pdf.setFontSize(7.5); pdf.setTextColor(140, 150, 170); pdf.text(`${d.title} · ${i}/${n}`, W / 2, 290, { align: 'center' }); }
-    pdf.save(`Oarso-Gym-${id}-0421.pdf`);
+    pdf.save(`Oarso-Gym-${id}-${socioNum()}.pdf`);
   }
 
   // ---------- escáner de QR dentro de la app ----------
@@ -627,7 +761,7 @@
   function parts() { return location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent); }
   const groupOf = (r) => ({ hoy: 'hoy', explorar: 'explorar', region: 'explorar', e: 'explorar', m: 'explorar', planes: 'planes', plan: 'planes', dia: 'planes', sesiones: 'sesiones', circuito: 'sesiones', cardio: 'sesiones', yo: 'yo', mi: 'yo', dias: 'yo', carnet: 'yo', ajustes: 'yo', legal: 'yo', privacidad: 'yo', doc: 'yo', pegatinas: 'yo' })[r] || 'hoy';
   // Volver: si hay historial propio, atrás; si no (por ejemplo, se llegó por un QR), a la pantalla madre
-  const PARENT = { region: () => '#/explorar', e: () => '#/explorar', m: () => '#/explorar/maquina', plan: () => '#/planes', dia: (p) => '#/plan/' + p[1], circuito: () => '#/sesiones', cardio: (p) => (p[2] ? '#/cardio/' + p[1] : '#/sesiones'), doc: () => '#/carnet', carnet: () => '#/yo', mi: () => '#/yo', dias: () => '#/yo', ajustes: () => '#/yo', legal: () => '#/ajustes', privacidad: () => '#/ajustes', pegatinas: () => '#/ajustes', onb: () => '#/onb/1' };
+  const PARENT = { login: () => '#/login', registro: (p) => (+p[1] > 1 ? '#/registro/' + (+p[1] - 1) : '#/login'), region: () => '#/explorar', e: () => '#/explorar', m: () => '#/explorar/maquina', plan: () => '#/planes', dia: (p) => '#/plan/' + p[1], circuito: () => '#/sesiones', cardio: (p) => (p[2] ? '#/cardio/' + p[1] : '#/sesiones'), doc: () => '#/carnet', carnet: () => '#/yo', mi: () => '#/yo', dias: () => '#/yo', ajustes: () => '#/yo', legal: () => '#/ajustes', privacidad: () => '#/ajustes', pegatinas: () => '#/ajustes', onb: () => '#/onb/1' };
   const STACK = [];
   function goBack() { if (STACK.length > 1) { history.back(); return; } const p = parts(); const f = PARENT[p[0]]; nav(f ? f(p) : '#/hoy'); }
   function onHash() { const h = location.hash; if (STACK.length > 1 && STACK[STACK.length - 2] === h) STACK.pop(); else if (STACK[STACK.length - 1] !== h) STACK.push(h); render(); }
@@ -636,15 +770,21 @@
     const p = parts(); let r = p[0] || 'hoy';
     const app = $('#app'); const y = app.scrollTop;
     document.documentElement.setAttribute('data-size', S.size); document.documentElement.setAttribute('data-motion', S.motion ? '1' : '0'); document.documentElement.lang = S.lang;
-    if (!S.onboarded && !['m', 'onb', 'e'].includes(r)) r = 'onb';
+    // Sin cuenta solo se ve lo público (QR, fichas, explorar); con cuenta nueva, primero las tres preguntas
+    const PUBLIC = ['m', 'e', 'region', 'explorar', 'login', 'registro', 'legal', 'privacidad'];
+    if (!S.auth && !PUBLIC.includes(r)) r = 'login';
+    else if (S.auth && r === 'login') r = S.onboarded ? 'hoy' : 'onb';
+    else if (S.auth && !S.onboarded && !['onb', 'm', 'e', 'region', 'explorar', 'registro', 'legal', 'privacidad'].includes(r)) r = 'onb';
     let html = '', showTab = true;
     switch (r) {
+      case 'login': html = scrLogin(); showTab = false; break;
+      case 'registro': html = scrRegistro(p[1] || '1'); showTab = false; break;
       case 'onb': html = scrOnb(p[1] || '1'); showTab = false; break;
       case 'hoy': html = scrHoy(); break;
       case 'explorar': html = scrExplorar(p[1]); break;
       case 'region': if (lastKey !== location.hash) { F.lvl = 'all'; F.mat = null; } html = scrRegion(p[1]); break;
       case 'e': html = scrFicha(p[1]); break;
-      case 'm': html = scrMachine(p[1]); showTab = S.onboarded; break;
+      case 'm': html = scrMachine(p[1]); break;
       case 'planes': html = scrPlanes(); break;
       case 'plan': html = scrPlan(p[1]); break;
       case 'dia': html = scrDia(p[1], p[2]); break;
@@ -664,12 +804,13 @@
     }
     if (!['circuito', 'cardio'].includes(r)) stopTimer();
     app.innerHTML = html;
-    $('#nav').innerHTML = showTab ? tabbar(groupOf(r)) : '';
+    $('#nav').innerHTML = showTab ? (S.auth ? tabbar(groupOf(r)) : loginBar()) : '';
     app.scrollTop = keep ? y : 0;
     if (!keep) { app.setAttribute('tabindex', '-1'); try { app.focus({ preventScroll: true }); } catch (e) {} }
     lastKey = location.hash;
     if (r === 'carnet') drawQr();
     if (r === 'pegatinas') drawStickers();
+    if (r === 'registro' && (p[1] || '1') === '3') initSig();
     if (r === 'explorar' && p[1] === 'buscar') { const q = $('#q'); if (q) { q.focus(); q.addEventListener('input', () => { $('#results').innerHTML = searchResults(q.value); }); } }
     if (TM) tmDom();
     const tag = $('.demo-tag'); if (tag) tag.textContent = t('demoTag');
@@ -688,15 +829,31 @@
       case 'notice': { const n = G.notices[+el.dataset.i]; sheet(`<div class="row"><span class="ni" style="width:34px;height:34px;border-radius:10px;background:#15254a;color:var(--lime);display:grid;place-items:center">${ic(n.icon)}</span><div class="eyebrow lime">${t('avisos')}</div></div><p class="mt12">${L(n)}</p><div class="xs muted mt8">${t('publicado')} · 31/10/2026</div><button class="btn btn-ghost btn-block mt12" data-act="closesheet">${t('cerrar')}</button>`); break; }
       case 'chk': { const d = iso(today()); if (S.chk.d !== d) S.chk = { d, on: {} }; S.chk.on[el.dataset.key] = !S.chk.on[el.dataset.key]; save(); render(true); break; }
       case 'day': { const k = el.dataset.d; const dd = new Date(k + 'T00:00:00'); const rows = (S.done[k] || []).map((e) => e.type === 'entrada' ? `${t('entrada')} · ${e.at}` : e.type === 'plan' ? `${t('sesion')} · ${N(G.plan(e.plan) || { es: '', eu: '' })} · ${t('dia')} ${e.k}` : t('miEntreno')); sheet(`<div class="eyebrow lime">${t('esteDia')}</div><div class="display h2" style="text-transform:capitalize">${longDate(dd)}</div><div class="card mt12">${rows.map((r) => `<div class="notice"><span class="ni">${ic('check')}</span><div class="small">${r}</div></div>`).join('')}</div><div class="xs faint mt8">${t('leyenda')}</div><button class="btn btn-ghost btn-block mt12" data-act="closesheet">${t('cerrar')}</button>`); break; }
-      case 'bigqr': sheet(`<div class="eyebrow lime center">${t('socio')} · nº 0421</div><div class="display h2 center">${S.name} Alberdi</div><div class="qrbox big mt12">${qrSvg('OARSO-GYM-0421', 'M')}</div><div class="small muted mt12 center">${t('enseñar')}</div><button class="btn btn-ghost btn-block mt12" data-act="closesheet">${t('cerrar')}</button>`); break;
+      case 'bigqr': sheet(`<div class="eyebrow lime center">${t('socio')} · nº ${socioNum()}</div><div class="display h2 center">${socioName()}</div><div class="qrbox big mt12">${qrSvg('OARSO-GYM-' + socioNum(), 'M')}</div><div class="small muted mt12 center">${t('enseñar')}</div><button class="btn btn-ghost btn-block mt12" data-act="closesheet">${t('cerrar')}</button>`); break;
       case 'install': installSheet(); break;
       case 'installgo': if (IP) { IP.prompt(); IP = null; } closeSheet(); break;
       case 'repeatplan': if (S.plan) { S.plan.start = iso(today()); save(); toast(t('siguiendo')); render(true); } break;
+      case 'planadj': PA.obj = null; planAdjust(); break;
+      case 'paobj': PA.obj = v; planAdjust(); break;
+      case 'padays': PA.days = +v; planAdjust(); break;
+      case 'pasave': { const cur = S.plan ? G.plan(S.plan.id) : null; const nw = G.plan(v); if (!cur || cur.obj !== nw.obj) S.plan = { id: v, start: iso(today()) }; else S.plan.id = v; save(); closeSheet(); toast(t('siguiendo')); render(true); break; }
       case 'lang': S.lang = v; save(); render(true); break;
       case 'size': S.size = +v; save(); render(true); break;
       case 'toggle': S[el.dataset.k] = !S[el.dataset.k]; save(); render(true); if (el.dataset.k === 'sound' && S.sound) beep(1); if (el.dataset.k === 'vib' && S.vib && navigator.vibrate) navigator.vibrate(120); break;
       case 'ans': S.ans[el.dataset.k] = isNaN(+v) ? v : +v; save(); render(true); break;
-      case 'finish': { const plan = el.dataset.skip ? G.plans[0] : suggest(); S.onboarded = true; seed(plan.id); nav('#/hoy'); break; }
+      case 'finish': { const plan = el.dataset.skip ? G.plans[0] : suggest(); S.onboarded = true; if (S.auth && S.auth.demo) seed(plan.id); else { S.plan = { id: plan.id, start: iso(today()) }; save(); } nav('#/hoy'); break; }
+      case 'login': { const e = ($('#lg-email') || {}).value || '', pw = ($('#lg-pass') || {}).value || ''; if (doLogin(e, pw)) nav(S.onboarded ? '#/hoy' : '#/onb/1'); else { const er = $('#lg-err'); if (er) er.textContent = t('credMal'); } break; }
+      case 'demofill': { const [e, pw] = v.split('|'); if ($('#lg-email')) $('#lg-email').value = e; if ($('#lg-pass')) $('#lg-pass').value = pw; break; }
+      case 'olvide': sheet(`<div class="eyebrow lime">${t('contrasena')}</div><div class="display h2">${t('olvide')}</div><p class="small mt8">${t('olvideTxt')}</p><label class="fld"><span>${t('correo')}</span><input class="input" type="email" inputmode="email"></label><button class="btn btn-lime btn-block mt12" data-act="closesheet">${t('login')}</button>`); break;
+      case 'logout': doLogout(); break;
+      case 'regtoggle': S.reg[el.dataset.k] = !S.reg[el.dataset.k]; save(); render(true); break;
+      case 'reg1': { const R = S.reg; const er = $('#reg-err'); const say = (m) => { if (er) er.textContent = m; }; const lbl = { nombre: 'nombre', apellidos: 'apellidos', email: 'correo', nac: 'nacimiento', pass: 'contrasena', pass2: 'repetirPass' }; const miss = Object.keys(lbl).filter((k) => !(R[k] || '').trim()); if (miss.length) { say(`${t('obligatorio')} ${miss.map((k) => t(lbl[k]).toLowerCase()).join(', ')}.`); break; } if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(R.email.trim())) { say(t('correoMal')); break; } if (accAll()[R.email.trim().toLowerCase()]) { say(t('correoUsado')); break; } const age = (today() - new Date(R.nac)) / 31557600000; if (!(age >= 16)) { say(t('menor16')); break; } if (R.pass.length < 8) { say(t('passCorta')); break; } if (R.pass !== R.pass2) { say(t('passDistinta')); break; } if (age < 18) toast(t('menor18')); save(); nav('#/registro/2'); break; }
+      case 'regtarifa': S.reg.tarifa = v; save(); render(true); break;
+      case 'reg2': S.reg.tarifa = v; save(); nav('#/registro/3'); break;
+      case 'parq': { S.reg.parq = S.reg.parq || []; S.reg.parq[+el.dataset.i] = v === '1'; save(); render(true); break; }
+      case 'leer': { const body = v === 'normas' ? `<ol class="pn" style="color:var(--ink-2)">${NORMAS.map((r) => `<li>${r}</li>`).join('')}</ol>` : `<p class="small">${v === 'sepa' ? SEPA_TXT : IMAGEN_TXT}</p>`; sheet(`<div class="eyebrow lime">${t('leer')}</div><div class="display h2">${t(v === 'normas' ? 'docNormas' : v === 'sepa' ? 'docSepa' : 'docImagen')}</div><div class="mt8">${body}</div><button class="btn btn-lime btn-block mt12" data-act="closesheet">${t('cerrar')}</button>`); break; }
+      case 'sigclear': S.reg.sig = null; save(); initSig(); break;
+      case 'reg3': { const R = S.reg; const ok = R.ok || {}; const miss = []; if (!ok.normas) miss.push(t('faltaNormas')); if (!ok.aptitud || !R.parq || PARQ.some((_, i) => typeof R.parq[i] !== 'boolean')) miss.push(t('faltaParq')); if (!ok.sepa || !ibanOk(R.iban) || !(R.titular || '').trim()) miss.push(t('faltaSepa')); if (!R.sig) miss.push(t('faltaFirma')); const er = $('#reg-err'); if (miss.length) { if (er) { er.textContent = `${t('faltan')} ${miss.join(' · ')}.`; er.scrollIntoView({ block: 'center' }); } break; } regCreate(); nav('#/registro/4'); break; }
       case 'flvl': F.lvl = v; render(true); break;
       case 'fmat': F.mat = F.mat === v ? null : v; render(true); break;
       case 'pobj': PF.obj = v; render(true); break;
@@ -718,8 +875,8 @@
       case 'copydo': { const d = G.plan(el.dataset.p).sched.find((x) => x.k === el.dataset.k); d.main.forEach(([id, dose]) => { if (!S.mine.some((m) => m.ex === id)) S.mine.push({ id: Date.now() + id, ex: id, note: dose }); }); save(); closeSheet(); toast(t('copiado')); render(true); break; }
       case 'print': window.print(); break;
       case 'export': { const b = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = 'oarso-gym-mis-datos.json'; a.click(); break; }
-      case 'confirmreset': sheet(`<div class="display h2">${v === 'cuenta' ? t('borrar') : t('borrarDemo')}</div><div class="small muted">${t('privTxt').split('.').slice(-2).join('.')}</div><button class="btn btn-danger btn-block mt16" data-act="reset">${v === 'cuenta' ? t('borrar') : t('borrarDemo')}</button><button class="btn btn-ghost btn-block mt8" data-act="closesheet">${t('cancelar')}</button>`); break;
-      case 'reset': { const lang = S.lang; S = defaults(); S.lang = lang; save(); closeSheet(); stopTimer(); nav('#/onb/1'); render(); break; }
+      case 'confirmreset': sheet(`<div class="display h2">${v === 'cuenta' ? t('borrar') : t('borrarDemo')}</div><div class="small muted">${t('privTxt').split('.').slice(-2).join('.')}</div><button class="btn btn-danger btn-block mt16" data-act="reset" data-v="${v}">${v === 'cuenta' ? t('borrar') : t('borrarDemo')}</button><button class="btn btn-ghost btn-block mt8" data-act="closesheet">${t('cancelar')}</button>`); break;
+      case 'reset': { if (v === 'demo') { try { localStorage.removeItem(ACCK); localStorage.removeItem('oarsogym.tarifas'); localStorage.removeItem('oarsogym.avisos'); } catch (e) {} } doLogout(); break; }
       case 'help': openHelp(el.dataset.m, el.dataset.ex); break;
       case 'scan': openScanner(); break;
       case 'scanto': closeSheet(); nav(el.dataset.to); break;
@@ -749,10 +906,12 @@
     const reg = G.regions.find((x) => x.id === G.regionOf(g.dataset.g)); if (!reg) return;
     wrap.querySelectorAll('[data-g]').forEach((p) => { if (reg.groups.includes(p.dataset.g)) p.classList.add('hov'); });
   });
-  document.addEventListener('input', (ev) => { const n = ev.target.dataset && ev.target.dataset.note; if (n !== undefined) { S.mine[+n].note = ev.target.value; save(); } });
+  document.addEventListener('input', (ev) => { const d = ev.target.dataset || {}; if (d.note !== undefined) { S.mine[+d.note].note = ev.target.value; save(); } if (d.reg !== undefined) { S.reg = S.reg || {}; S.reg[d.reg] = ev.target.value; save(); } });
+  document.addEventListener('change', (ev) => { const d = ev.target.dataset || {}; if (d.ok !== undefined) { S.reg = S.reg || {}; S.reg.ok = S.reg.ok || {}; S.reg.ok[d.ok] = ev.target.checked; save(); } });
+  document.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' && ev.target && ev.target.id === 'lg-pass') { const b = $('[data-act="login"]'); if (b) b.click(); } });
 
   window.addEventListener('hashchange', onHash);
-  if (!location.hash) location.hash = S.onboarded ? '#/hoy' : '#/onb/1';
+  if (!location.hash) location.hash = S.auth ? (S.onboarded ? '#/hoy' : '#/onb/1') : '#/login';
   STACK.push(location.hash);
   render();
   if ('serviceWorker' in navigator && /^https?:/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {});
