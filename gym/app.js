@@ -49,6 +49,17 @@
   };
   const ic = (n, s) => `<svg class="ic" viewBox="0 0 24 24"${s ? ` style="width:${s}px;height:${s}px"` : ''}>${P[n] || ''}</svg>`;
 
+  // ---------- lo que publica el panel del club (mismo navegador en la demo; en la app real, la base de datos) ----------
+  const LSget = (k, d) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? d : v; } catch (e) { return d; } };
+  (function applyPanel() {
+    const ov = LSget('oarsogym.overrides', {});
+    Object.keys(ov).forEach((id) => { const o = ov[id]; if (!o || o.estado !== 'publicado') return; const ex = G.ex(id); if (!ex) return; if (o.es) ex.es = o.es; if (o.eu) ex.eu = o.eu; if (o.lvl) ex.lvl = o.lvl; G.fichas[id] = Object.assign({}, G.fichas[id] || {}, { aj: o.aj || [], haz: o.haz || [], ev: o.ev || [], dosis: o.dosis || (G.fichas[id] || {}).dosis || '', reg: o.reg || '', facil: o.facil || null, dificil: o.dificil || null, revisado: o.revisado ? `${o.revisado}, ${o.titulo || ''}` : null }); });
+    const pl = LSget('oarsogym.planes', {}); Object.keys(pl).forEach((id) => { const p = G.plan(id); if (p && pl[id].sched) p.sched = pl[id].sched; });
+    const dv = LSget('oarsogym.docsv', null); if (dv && dv.normas && dv.normas.items) G.normasOverride = dv.normas.items;
+  })();
+  const notices = () => { const a = LSget('oarsogym.avisos', null); if (!Array.isArray(a)) return G.notices; const hoyK = iso(today()); return a.filter((n) => n.on !== false && (!n.desde || n.desde <= hoyK) && (!n.hasta || n.hasta >= hoyK)); };
+  const maqState = (code) => LSget('oarsogym.maquinas', {})[code] || {};
+
   // ---------- plan en curso ----------
   const doneList = (d) => S.done[iso(d)] || [];
   function planState() {
@@ -126,7 +137,7 @@
     return `<div class="screen">
       <div class="top"><div class="grow"><div class="eyebrow">${longDate(now)}</div><h1 class="display h1">${greet},<br><span class="lime">${S.name}</span></h1></div><button class="iconbtn lime" data-act="nav" data-to="#/carnet" aria-label="${t('carnet')}">${ic('qr')}</button></div>
       ${planHtml}
-      <section class="sec"><div class="sec-h"><h2>${t('avisos')}</h2></div><div class="card">${G.notices.map((n, i) => `<button class="notice" data-act="notice" data-i="${i}"><span class="ni">${ic(n.icon)}</span><div class="small grow">${L(n)}</div><span class="chev">${ic('chev')}</span></button>`).join('')}</div></section>
+      <section class="sec"><div class="sec-h"><h2>${t('avisos')}</h2></div><div class="card">${notices().filter((n) => !n.donde || n.donde === 'hoy').map((n, i) => `<button class="notice" data-act="notice" data-i="${i}"><span class="ni">${ic(n.icon || 'bell')}</span><div class="small grow">${L(n)}</div><span class="chev">${ic('chev')}</span></button>`).join('') || `<div class="notice small muted">—</div>`}</div></section>
       <section class="sec"><div class="sec-h"><h2>${t('enLaSala')}</h2></div><div class="grid2">
         <button class="card pad" data-act="nav" data-to="#/explorar/maquina" style="text-align:left;color:#fff"><span class="iconbtn lime" style="margin-bottom:10px">${ic('qr')}</span><b>${t('maquinas')}</b><div class="xs muted mt8">${t('qrHint')}</div></button>
         <button class="card pad" data-act="nav" data-to="#/sesiones" style="text-align:left;color:#fff"><span class="iconbtn" style="margin-bottom:10px">${ic('timer')}</span><b>${t('sesiones')}</b><div class="xs muted mt8">${t('circuitos')} · ${t('cardioMaquina')}</div></button>
@@ -210,7 +221,7 @@
       <section class="sec"><div class="sec-h"><h2>${t('cuanto')}</h2></div><div class="card pad"><b>${dosis}</b>${(() => { const lt = G.loadType(ex); const title = { ext: 'pesoOk', bw: 'pesoOkBw', band: 'pesoOkBand', iso: 'pesoOkIso' }[lt]; const body = f && f.reg && S.lang === 'es' ? f.reg : { ext: t('pesoTxt'), bw: t('pesoBw'), band: t('pesoBand'), iso: t('pesoIso') }[lt]; return title ? `<div class="eyebrow mt12">${t(title)}</div><div class="small mt8">${body}</div>` : `<div class="small muted mt8">${t('pesoMov')}</div>`; })()}</div></section>
       ${alts.length ? `<section class="sec"><div class="grid2">${alts.join('')}</div></section>` : ''}
       <section class="sec"><div class="card pad" style="border-color:#5a2222"><div class="eyebrow" style="color:var(--bad)">${t('paraY')}</div><div class="small mt8">${t('paraTxt')}</div><button class="btn btn-ghost btn-sm mt12" data-act="help" data-m="${ex.m}" data-ex="${ex.id}">${ic('help')} ${t('pedirAyuda')}</button></div></section>
-      <div class="xs faint mt16">${t('revisado')}: ${t('pendienteRev')}.</div>
+      <div class="xs faint mt16">${t('revisado')}: ${f && f.revisado ? esc(f.revisado) : t('pendienteRev') + '.'}</div>
       <button class="btn btn-lime btn-lg btn-block mt16" data-act="addmine" data-ex="${ex.id}" ${inMine ? 'disabled' : ''}>${ic(inMine ? 'check' : 'plus')} ${inMine ? t('yaEsta') : t('anadir')}</button>
       ${pn}
       ${ctxTo ? `<button class="btn btn-ghost btn-sm mt12" data-act="nav" data-to="${ctxTo}">${ic('back', 14)} ${t('volverA')} ${ctxName}</button>` : ''}
@@ -227,6 +238,7 @@
     const ph = m.img ? `<img src="${img(m.img)}" alt="">` : `<div class="mcode"><b>${m.code}</b></div>`;
     return `<div class="screen">${top('', `<button class="iconbtn" data-act="help" data-m="${m.code}" aria-label="${t('pedirAyuda')}">${ic('help')}</button>`)}
       ${!S.auth ? `<div class="tip lime small mb12">${ic('qr')} ${t('desdeQr')}</div>` : ''}
+      ${(() => { const ms = maqState(m.code); const av = notices().filter((n) => n.donde === m.code); return (ms.estado === 'revision' || ms.estado === 'retirada' ? `<div class="tip warn small mb12">${ic('alert')} ${ms.estado === 'revision' ? (S.lang === 'eu' ? 'Berrikusten: erabili alternatiba.' : 'En revisión: usa la alternativa de más abajo.') : (S.lang === 'eu' ? 'Makina hau kendu da.' : 'Esta máquina se ha retirado.')}${ms.nota ? ' ' + esc(ms.nota) : ''}</div>` : '') + av.map((n) => `<div class="tip small mb12">${ic(n.icon || 'bell')} ${L(n)}</div>`).join(''); })()}
       <div class="hero ${m.prod ? "prod" : m.img ? "kb" : ""}">${ph}<div class="sh"></div><div class="tl"><span class="pill lime">${m.code}</span>${m.img ? `<span class="pill">${ic('play', 11)} ${t('video')}</span>` : ''}</div><div class="in"><div class="eyebrow lime">${t(m.zone === 'fuerza' ? 'zonaFuerza' : m.zone === 'cardio' ? 'zonaCardio' : 'zonaLibre')}</div><h1 class="display h1">${N(m)}</h1></div></div>
       ${m.model ? `<div class="xs muted mt8">${t('modelo')}: ${m.model}</div>` : ''}
       <p class="mt12">${L2(m.desc)}</p>
@@ -434,11 +446,17 @@
     const acc = { pass: R.pass, role: 'socio', nombre: R.nombre.trim(), apellidos: R.apellidos.trim(), num, tarifa: R.tarifa || (R.club ? 'club' : 'gym'), iban4: R.iban.replace(/\s+/g, '').slice(-4), titular: (R.titular || '').trim(), movil: R.movil || '', nac: R.nac || '', docs: { normas: now, aptitud: now, sepa: now, imagen: R.ok && R.ok.imagen ? now : null }, sig: R.sig || null, parq: (R.parq || []).some((v) => v === true) ? 'valoracion' : 'apto', alta: now, demo: false };
     accPut(email, acc); S.auth = Object.assign({ email }, acc); delete S.auth.pass; S.name = acc.nombre; S.reg = {}; S.onboarded = false; S.plan = null; S.done = {}; S.mine = []; S.inc = []; save();
   }
+  // Alta hecha en recepción: la cuenta ya existe y la persona firma en la tableta con su usuario
+  function regSignPending() {
+    const R = S.reg; const now = new Date().toISOString(); const store = accStore(); const acc = store[S.auth.email]; if (!acc) return;
+    Object.assign(acc, { iban4: R.iban.replace(/\s+/g, '').slice(-4), titular: (R.titular || '').trim(), docs: { normas: now, aptitud: now, sepa: now, imagen: R.ok && R.ok.imagen ? now : null }, sig: R.sig || null, parq: (R.parq || []).some((v) => v === true) ? 'valoracion' : 'apto', pendienteFirma: false });
+    accPut(S.auth.email, acc); S.auth = Object.assign({ email: S.auth.email }, acc); delete S.auth.pass; S.reg = {}; S.onboarded = false; save();
+  }
   const loginBar = () => `<div class="loginbar"><button class="btn btn-lime grow" data-act="nav" data-to="#/login">${t('login')}</button><button class="btn btn-ghost" data-act="nav" data-to="#/registro/1">${t('crearCuenta')}</button></div>`;
   function scrLogin() {
     return `<div class="onb"><div class="art" style="aspect-ratio:4/2.4"><img src="${img(12)}" alt=""><div class="sh"></div><div class="logo"><span class="mark">O</span><span class="wm">Oarso <b>Gym</b></span></div></div>
       <h1 class="display h1 mt16">${t('loginT')}</h1>
-      <label class="fld"><span>${t('correo')}</span><input class="input" id="lg-email" type="email" autocomplete="username" inputmode="email" autocapitalize="off"></label>
+      <label class="fld"><span>${t('correo')}</span><input class="input" id="lg-email" type="email" autocomplete="username" inputmode="email" autocapitalize="off" value="${esc(new URLSearchParams(location.search).get('e') || '')}"></label>
       <label class="fld"><span>${t('contrasena')}</span><input class="input" id="lg-pass" type="password" autocomplete="current-password"></label>
       <div class="xs mt8" style="color:var(--bad);min-height:16px" id="lg-err"></div>
       <button class="btn btn-lime btn-lg btn-block" data-act="login">${t('login')}</button>
@@ -464,8 +482,8 @@
       <div class="col mt12" style="gap:8px">${T.map((x) => `<button class="opt ${sel === x.id ? 'on' : ''}" data-act="regtarifa" data-v="${x.id}"><span class="radio"></span><span class="grow"><b>${N(x)}</b><br><small class="muted">${S.lang === 'eu' ? x.nota_eu : x.nota_es}</small></span><span class="display" style="font-size:1.5em;color:var(--lime)">${x.precio}<small style="font-size:.5em;color:var(--muted)"> ${t('alMes')}</small></span></button>`).join('')}</div>
       <div class="xs faint mt8">${t('ejemploPrecio')}</div>
       <button class="btn btn-lime btn-lg btn-block mt16" data-act="reg2" data-v="${sel}">${t('siguiente')} ${ic('chev')}</button></div>`; }
-    if (step === '3') { const P = R.parq || []; const ok = R.ok; const tf = tarifaDe(R.tarifa || (R.club ? 'club' : 'gym'));
-      return `<div class="screen">${head(3, t('reg3'))}<p class="small muted">${t('docsTxt')}</p>
+    if (step === '3') { const P = R.parq || []; const ok = R.ok; const pend = S.auth && S.auth.pendienteFirma; const tf = tarifaDe(pend ? S.auth.tarifa : (R.tarifa || (R.club ? 'club' : 'gym')));
+      return `<div class="screen">${pend ? `<div class="top"><div class="grow"><div class="eyebrow lime">${t('reg3')}</div><div class="ttl">${S.auth.nombre} ${S.auth.apellidos || ''} · nº ${S.auth.num}</div></div><button class="iconbtn" data-act="logout" aria-label="${t('cerrarSesion')}">${ic('x')}</button></div>` : head(3, t('reg3'))}<p class="small muted">${t('docsTxt')}</p>
       <section class="card pad mt12"><div class="row between"><b>${t('docNormas')}</b><button class="btn btn-ghost btn-sm" data-act="leer" data-v="normas">${t('leer')}</button></div><label class="ckl mt8"><input type="checkbox" data-ok="normas" ${ok.normas ? 'checked' : ''}> ${t('aceptoDoc')}</label></section>
       <section class="card pad mt12"><b>${t('docAptitud')}</b><div class="small muted mt8 mb8">${t('aptitudTxt')}</div>${PARQ.map((q, i) => `<div class="yn"><span class="grow small">${i + 1}. ${q}</span><div class="seg"><button class="${P[i] === true ? 'on' : ''}" data-act="parq" data-i="${i}" data-v="1">${t('si')}</button><button class="${P[i] === false ? 'on' : ''}" data-act="parq" data-i="${i}" data-v="0">${t('no')}</button></div></div>`).join('')}${P.some((v) => v === true) ? `<div class="tip warn small mt8">${t('necesitaVal')}</div>` : ''}<label class="ckl mt12"><input type="checkbox" data-ok="aptitud" ${ok.aptitud ? 'checked' : ''}> ${t('aceptoDoc')}</label></section>
       <section class="card pad mt12"><div class="row between"><b>${t('docImagen')}</b><span class="pill">${t('opcional')}</span></div><div class="small muted mt8">${t('imagenTxt')}</div><label class="ckl mt8"><input type="checkbox" data-ok="imagen" ${ok.imagen ? 'checked' : ''}> ${t('aceptoDoc')}</label></section>
@@ -473,7 +491,7 @@
       <section class="card pad mt12"><b>${t('firma')}</b><div class="small muted mt8">${t('firmaTxt')}</div><div class="sigpad mt8"><canvas id="sigc" width="700" height="240"></canvas></div><button class="btn btn-ghost btn-sm mt8" data-act="sigclear">${t('borrarFirma')}</button></section>
       <div class="xs mt12" style="color:var(--bad);min-height:16px" id="reg-err"></div>
       <button class="btn btn-lime btn-lg btn-block mt8" data-act="reg3">${ic('check')} ${t('firmarTodo')}</button></div>`; }
-    const a = S.auth; if (!a) return scrLogin();
+    const a = S.auth; if (!a) return scrLogin(); if (a.pendienteFirma) return scrRegistro('3');
     const dn = { normas: 'docNormas', aptitud: 'docAptitud', imagen: 'docImagen', sepa: 'docSepa' };
     return `<div class="screen">${head(4, t('reg4'))}<div class="help-ok"><div class="big">${ic('check', 30)}</div><div class="display h1">${t('creada')}</div><p class="small muted">${t('creadaTxt')}</p></div>
       <div class="card mt12"><div class="set"><span class="row"><span class="iconbtn lime">${ic('id')}</span><span><b>${t('numSocio')} ${a.num}</b><br><small class="muted">${a.nombre} ${a.apellidos} · ${a.email}</small></span></span></div>${['normas', 'aptitud', 'imagen', 'sepa'].filter((k) => a.docs[k]).map((k) => `<div class="set"><span class="row"><span class="iconbtn" style="color:var(--ok)">${ic('doc')}</span><span><b>${t(dn[k])}</b><br><small class="muted">${t('firmado')} ${dmyIso(a.docs[k])} · ${hmIso(a.docs[k])}</small></span></span><span class="pill">PDF</span></div>`).join('')}</div>
@@ -629,7 +647,7 @@
   // ---------- documentos firmados: una sola fuente de datos para la vista y para el PDF ----------
   const SIG = '<svg class="sig" viewBox="0 0 300 80"><path d="M14 56c22-38 36-38 30-6-4 22 16-30 36-24s-8 30 12 24 22-32 40-26 4 26 24 22 30-36 46-28-10 28 10 26 36-16 60-24" fill="none" stroke="#1b2a6b" stroke-width="2.2" stroke-linecap="round"/></svg>';
   const PARQ = ['¿Le ha dicho alguna vez su médico que tiene una enfermedad del corazón o hipertensión?', '¿Siente dolor en el pecho en reposo, en sus actividades diarias o al hacer actividad física?', '¿Pierde el equilibrio por mareos o ha perdido el conocimiento en los últimos 12 meses?', '¿Le han diagnosticado otra enfermedad crónica, distinta de las del corazón o la hipertensión?', '¿Toma actualmente medicación prescrita para una enfermedad crónica?', '¿Tiene, o ha tenido en los últimos 12 meses, un problema de huesos, articulaciones o tejidos blandos que pueda empeorar al ser más activo?', '¿Le ha dicho su médico que solo debe hacer actividad física supervisada?'];
-  const NORMAS = ['El acceso a la sala es personal, con el carné de la app o el nombre en recepción.', 'Toalla obligatoria en bancos y máquinas, y limpieza del puesto al terminar.', 'El material vuelve a su sitio: discos en los soportes, mancuernas en el mancuernero.', 'Calzado deportivo limpio y ropa adecuada.', 'Los menores de 18 años necesitan autorización firmada de madre, padre o tutor.', 'No se graba ni se fotografía a otras personas sin su permiso.', 'Cualquier incidencia con una máquina, molestia o malestar se comunica en recepción.', 'Se respetan el horario, el aforo y las indicaciones del personal.'];
+  const NORMAS = G.normasOverride || ['El acceso a la sala es personal, con el carné de la app o el nombre en recepción.', 'Toalla obligatoria en bancos y máquinas, y limpieza del puesto al terminar.', 'El material vuelve a su sitio: discos en los soportes, mancuernas en el mancuernero.', 'Calzado deportivo limpio y ropa adecuada.', 'Los menores de 18 años necesitan autorización firmada de madre, padre o tutor.', 'No se graba ni se fotografía a otras personas sin su permiso.', 'Cualquier incidencia con una máquina, molestia o malestar se comunica en recepción.', 'Se respetan el horario, el aforo y las indicaciones del personal.'];
   const socioName = () => (S.auth ? `${S.auth.nombre} ${S.auth.apellidos || ''}`.trim() : `${S.name} Alberdi`);
   function docData(id) {
     const a = S.auth || {}; const num = socioNum(); const d0 = a.docs || {}; const tf = tarifaDe(a.tarifa) || tarifas()[0];
@@ -773,6 +791,7 @@
     // Sin cuenta solo se ve lo público (QR, fichas, explorar); con cuenta nueva, primero las tres preguntas
     const PUBLIC = ['m', 'e', 'region', 'explorar', 'login', 'registro', 'legal', 'privacidad'];
     if (!S.auth && !PUBLIC.includes(r)) r = 'login';
+    else if (S.auth && S.auth.pendienteFirma && !(r === 'registro' && ['3', '4'].includes(p[1])) && !['legal', 'privacidad'].includes(r)) { r = 'registro'; p[1] = '3'; }
     else if (S.auth && r === 'login') r = S.onboarded ? 'hoy' : 'onb';
     else if (S.auth && !S.onboarded && !['onb', 'm', 'e', 'region', 'explorar', 'registro', 'legal', 'privacidad'].includes(r)) r = 'onb';
     let html = '', showTab = true;
@@ -826,7 +845,7 @@
       case 'nav': nav(el.dataset.to); break;
       case 'back': goBack(); break;
       case 'video': sheet(`<div class="eyebrow lime">${t('video')}</div><div class="display h2">${t('videoT')}</div><p class="small mt8">${t('videoTxt')}</p><button class="btn btn-lime btn-block mt12" data-act="closesheet">${t('cerrar')}</button>`); break;
-      case 'notice': { const n = G.notices[+el.dataset.i]; sheet(`<div class="row"><span class="ni" style="width:34px;height:34px;border-radius:10px;background:#15254a;color:var(--lime);display:grid;place-items:center">${ic(n.icon)}</span><div class="eyebrow lime">${t('avisos')}</div></div><p class="mt12">${L(n)}</p><div class="xs muted mt8">${t('publicado')} · 31/10/2026</div><button class="btn btn-ghost btn-block mt12" data-act="closesheet">${t('cerrar')}</button>`); break; }
+      case 'notice': { const n = notices().filter((x) => !x.donde || x.donde === 'hoy')[+el.dataset.i]; if (!n) break; sheet(`<div class="row"><span class="ni" style="width:34px;height:34px;border-radius:10px;background:#15254a;color:var(--lime);display:grid;place-items:center">${ic(n.icon)}</span><div class="eyebrow lime">${t('avisos')}</div></div><p class="mt12">${L(n)}</p><div class="xs muted mt8">${t('publicado')} · 31/10/2026</div><button class="btn btn-ghost btn-block mt12" data-act="closesheet">${t('cerrar')}</button>`); break; }
       case 'chk': { const d = iso(today()); if (S.chk.d !== d) S.chk = { d, on: {} }; S.chk.on[el.dataset.key] = !S.chk.on[el.dataset.key]; save(); render(true); break; }
       case 'day': { const k = el.dataset.d; const dd = new Date(k + 'T00:00:00'); const rows = (S.done[k] || []).map((e) => e.type === 'entrada' ? `${t('entrada')} · ${e.at}` : e.type === 'plan' ? `${t('sesion')} · ${N(G.plan(e.plan) || { es: '', eu: '' })} · ${t('dia')} ${e.k}` : t('miEntreno')); sheet(`<div class="eyebrow lime">${t('esteDia')}</div><div class="display h2" style="text-transform:capitalize">${longDate(dd)}</div><div class="card mt12">${rows.map((r) => `<div class="notice"><span class="ni">${ic('check')}</span><div class="small">${r}</div></div>`).join('')}</div><div class="xs faint mt8">${t('leyenda')}</div><button class="btn btn-ghost btn-block mt12" data-act="closesheet">${t('cerrar')}</button>`); break; }
       case 'bigqr': sheet(`<div class="eyebrow lime center">${t('socio')} · nº ${socioNum()}</div><div class="display h2 center">${socioName()}</div><div class="qrbox big mt12">${qrSvg('OARSO-GYM-' + socioNum(), 'M')}</div><div class="small muted mt12 center">${t('enseñar')}</div><button class="btn btn-ghost btn-block mt12" data-act="closesheet">${t('cerrar')}</button>`); break;
@@ -853,7 +872,7 @@
       case 'parq': { S.reg.parq = S.reg.parq || []; S.reg.parq[+el.dataset.i] = v === '1'; save(); render(true); break; }
       case 'leer': { const body = v === 'normas' ? `<ol class="pn" style="color:var(--ink-2)">${NORMAS.map((r) => `<li>${r}</li>`).join('')}</ol>` : `<p class="small">${v === 'sepa' ? SEPA_TXT : IMAGEN_TXT}</p>`; sheet(`<div class="eyebrow lime">${t('leer')}</div><div class="display h2">${t(v === 'normas' ? 'docNormas' : v === 'sepa' ? 'docSepa' : 'docImagen')}</div><div class="mt8">${body}</div><button class="btn btn-lime btn-block mt12" data-act="closesheet">${t('cerrar')}</button>`); break; }
       case 'sigclear': S.reg.sig = null; save(); initSig(); break;
-      case 'reg3': { const R = S.reg; const ok = R.ok || {}; const miss = []; if (!ok.normas) miss.push(t('faltaNormas')); if (!ok.aptitud || !R.parq || PARQ.some((_, i) => typeof R.parq[i] !== 'boolean')) miss.push(t('faltaParq')); if (!ok.sepa || !ibanOk(R.iban) || !(R.titular || '').trim()) miss.push(t('faltaSepa')); if (!R.sig) miss.push(t('faltaFirma')); const er = $('#reg-err'); if (miss.length) { if (er) { er.textContent = `${t('faltan')} ${miss.join(' · ')}.`; er.scrollIntoView({ block: 'center' }); } break; } regCreate(); nav('#/registro/4'); break; }
+      case 'reg3': { const R = S.reg; const ok = R.ok || {}; const miss = []; if (!ok.normas) miss.push(t('faltaNormas')); if (!ok.aptitud || !R.parq || PARQ.some((_, i) => typeof R.parq[i] !== 'boolean')) miss.push(t('faltaParq')); if (!ok.sepa || !ibanOk(R.iban) || !(R.titular || '').trim()) miss.push(t('faltaSepa')); if (!R.sig) miss.push(t('faltaFirma')); const er = $('#reg-err'); if (miss.length) { if (er) { er.textContent = `${t('faltan')} ${miss.join(' · ')}.`; er.scrollIntoView({ block: 'center' }); } break; } if (S.auth && S.auth.pendienteFirma) regSignPending(); else regCreate(); nav('#/registro/4'); break; }
       case 'flvl': F.lvl = v; render(true); break;
       case 'fmat': F.mat = F.mat === v ? null : v; render(true); break;
       case 'pobj': PF.obj = v; render(true); break;
