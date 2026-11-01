@@ -136,7 +136,7 @@ svg.ic { flex: none; display: block; width: 1.2em; height: 1.2em; stroke: curren
 .anatwrap { display: flex; justify-content: center; gap: 6px; }
 .anatwrap svg { height: auto; }
 .anatwrap.click [data-g] { cursor: pointer; }
-.anatwrap.click [data-g]:hover { stroke: var(--lime); stroke-width: 1.6; }
+.anatwrap.click [data-g].hov { stroke: var(--lime); stroke-width: 1.8; }
 .bodybox { background: radial-gradient(60% 50% at 50% 40%, #16254a 0%, #0b1426 100%); border-radius: 16px; padding: 6px; border: 1px solid var(--line); }
 .legend { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .legend button { display: flex; align-items: center; gap: 10px; padding: 11px 12px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); color: #fff; min-height: 52px; }
@@ -230,10 +230,15 @@ svg.ic { flex: none; display: block; width: 1.2em; height: 1.2em; stroke: curren
 /* ---------- mi entrenamiento ---------- */
 .mine { padding: 10px 10px 10px 12px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); }
 .mine + .mine { margin-top: 8px; }
-.mine .acts { display: flex; gap: 4px; }
-.mine .acts button { width: 34px; height: 34px; border-radius: 10px; background: var(--card-2); display: grid; place-items: center; color: var(--ink-2); }
-.mine textarea { width: 100%; margin-top: 8px; background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; color: #fff; resize: none; font-size: .9em; min-height: 38px; }
-.mine textarea:focus { outline: none; border-color: var(--lime); }
+.mine .row > .grow { min-width: 0; }
+.mine .num { width: 26px; height: 26px; border-radius: 8px; background: var(--card-2); color: var(--lime); font-family: var(--f-mono); font-size: .8em; display: grid; place-items: center; flex: none; }
+.mine .acts { display: flex; gap: 6px; justify-content: flex-end; margin-top: 8px; }
+.mine .acts button { width: 36px; height: 36px; border-radius: 10px; background: var(--card-2); display: grid; place-items: center; color: var(--ink-2); }
+.mine .acts button[disabled] { opacity: .35; }
+.notebox { display: block; width: 100%; margin-top: 8px; padding: 10px 12px; border-radius: 12px; background: rgb(217 255 61 / .08); border: 1px solid rgb(217 255 61 / .3); color: #fff; font-size: .95em; line-height: 1.45; white-space: pre-wrap; overflow-wrap: anywhere; }
+.notebox .eyebrow { margin-bottom: 2px; }
+.sheet textarea { width: 100%; min-height: 120px; margin-top: 10px; background: var(--bg-2); border: 1px solid var(--line-2); border-radius: 14px; padding: 12px 14px; color: #fff; resize: none; font-size: 1em; line-height: 1.45; }
+.sheet textarea:focus { outline: none; border-color: var(--lime); }
 
 /* ---------- ajustes ---------- */
 .set { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 13px 14px; border-top: 1px solid var(--line); width: 100%; color: #fff; }
@@ -276,6 +281,42 @@ svg.ic { flex: none; display: block; width: 1.2em; height: 1.2em; stroke: curren
 .help-ok { text-align: center; padding: 10px 0 4px; }
 .help-ok .big { width: 64px; height: 64px; border-radius: 50%; background: var(--ok-soft); color: var(--ok); display: grid; place-items: center; margin: 0 auto 12px; }
 
+/* ---------- fotos de producto de las máquinas (fondo claro) ---------- */
+.ph.prod, .hero.prod { background: #eef2f8; }
+.ph.prod img, .hero.prod img { object-fit: contain; padding: 10px; }
+.hero.prod .sh { background: linear-gradient(180deg, rgb(7 12 23 / 0) 50%, rgb(7 12 23 / .92) 100%); }
+.hero.prod .in .eyebrow.lime { color: var(--lime); }
+
+/* ---------- escáner ---------- */
+.scanbox { position: relative; aspect-ratio: 1; border-radius: 18px; overflow: hidden; background: #000; }
+.scanbox video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.scanframe { position: absolute; inset: 16%; border: 2px solid var(--lime); border-radius: 16px; box-shadow: 0 0 0 999px rgb(0 0 0 / .35); }
+.scanbox.off { background: var(--card-2); aspect-ratio: 3 / 1; }
+.scanbox.off .scanframe { display: none; }
+
+/* ---------- documentos: vista tipo PDF ---------- */
+.paper { background: #fff; color: #111; border-radius: 14px; padding: 20px 18px 14px; font-size: .92em; line-height: 1.5; box-shadow: 0 20px 50px -20px rgb(0 0 0 / .8); }
+.paper h1 { font: 800 1.5em/1.1 var(--f-body); margin: 4px 0 2px; color: #061634; }
+.paper h3 { font-size: .95em; margin: 16px 0 6px; color: #061634; }
+.paper p { margin: 10px 0; }
+.pclub { font-size: .72em; letter-spacing: .16em; text-transform: uppercase; color: #0a47b8; font-weight: 700; }
+.psub { font-size: .8em; color: #555; }
+.pkv { display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; margin: 14px 0; font-size: .92em; padding: 10px 12px; background: #f3f5fa; border-radius: 10px; }
+.pkv dt { color: #555; } .pkv dd { margin: 0; font-weight: 600; }
+.pq li { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; border-top: 1px solid #e5e9f2; font-size: .9em; }
+.pq li b { color: #0a47b8; flex: none; }
+.pn { padding-left: 18px; list-style: decimal; }
+.pn li { padding: 5px 0; border-top: 1px solid #e5e9f2; font-size: .9em; display: list-item; }
+.pres { margin: 12px 0; padding: 10px 12px; border-left: 3px solid #b8e000; background: #f7ffd6; font-size: .9em; }
+.psig { margin-top: 18px; padding-top: 12px; border-top: 1px dashed #cbd5e1; }
+.plab { font-size: .72em; letter-spacing: .12em; text-transform: uppercase; color: #555; }
+.sig { width: 170px; height: auto; display: block; }
+.pname { font-size: .85em; font-weight: 600; }
+.pstamp { border: 2px solid #0a47b8; color: #0a47b8; border-radius: 50%; width: 96px; height: 96px; display: grid; place-items: center; text-align: center; font: 800 .62em/1.15 var(--f-body); letter-spacing: .06em; transform: rotate(-8deg); opacity: .85; flex: none; }
+.pstamp small { font-weight: 600; letter-spacing: 0; font-size: .85em; }
+.pmeta { font-size: .72em; color: #666; margin-top: 10px; font-family: var(--f-mono); line-height: 1.5; }
+.pfoot { margin-top: 14px; font-size: .7em; color: #888; border-top: 1px solid #eee; padding-top: 8px; }
+
 /* ---------- impresión de mi entrenamiento ---------- */
 @media print {
   body { background: #fff; color: #000; font-size: 12pt; }
@@ -286,4 +327,6 @@ svg.ic { flex: none; display: block; width: 1.2em; height: 1.2em; stroke: curren
   .mine, .card { border: 1px solid #ccc; background: #fff; color: #000; }
   .mine textarea { border: 0; color: #000; background: #fff; }
   .lime, .eyebrow.lime { color: #000; }
+  .paper { box-shadow: none; border-radius: 0; padding: 0; font-size: 11pt; }
+  .top { display: none; }
 }

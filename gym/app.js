@@ -18,7 +18,8 @@
   const lvlName = (l) => ({ I: t('paraEmpezar'), M: t('siguientePaso'), A: t('avanzado') })[l];
   const matName = (m) => t('mat')[m] || m;
   const whereLabel = (ex) => ex.where === '—' ? t('mat').sin : ex.where.split(/ \+ | o /).map((c) => { const m = G.machine(c); return m ? N(m) : c; }).join(' + ');
-  const img = (n) => `img/g${n}.jpg`;
+  const img = (n) => (typeof n === 'string' ? `img/${n}.jpg` : `img/g${n}.jpg`);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
   const gname = (g) => L2(G.groupNames[g]);
 
   // ---------- fechas ----------
@@ -88,7 +89,7 @@
   }
   function machineCard(m) {
     const ph = m.img ? `<img src="${img(m.img)}" alt="">` : `<div class="mcode"><b>${m.code}</b></div>`;
-    return `<button class="mcard" data-act="nav" data-to="#/m/${m.code.toLowerCase()}"><div class="ph">${ph}<span class="pill lime">${m.code}</span></div><div class="tx"><b>${N(m)}</b><small>${m.zone === 'libre' ? m.model || '' : m.model.split(' · ')[0]}</small></div></button>`;
+    return `<button class="mcard" data-act="nav" data-to="#/m/${m.code.toLowerCase()}"><div class="ph ${m.prod ? "prod" : ""}">${ph}<span class="pill lime">${m.code}</span></div><div class="tx"><b>${N(m)}</b><small>${m.zone === 'libre' ? m.model || '' : m.model.split(' · ')[0]}</small></div></button>`;
   }
   const planCard = (p) => `<button class="pcard" data-act="nav" data-to="#/plan/${p.id}"><img src="${img(p.img)}" alt=""><div class="sh"></div><div class="in"><div class="row between"><span class="eyebrow lime">${p.days} ${t('diasSemana')} · ${p.min} ${t('min')}</span>${S.plan && S.plan.id === p.id ? `<span class="pill lime">${ic('check', 12)} ${t('siguiendo')}</span>` : ''}</div><div class="display">${N(p)}</div><div class="small muted">${L2(p.who).split('.')[0]}.</div></div></button>`;
   const videoHero = (ex, cls = '') => `<div class="hero kb ${cls}"><img src="${img(ex.img)}" alt=""><div class="sh"></div><div class="tl"><span class="pill lime">${ic('play', 11)} ${t('videoPend')}</span></div><div class="play">${ic('play')}</div><div class="in"><div class="eyebrow lime">${ex.regions.map((r) => N(G.regions.find((x) => x.id === r))).join(' · ')} · ${lvlName(ex.lvl)}</div><h1 class="display h1">${N(ex)}</h1></div></div>`;
@@ -120,6 +121,7 @@
       <div class="top"><div class="grow"><div class="eyebrow">${longDate(now)}</div><h1 class="display h1">${greet},<br><span class="lime">${S.name}</span></h1></div><button class="iconbtn lime" data-act="nav" data-to="#/carnet" aria-label="${t('carnet')}">${ic('qr')}</button></div>
       ${planHtml}
       <section class="sec"><div class="sec-h"><h2>${t('avisos')}</h2></div><div class="card">${G.notices.map((n) => `<div class="notice"><span class="ni">${ic(n.icon)}</span><div class="small">${L(n)}</div></div>`).join('')}</div></section>
+      <button class="card lime pad mt16" data-act="scan" style="width:100%;text-align:left"><div class="row"><span class="iconbtn" style="background:var(--lime-ink);color:var(--lime)">${ic('qr')}</span><div class="grow"><b>${t('escanear')}</b><div class="small muted">${t('escanearTxt')}</div></div>${ic('chev')}</div></button>
       <section class="sec"><div class="sec-h"><h2>${t('enLaSala')}</h2></div><div class="grid2">
         <button class="card pad" data-act="nav" data-to="#/explorar/maquina" style="text-align:left;color:#fff"><span class="iconbtn lime" style="margin-bottom:10px">${ic('qr')}</span><b>${t('maquinas')}</b><div class="xs muted mt8">${t('qrHint')}</div></button>
         <button class="card pad" data-act="nav" data-to="#/sesiones" style="text-align:left;color:#fff"><span class="iconbtn" style="margin-bottom:10px">${ic('timer')}</span><b>${t('sesiones')}</b><div class="xs muted mt8">${t('circuitos')} · ${t('cardioMaquina')}</div></button>
@@ -138,7 +140,7 @@
         <div class="legend mt12">${G.regions.map((r) => `<button data-act="nav" data-to="#/region/${r.id}"><i></i><div><b>${N(r)}</b><small>${count(r)} ${t('ejercicios')}</small></div></button>`).join('')}</div>`;
     } else if (tab === 'maquina') {
       const zone = (z, l) => `<section class="sec" style="margin-top:14px"><div class="sec-h"><h2>${t(l)}</h2></div><div class="grid2">${G.machines.filter((m) => m.zone === z).map(machineCard).join('')}</div></section>`;
-      body = `<div class="tip lime small">${ic('qr')} ${t('qrHint')}</div>` + zone('fuerza', 'zonaFuerza') + zone('cardio', 'zonaCardio') + zone('libre', 'zonaLibre');
+      body = `<button class="btn btn-lime btn-lg btn-block" data-act="scan">${ic('qr')} ${t('escanear')}</button><div class="xs muted mt8 center">${t('qrHint')}</div>` + zone('fuerza', 'zonaFuerza') + zone('cardio', 'zonaCardio') + zone('libre', 'zonaLibre');
     } else {
       body = `<div class="inputwrap">${ic('search')}<input class="input" id="q" placeholder="${t('buscarPh')}" autocomplete="off"></div><div id="results" class="mt12">${searchResults('')}</div>`;
     }
@@ -203,7 +205,7 @@
     const ph = m.img ? `<img src="${img(m.img)}" alt="">` : `<div class="mcode"><b>${m.code}</b></div>`;
     return `<div class="screen">${top('', `<button class="iconbtn" data-act="help" data-m="${m.code}" aria-label="${t('pedirAyuda')}">${ic('help')}</button>`)}
       ${!S.onboarded ? `<div class="tip lime small mb12">${ic('qr')} ${t('desdeQr')}</div>` : ''}
-      <div class="hero ${m.img ? 'kb' : ''}">${ph}<div class="sh"></div><div class="tl"><span class="pill lime">${m.code}</span>${m.img ? `<span class="pill">${ic('play', 11)} ${t('video')}</span>` : ''}</div><div class="in"><div class="eyebrow lime">${t(m.zone === 'fuerza' ? 'zonaFuerza' : m.zone === 'cardio' ? 'zonaCardio' : 'zonaLibre')}</div><h1 class="display h1">${N(m)}</h1></div></div>
+      <div class="hero ${m.prod ? "prod" : m.img ? "kb" : ""}">${ph}<div class="sh"></div><div class="tl"><span class="pill lime">${m.code}</span>${m.img ? `<span class="pill">${ic('play', 11)} ${t('video')}</span>` : ''}</div><div class="in"><div class="eyebrow lime">${t(m.zone === 'fuerza' ? 'zonaFuerza' : m.zone === 'cardio' ? 'zonaCardio' : 'zonaLibre')}</div><h1 class="display h1">${N(m)}</h1></div></div>
       ${m.model ? `<div class="xs muted mt8">${t('modelo')}: ${m.model}</div>` : ''}
       <p class="mt12">${L2(m.desc)}</p>
       ${m.adjust.length ? `<section class="sec"><div class="sec-h"><h2>${t('comoSeAjusta')}</h2></div><div class="card pad"><dl class="kv">${m.adjust.map((a) => `<dt>${S.lang === 'eu' ? a[2] : a[0]}</dt><dd>${S.lang === 'eu' ? a[3] : a[1]}</dd>`).join('')}</dl></div></section>` : ''}
@@ -211,7 +213,7 @@
       ${cardio ? `<section class="sec"><div class="sec-h"><h2>${t('protocolos')}</h2></div>${cardio.prot.map((p) => `<button class="exrow" data-act="nav" data-to="#/cardio/${m.code.toLowerCase()}/${p.id}"><span class="num">${p.total}'</span><div class="grow"><b>${N(p)}</b><small>${t(p.kind === 'int' ? 'intervalos' : 'continuo')}</small></div><span class="chev">${ic('chev')}</span></button>`).join('')}</section>` : ''}
       ${list.length ? `<section class="sec"><div class="sec-h"><h2>${t('enEstaMaquina')}</h2><span class="small muted">${list.length} ${t('ejercicios')}</span></div>${list.map((e) => exRow(e, { meta: lvlName(e.lvl) + (e.where !== m.code ? ' · ' + whereLabel(e) : '') })).join('')}</section>` : ''}
       ${altEx ? `<section class="sec"><div class="sec-h"><h2>${t('siOcupada')}</h2></div>${exRow(altEx, { meta: t('alternativa') + ' · ' + whereLabel(altEx) })}</section>` : ''}
-      <button class="btn btn-ghost btn-block mt16" data-act="help" data-m="${m.code}">${ic('help')} ${t('pedirAyuda')}</button>
+      <div class="row mt16"><button class="btn btn-ghost grow" data-act="help" data-m="${m.code}">${ic('help')} ${t('pedirAyuda')}</button><button class="btn btn-ghost" data-act="mqr" data-m="${m.code}">${ic('qr')} ${t('qrMaquina')}</button></div>
       ${!S.onboarded ? `<button class="btn btn-lime btn-block mt8" data-act="nav" data-to="#/onb/1">${t('abrirApp')}</button>` : ''}
     </div>`;
   }
@@ -261,7 +263,7 @@
   function scrSesiones() {
     return `<div class="screen"><div class="top"><h1 class="display h1 grow" style="margin:0">${t('sesiones')}</h1></div>
       <section><div class="sec-h"><h2>${t('circuitos')}</h2></div>${G.circuits.map((c) => `<button class="pcard" data-act="nav" data-to="#/circuito/${c.id}"><img src="${img(c.img)}" alt=""><div class="sh"></div><div class="in"><div class="eyebrow lime">${c.min} ${t('min')} · ${c.rounds} ${t('rondas')} · ${c.st.length} ${t('estaciones').toLowerCase()}</div><div class="display">${N(c)}</div></div></button>`).join('')}</section>
-      <section class="sec"><div class="sec-h"><h2>${t('cardioMaquina')}</h2></div>${G.cardio.map((c) => { const m = G.machine(c.m); return `<button class="exrow" data-act="nav" data-to="#/cardio/${c.m.toLowerCase()}">${m.img ? `<img class="th sm" src="${img(m.img)}" alt="">` : `<span class="num" style="width:46px;height:46px;font-size:1em">${c.m}</span>`}<div class="grow"><b>${N(c)}</b><small>${c.prot.length} ${t('protocolos').toLowerCase()} · ${c.prot.map((p) => p.total).join(' · ')} ${t('min')}</small></div><span class="chev">${ic('chev')}</span></button>`; }).join('')}<div class="tip mt12 small">${t('hablar')}</div></section>
+      <section class="sec"><div class="sec-h"><h2>${t('cardioMaquina')}</h2></div>${G.cardio.map((c) => { const m = G.machine(c.m); return `<button class="exrow" data-act="nav" data-to="#/cardio/${c.m.toLowerCase()}">${m.img ? `<img class="th sm" src="${img(m.img)}" alt="" style="${m.prod ? "object-fit:contain;background:#eef2f8" : ""}">` : `<span class="num" style="width:46px;height:46px;font-size:1em">${c.m}</span>`}<div class="grow"><b>${N(c)}</b><small>${c.prot.length} ${t('protocolos').toLowerCase()} · ${c.prot.map((p) => p.total).join(' · ')} ${t('min')}</small></div><span class="chev">${ic('chev')}</span></button>`; }).join('')}<div class="tip mt12 small">${t('hablar')}</div></section>
     </div>`;
   }
 
@@ -284,7 +286,7 @@
     const c = G.cardio.find((x) => x.m === code.toUpperCase()); if (!c) return scrSesiones();
     const m = G.machine(c.m);
     if (!pid) return `<div class="screen">${top(N(c))}
-      <div class="hero wide ${m.img ? 'kb' : ''}">${m.img ? `<img src="${img(m.img)}" alt="">` : `<div class="mcode"><b>${m.code}</b></div>`}<div class="sh"></div><div class="in"><div class="eyebrow lime">${m.code} · ${t('cardioMaquina')}</div><h1 class="display h1">${N(c)}</h1></div></div>
+      <div class="hero wide ${m.prod ? "prod" : m.img ? "kb" : ""}">${m.img ? `<img src="${img(m.img)}" alt="">` : `<div class="mcode"><b>${m.code}</b></div>`}<div class="sh"></div><div class="in"><div class="eyebrow lime">${m.code} · ${t('cardioMaquina')}</div><h1 class="display h1">${N(c)}</h1></div></div>
       <section class="sec"><div class="sec-h"><h2>${t('tecnica')}</h2></div><div class="tip small">${L2(c.tech)}</div></section>
       <section class="sec"><div class="sec-h"><h2>${t('protocolos')}</h2></div>${c.prot.map((p) => `<button class="exrow" data-act="nav" data-to="#/cardio/${code}/${p.id}"><span class="num">${p.total}'</span><div class="grow"><b>${N(p)}</b><small>${t(p.kind === 'int' ? 'intervalos' : 'continuo')} · ${p.steps.length} ${p.steps.length > 1 ? 'bloques' : 'bloque'}</small></div><span class="chev">${ic('chev')}</span></button>`).join('')}</section>
       <div class="tip mt16 small">${t('hablar')}</div><button class="btn btn-ghost btn-block mt12" data-act="nav" data-to="#/m/${code}">${t('verMaquina')}</button></div>`;
@@ -317,7 +319,9 @@
 
   function scrMi() {
     const done = isDoneToday('mine');
-    const rows = S.mine.map((it, i) => { const ex = G.ex(it.ex); return `<div class="mine"><div class="row"><span class="num" style="width:26px;height:26px;border-radius:8px;background:var(--card-2);color:var(--lime);font-family:var(--f-mono);font-size:.8em;display:grid;place-items:center;flex:none">${i + 1}</span><img src="${img(ex.img)}" style="width:46px;height:46px;border-radius:10px;object-fit:cover" alt=""><button class="grow" data-act="nav" data-to="#/e/${ex.id}" style="color:#fff"><b style="display:block;line-height:1.2">${N(ex)}</b><small class="muted">${whereLabel(ex)} · ${G.fichas[ex.id] ? G.fichas[ex.id].dosis.split('·')[0] : t('dosis' + ex.lvl).split('·')[0]}</small></button></div><div class="row" style="align-items:flex-end"><textarea class="grow" rows="1" data-note="${i}" placeholder="${t('nota')}: ${t('notaPh')}" style="margin-top:8px">${it.note || ''}</textarea><div class="acts noprint"><button data-act="mup" data-i="${i}" ${i === 0 ? 'disabled' : ''} aria-label="${t('subir')}">${ic('up')}</button><button data-act="mdown" data-i="${i}" ${i === S.mine.length - 1 ? 'disabled' : ''} aria-label="${t('bajar')}">${ic('down')}</button><button data-act="mdup" data-i="${i}" aria-label="${t('duplicar')}">${ic('copy')}</button><button data-act="mdel" data-i="${i}" aria-label="${t('quitar')}">${ic('trash')}</button></div></div></div>`; }).join('');
+    const rows = S.mine.map((it, i) => { const ex = G.ex(it.ex); return `<div class="mine"><div class="row"><span class="num">${i + 1}</span><img src="${img(ex.img)}" style="width:46px;height:46px;border-radius:10px;object-fit:cover;flex:none" alt=""><button class="grow" data-act="nav" data-to="#/e/${ex.id}" style="color:#fff"><b style="display:block;line-height:1.2">${N(ex)}</b><small class="muted">${whereLabel(ex)} · ${G.fichas[ex.id] ? G.fichas[ex.id].dosis.split('·')[0] : t('dosis' + ex.lvl).split('·')[0]}</small></button></div>
+      ${it.note ? `<button class="notebox" data-act="editnote" data-i="${i}"><span class="eyebrow lime">${t('nota')}</span><div>${esc(it.note)}</div></button>` : `<button class="chip noprint" data-act="editnote" data-i="${i}" style="margin-top:8px">${ic('plus', 14)} ${t('anadirNota')}</button>`}
+      <div class="acts noprint"><button data-act="mup" data-i="${i}" ${i === 0 ? 'disabled' : ''} aria-label="${t('subir')}">${ic('up')}</button><button data-act="mdown" data-i="${i}" ${i === S.mine.length - 1 ? 'disabled' : ''} aria-label="${t('bajar')}">${ic('down')}</button><button data-act="mdup" data-i="${i}" aria-label="${t('duplicar')}">${ic('copy')}</button><button data-act="mdel" data-i="${i}" aria-label="${t('quitar')}">${ic('trash')}</button></div></div>`; }).join('');
     return `<div class="screen">${top(t('miEntreno'), `<button class="iconbtn noprint" data-act="print" aria-label="${t('pdf')}">${ic('dl')}</button>`)}
       <h1 class="display h1">${t('miEntreno')}</h1>
       ${S.mine.length ? rows : `<div class="card pad center"><div class="display h2">${t('vacio')}</div><div class="small muted">${t('vacioTxt')}</div></div>`}
@@ -351,11 +355,13 @@
       <section class="card carnet pad"><div class="eyebrow lime">${t('socio')} · nº 0421</div><div class="display h1">${S.name} Alberdi</div>
         <div class="qrbox mt12" id="qr"></div>
         <div class="small muted mt12 center">${t('enseñar')}</div></section>
-      <div class="card mt12">
-        <div class="set"><span class="row"><span class="iconbtn" style="color:var(--ok)">${ic('check')}</span><span><b>${t('cuota')}</b><br><small class="muted">${t('hasta')} 30/11/2026</small></span></span></div>
-        <div class="set"><span class="row"><span class="iconbtn" style="color:var(--ok)">${ic('doc')}</span><span><b>${t('declaracion')}</b><br><small class="muted">03/11/2026 · ${t('caduca')} 03/11/2027</small></span></span></div>
-        <div class="set"><span class="row"><span class="iconbtn" style="color:var(--ok)">${ic('shield')}</span><span><b>${t('normas')}</b><br><small class="muted">03/11/2026</small></span></span></div>
+      <div class="sec-h mt16"><h2>${t('misDocs')}</h2><span class="small muted">PDF</span></div>
+      <div class="card">
+        <button class="set" data-act="nav" data-to="#/doc/cuota"><span class="row"><span class="iconbtn" style="color:var(--ok)">${ic('check')}</span><span><b>${t('cuota')}</b><br><small class="muted">${t('hasta')} 30/11/2026</small></span></span><span class="pill">${ic('doc', 12)} PDF</span></button>
+        <button class="set" data-act="nav" data-to="#/doc/aptitud"><span class="row"><span class="iconbtn" style="color:var(--ok)">${ic('doc')}</span><span><b>${t('declaracion')}</b><br><small class="muted">03/11/2026 · ${t('caduca')} 03/11/2027</small></span></span><span class="pill">${ic('doc', 12)} PDF</span></button>
+        <button class="set" data-act="nav" data-to="#/doc/normas"><span class="row"><span class="iconbtn" style="color:var(--ok)">${ic('shield')}</span><span><b>${t('normas')}</b><br><small class="muted">03/11/2026</small></span></span><span class="pill">${ic('doc', 12)} PDF</span></button>
       </div>
+      <div class="xs faint mt8">${t('custodia')}</div>
     </div>`;
   }
   function drawQr() {
@@ -439,7 +445,7 @@
   // ---------- hoja inferior, avisos ----------
   const over = () => $('#over');
   function sheet(html) { over().innerHTML = `<div class="sheet-bg" data-act="closesheet"><div class="sheet" data-stop="1"><div class="grab"></div>${html}</div></div>`; }
-  function closeSheet() { over().innerHTML = ''; }
+  function closeSheet() { stopScan(); over().innerHTML = ''; }
   let toastT = null;
   function toast(msg) { let el = $('#toast'); if (!el) { el = document.createElement('div'); el.id = 'toast'; el.className = 'toast'; $('#frame').appendChild(el); } el.textContent = msg; clearTimeout(toastT); toastT = setTimeout(() => el.remove(), 2200); }
   let helpSeq = 0;
@@ -458,9 +464,73 @@
     setTimeout(() => { const el = $('#help-status'); if (el && helpSeq === id) { el.className = 'tip lime mt16 small'; el.innerHTML = `<b>${t('vanParaAlla')}</b> · Mikel, ${S.lang === 'eu' ? 'harrera' : 'recepción'} · ${hm(new Date())}`; } }, 6000);
   }
 
+  // ---------- documentos firmados (vista tipo PDF) ----------
+  const SIG = '<svg class="sig" viewBox="0 0 300 80"><path d="M14 56c22-38 36-38 30-6-4 22 16-30 36-24s-8 30 12 24 22-32 40-26 4 26 24 22 30-36 46-28-10 28 10 26 36-16 60-24" fill="none" stroke="#1b2a6b" stroke-width="2.2" stroke-linecap="round"/></svg>';
+  function scrDoc(id) {
+    const kv = (rows) => `<dl class="pkv">${rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('')}</dl>`;
+    const stamp = '<div class="pstamp">PADEL INDOOR<br>OARSO<br><small>Gimnasio · Errenteria</small></div>';
+    const sigBlock = (when, ref, extra) => `<div class="psig"><div class="row between" style="align-items:flex-end"><div><div class="plab">Firma del socio</div>${SIG}<div class="pname">Naia Alberdi · socio nº 0421</div></div>${stamp}</div><div class="pmeta">${t('firmado')} ${when} · tableta de recepción · IP 88.···.···.12<br>Documento ${ref} · huella SHA-256 9f3a1c77…d2e4${extra ? ' · ' + extra : ''}</div></div>`;
+    const Q = ['¿Le ha dicho alguna vez su médico que tiene una enfermedad del corazón o hipertensión?', '¿Siente dolor en el pecho en reposo, en sus actividades diarias o al hacer actividad física?', '¿Pierde el equilibrio por mareos o ha perdido el conocimiento en los últimos 12 meses?', '¿Le han diagnosticado otra enfermedad crónica, distinta de las del corazón o la hipertensión?', '¿Toma actualmente medicación prescrita para una enfermedad crónica?', '¿Tiene, o ha tenido en los últimos 12 meses, un problema de huesos, articulaciones o tejidos blandos que pueda empeorar al ser más activo?', '¿Le ha dicho su médico que solo debe hacer actividad física supervisada?'];
+    const R = ['El acceso a la sala es personal, con el carné de la app o el nombre en recepción.', 'Toalla obligatoria en bancos y máquinas, y limpieza del puesto al terminar.', 'El material vuelve a su sitio: discos en los soportes, mancuernas en el mancuernero.', 'Calzado deportivo limpio y ropa adecuada.', 'Los menores de 18 años necesitan autorización firmada de madre, padre o tutor.', 'No se graba ni se fotografía a otras personas sin su permiso.', 'Cualquier incidencia con una máquina, molestia o malestar se comunica en recepción.', 'Se respetan el horario, el aforo y las indicaciones del personal.'];
+    const D = {
+      aptitud: { title: t('docAptitud'), sub: 'Cuestionario PAR-Q+ (versión 2025), sin modificaciones · Documento v1 · castellano',
+        body: kv([['Socio', 'Naia Alberdi · nº 0421'], ['Fecha', '03/11/2026'], ['Validez', '12 meses · hasta el 03/11/2027'], ['Idioma', 'Castellano']]) + `<h3>Siete preguntas sobre su salud</h3><ol class="pq">${Q.map((q) => `<li><span>${q}</span><b>NO</b></li>`).join('')}</ol><div class="pres"><b>Resultado:</b> todas las respuestas son NO. Puede empezar a hacer actividad física, despacio y progresando poco a poco. Esta declaración deja de ser válida si cambia su estado de salud.</div><p>Declaro que he leído y comprendido las preguntas y que las he respondido con sinceridad. Sé que debo avisar al personal del gimnasio si mi estado de salud cambia.</p>` + sigBlock('el 03/11/2026 a las 18:41', 'OG-APT-2026-0421', 'acceso restringido al responsable del gimnasio') },
+      normas: { title: t('docNormas'), sub: 'Normas de uso de la sala · Documento v1 · castellano',
+        body: kv([['Socio', 'Naia Alberdi · nº 0421'], ['Fecha', '03/11/2026'], ['Vigencia', 'Desde el 01/01/2027']]) + `<h3>Normas de uso</h3><ol class="pn">${R.map((r) => `<li>${r}</li>`).join('')}</ol><p>He leído y acepto las normas de uso del gimnasio de Padel Indoor Oarso.</p>` + sigBlock('el 03/11/2026 a las 18:43', 'OG-NOR-2026-0421', '') },
+      cuota: { title: t('docCuota'), sub: 'Justificante de cuota al día · no es una factura',
+        body: kv([['Socio', 'Naia Alberdi · nº 0421'], ['Modalidad', 'Gimnasio'], ['Periodo', 'Noviembre de 2026 · del 1 al 30'], ['Forma de pago', 'Domiciliación bancaria'], ['Estado', 'Al día']]) + `<p>Padel Indoor Oarso certifica que la persona indicada tiene la cuota del gimnasio al día para el periodo señalado.</p><div class="psig"><div class="row between" style="align-items:flex-end"><div><div class="plab">Emitido</div><div class="pname">01/11/2026 · 09:00 · recepción</div></div>${stamp}</div><div class="pmeta">Documento OG-CUO-2026-11-0421 · La factura se emite con TicketBAI desde el programa de facturación del club.</div></div>` },
+    };
+    const d = D[id]; if (!d) return scrCarnet();
+    return `<div class="screen">${top(d.title, `<button class="iconbtn noprint" data-act="print" aria-label="${t('descargarPdf')}">${ic('dl')}</button>`)}
+      <div class="paper"><div class="phead"><div class="pclub">Padel Indoor Oarso · Gimnasio</div><h1>${d.title}</h1><div class="psub">${d.sub}</div></div>${d.body}<div class="pfoot">${t('ejemploDoc')}</div></div>
+      <button class="btn btn-lime btn-lg btn-block mt16 noprint" data-act="print">${ic('dl')} ${t('descargarPdf')}</button>
+      <div class="xs faint mt8 center noprint">${t('custodia')}</div>
+    </div>`;
+  }
+
+  // ---------- escáner de QR dentro de la app ----------
+  let SC = null;
+  function openScanner() {
+    sheet(`<div class="eyebrow lime">${t('escanear')}</div><div class="display h2">${t('maquinas')}</div><div class="small muted">${t('escanearTxt')}</div>
+      <div class="scanbox mt12"><video id="scanv" playsinline muted autoplay></video><div class="scanframe"></div></div>
+      <div class="small muted mt8 center" id="scanst">${t('buscando')}</div>
+      <button class="btn btn-ghost btn-block mt12" data-act="scanto" data-to="#/m/m3">${ic('qr')} ${t('probarSin')}</button>
+      <button class="btn btn-ghost btn-block mt8" data-act="closesheet">${t('cancelar')}</button>`);
+    startScan();
+  }
+  async function startScan() {
+    const v = $('#scanv'), st = $('#scanst'); if (!v) return;
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+      SC = { stream, det: 'BarcodeDetector' in window ? new BarcodeDetector({ formats: ['qr_code'] }) : null, cv: document.createElement('canvas'), t: 0 };
+      v.srcObject = stream; await v.play(); scanLoop();
+    } catch (e) { if (st) st.textContent = t('camaraNo'); const box = $('.scanbox'); if (box) box.classList.add('off'); }
+  }
+  async function scanLoop() {
+    if (!SC) return; const v = $('#scanv'); if (!v) return stopScan();
+    let text = null;
+    try {
+      if (SC.det) { const codes = await SC.det.detect(v); if (codes.length) text = codes[0].rawValue; }
+      else if (window.jsQR && v.videoWidth) { const c = SC.cv; c.width = v.videoWidth; c.height = v.videoHeight; const g = c.getContext('2d'); g.drawImage(v, 0, 0); const d = g.getImageData(0, 0, c.width, c.height); const r = jsQR(d.data, c.width, c.height); if (r) text = r.data; }
+    } catch (e) {}
+    if (text) {
+      const m = text.match(/\/m\/([a-z]\d)\b/i);
+      if (m) { const code = m[1].toLowerCase(); closeSheet(); beep(1); nav('#/m/' + code); return; }
+      const st = $('#scanst'); if (st) st.textContent = t('noQr');
+    }
+    if (SC) SC.t = setTimeout(scanLoop, 250);
+  }
+  function stopScan() { if (!SC) return; clearTimeout(SC.t); try { SC.stream.getTracks().forEach((tr) => tr.stop()); } catch (e) {} SC = null; }
+  function machineQr(code) {
+    const m = G.machine(code.toUpperCase()); if (!m) return;
+    const url = location.origin + location.pathname + '#/m/' + code.toLowerCase();
+    sheet(`<div class="eyebrow lime">${m.code} · ${N(m)}</div><div class="display h2">${t('qrMaquina')}</div><div class="qrbox mt12" id="mqr"></div><div class="small muted mt12">${t('qrMaquinaTxt')}</div><div class="xs faint mt8" style="word-break:break-all">${url}</div><button class="btn btn-ghost btn-block mt12" data-act="closesheet">${t('cerrar')}</button>`);
+    const el = $('#mqr'); try { const q = qrcode(0, 'H'); q.addData(url); q.make(); el.innerHTML = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }); } catch (e) { el.textContent = url; }
+  }
+
   // ---------- enrutado ----------
   function parts() { return location.hash.replace(/^#\/?/, '').split('/').filter(Boolean).map(decodeURIComponent); }
-  const groupOf = (r) => ({ hoy: 'hoy', explorar: 'explorar', region: 'explorar', e: 'explorar', m: 'explorar', planes: 'planes', plan: 'planes', dia: 'planes', sesiones: 'sesiones', circuito: 'sesiones', cardio: 'sesiones', yo: 'yo', mi: 'yo', dias: 'yo', carnet: 'yo', ajustes: 'yo', legal: 'yo', privacidad: 'yo' })[r] || 'hoy';
+  const groupOf = (r) => ({ hoy: 'hoy', explorar: 'explorar', region: 'explorar', e: 'explorar', m: 'explorar', planes: 'planes', plan: 'planes', dia: 'planes', sesiones: 'sesiones', circuito: 'sesiones', cardio: 'sesiones', yo: 'yo', mi: 'yo', dias: 'yo', carnet: 'yo', ajustes: 'yo', legal: 'yo', privacidad: 'yo', doc: 'yo' })[r] || 'hoy';
   let lastKey = '';
   function render(keep) {
     const p = parts(); let r = p[0] || 'hoy';
@@ -488,6 +558,7 @@
       case 'ajustes': html = scrAjustes(); break;
       case 'legal': html = scrText(t('legal'), t('legalTxt')); break;
       case 'privacidad': html = scrText(t('privacidad'), t('privTxt')); break;
+      case 'doc': html = scrDoc(p[1]); break;
       default: html = scrHoy();
     }
     if (!['circuito', 'cardio'].includes(r)) stopTimer();
@@ -529,6 +600,9 @@
       case 'mdown': { const i = +el.dataset.i; if (i < S.mine.length - 1) { [S.mine[i + 1], S.mine[i]] = [S.mine[i], S.mine[i + 1]]; save(); render(true); } break; }
       case 'mdup': { const i = +el.dataset.i; S.mine.splice(i + 1, 0, Object.assign({}, S.mine[i], { id: Date.now() })); save(); render(true); break; }
       case 'mdel': S.mine.splice(+el.dataset.i, 1); save(); render(true); break;
+      case 'editnote': { const i = +el.dataset.i; const it = S.mine[i]; const ex = G.ex(it.ex); sheet(`<div class="eyebrow lime">${t('nota')}</div><div class="display h2">${N(ex)}</div><textarea id="notetx" rows="4" placeholder="${t('notaPh')}">${esc(it.note || '')}</textarea><button class="btn btn-lime btn-lg btn-block mt12" data-act="savenote" data-i="${i}">${ic('check')} ${t('guardar')}</button><div class="row mt8"><button class="btn btn-ghost grow" data-act="closesheet">${t('cancelar')}</button>${it.note ? `<button class="btn btn-ghost" data-act="delnote" data-i="${i}">${ic('trash')} ${t('borrarNota')}</button>` : ''}</div>`); const tx = $('#notetx'); if (tx) { tx.focus(); tx.setSelectionRange(tx.value.length, tx.value.length); } break; }
+      case 'savenote': { const tx = $('#notetx'); S.mine[+el.dataset.i].note = tx ? tx.value.trim() : ''; save(); closeSheet(); render(true); break; }
+      case 'delnote': S.mine[+el.dataset.i].note = ''; save(); closeSheet(); render(true); break;
       case 'copyday': sheet(`<div class="eyebrow lime">${t('copiarDia')}</div><div class="display h2">${t('eligeDia')}</div><div class="col" style="gap:8px;margin-top:10px">${G.plans.filter((p, i, arr) => arr.findIndex((q) => q.obj === p.obj) === i || p.days === 3).map((p) => p.sched.filter((d) => d.k !== 'C').map((d) => `<button class="opt" data-act="copydo" data-p="${p.id}" data-k="${d.k}"><span class="num" style="width:30px;height:30px;border-radius:9px;background:var(--card-2);color:var(--lime);font-family:var(--f-mono);display:grid;place-items:center">${d.k}</span><span><b>${N(p)}</b><br><small class="muted">${p.days} ${t('dias')} · ${t('dia')} ${d.k} · ${d.main.length} ${t('ejercicios')}</small></span></button>`).join('')).join('')}</div><button class="btn btn-ghost btn-block mt12" data-act="closesheet">${t('cancelar')}</button>`); break;
       case 'copydo': { const d = G.plan(el.dataset.p).sched.find((x) => x.k === el.dataset.k); d.main.forEach(([id, dose]) => { if (!S.mine.some((m) => m.ex === id)) S.mine.push({ id: Date.now() + id, ex: id, note: dose }); }); save(); closeSheet(); toast(t('copiado')); render(true); break; }
       case 'print': window.print(); break;
@@ -536,6 +610,9 @@
       case 'confirmreset': sheet(`<div class="display h2">${v === 'cuenta' ? t('borrar') : t('borrarDemo')}</div><div class="small muted">${t('privTxt').split('.').slice(-2).join('.')}</div><button class="btn btn-danger btn-block mt16" data-act="reset">${v === 'cuenta' ? t('borrar') : t('borrarDemo')}</button><button class="btn btn-ghost btn-block mt8" data-act="closesheet">${t('cancelar')}</button>`); break;
       case 'reset': { const lang = S.lang; S = defaults(); S.lang = lang; save(); closeSheet(); stopTimer(); nav('#/onb/1'); render(); break; }
       case 'help': openHelp(el.dataset.m, el.dataset.ex); break;
+      case 'scan': openScanner(); break;
+      case 'scanto': closeSheet(); nav(el.dataset.to); break;
+      case 'mqr': machineQr(el.dataset.m); break;
       case 'helpsend': helpSend(v, el.dataset.w); break;
       case 'closesheet': closeSheet(); break;
       case 'tmgo': tmGo(); break;
@@ -543,9 +620,21 @@
       case 'tmreset': tmReset(); break;
     }
   });
+  // Figura: tocar un músculo lo ilumina en lima y abre su región
   document.addEventListener('click', (ev) => {
     const g = ev.target.closest('.anatwrap.click [data-g]'); if (!g) return;
-    const r = G.regionOf(g.dataset.g); if (r) nav('#/region/' + r);
+    const r = G.regionOf(g.dataset.g); const reg = G.regions.find((x) => x.id === r); if (!reg) return;
+    const wrap = g.closest('.anatwrap');
+    wrap.innerHTML = ANAT('f', reg.groups, [], 150) + ANAT('b', reg.groups, [], 150);
+    if (navigator.vibrate) navigator.vibrate(15);
+    setTimeout(() => nav('#/region/' + r), 280);
+  });
+  document.addEventListener('mouseover', (ev) => {
+    const wrap = $('.anatwrap.click'); if (!wrap) return;
+    wrap.querySelectorAll('.hov').forEach((p) => p.classList.remove('hov'));
+    const g = ev.target.closest('.anatwrap.click [data-g]'); if (!g) return;
+    const reg = G.regions.find((x) => x.id === G.regionOf(g.dataset.g)); if (!reg) return;
+    wrap.querySelectorAll('[data-g]').forEach((p) => { if (reg.groups.includes(p.dataset.g)) p.classList.add('hov'); });
   });
   document.addEventListener('input', (ev) => { const n = ev.target.dataset && ev.target.dataset.note; if (n !== undefined) { S.mine[+n].note = ev.target.value; save(); } });
 

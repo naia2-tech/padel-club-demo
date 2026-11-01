@@ -74,7 +74,7 @@
         const fill = st === 'p' ? `url(#${id}h)` : st === 's' ? `url(#${id}s)` : `url(#${id}m)`;
         const fcol = st === 'p' ? '#6d8a00' : st === 's' ? '#3c4b12' : '#0b1426';
         const fop = st === 'p' ? '.35' : '.45';
-        const piece = `<path d="${d}" data-g="${g}" fill="${fill}" stroke="#060d1d" stroke-width="1.1"/>` + (fb ? `<path d="${fb}" clip-path="url(#${cid})" stroke="${fcol}" stroke-opacity="${fop}" stroke-width=".45" fill="none"/>` : '');
+        const piece = `<path d="${d}" data-g="${g}" fill="${fill}" stroke="#060d1d" stroke-width="1.1"/>` + (fb ? `<path d="${fb}" clip-path="url(#${cid})" stroke="${fcol}" stroke-opacity="${fop}" stroke-width=".45" fill="none" pointer-events="none"/>` : '');
         if (st === 'p') { p += piece; glow += `<path d="${d}"/>`; } else if (st === 's') s += piece; else n += piece;
       }
     }
@@ -94,8 +94,8 @@
 </defs>
 <ellipse cx="100" cy="463" rx="54" ry="7" fill="url(#${id}fl)"/>
 <path d="${cr(BODY)}" fill="url(#${id}bd)" stroke="#34497a" stroke-width=".9"/><path d="${cr(HEAD)}" fill="url(#${id}bd)" stroke="#34497a" stroke-width=".9"/><path d="${cr(EAR)}" fill="#1c2948"/><path d="${cr(mir(EAR))}" fill="#1c2948"/>
-${det}${n}${s}<g filter="url(#${id}gl)">${glow}</g>${p}
-<rect x="0" y="0" width="200" height="470" fill="url(#${id}lt)" clip-path="url(#${id}bc)"/>
+${det}${n}${s}<g filter="url(#gl)" pointer-events="none"></g>
+<rect x="0" y="0" width="200" height="470" fill="url(#lt)" clip-path="url(#bc)" pointer-events="none"/>
 </svg>`;
   };
 })();
