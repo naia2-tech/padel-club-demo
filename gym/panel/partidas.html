@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>Prueba · Partidas a WhatsApp</title>
+<link rel="icon" href="../../assets/icon.svg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders:wght@800&display=swap">
+<style>
+:root { --navy: #061634; --lime: #d9ff3d; --bg: #f3f5fa; --card: #fff; --line: #e3e8f2; --ink: #0f172a; --ink-2: #334155; --muted: #64748b; --wa: #128c4a; --bub: #e7ffdb; }
+* { box-sizing: border-box; }
+body { margin: 0; font: 15px/1.45 system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; color: var(--ink); background: var(--bg); -webkit-font-smoothing: antialiased; }
+header { background: var(--navy); color: #fff; padding: calc(18px + env(safe-area-inset-top, 0px)) 18px 18px; }
+header small { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--navy); background: var(--lime); border-radius: 99px; padding: 3px 10px; }
+h1 { margin: 10px 0 6px; font: 800 30px/.95 'Big Shoulders', 'Arial Narrow', sans-serif; text-transform: uppercase; }
+header p { margin: 0; color: #c8d3ea; font-size: 13.5px; max-width: 60ch; }
+main { max-width: 720px; margin: 0 auto; padding: 16px 16px calc(40px + env(safe-area-inset-bottom, 0px)); }
+.tabs { display: flex; gap: 8px; margin-bottom: 14px; }
+.tabs button { flex: 1; min-height: 44px; border: 1px solid var(--line); background: var(--card); border-radius: 12px; font: inherit; font-weight: 700; color: var(--ink-2); cursor: pointer; }
+.tabs button[aria-pressed="true"] { background: var(--navy); color: #fff; border-color: var(--navy); }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 14px; margin-bottom: 14px; }
+.top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.grp { font-size: 12px; font-weight: 700; color: var(--navy); background: #eaf1fb; border-radius: 99px; padding: 4px 10px; }
+.st { font-size: 12px; color: var(--muted); }
+.bub { background: var(--bub); border-radius: 4px 14px 14px 14px; padding: 10px 12px; white-space: pre-wrap; overflow-wrap: anywhere; font-size: 14.5px; line-height: 1.4; }
+.bub a { color: #0a62c9; }
+.acts { display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.btn { flex: 1 1 150px; min-height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 12px; border: 1px solid var(--line); background: #fff; font: inherit; font-weight: 700; color: var(--ink); text-decoration: none; cursor: pointer; padding: 0 14px; text-align: center; }
+.btn.wa { background: var(--wa); border-color: var(--wa); color: #fff; }
+.btn.sim { flex: 0 0 auto; color: var(--ink-2); font-weight: 600; }
+.btn:focus-visible, .tabs button:focus-visible { outline: 3px solid #0a47b8; outline-offset: 2px; }
+.note { font-size: 13px; color: var(--muted); margin: 0 0 14px; }
+.how { background: #fff; border: 1px dashed #b9c4da; border-radius: 16px; padding: 14px 16px; font-size: 13.5px; color: var(--ink-2); }
+.how b { color: var(--ink); }
+.how ol { margin: 8px 0 0; padding-left: 20px; }
+#toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--navy); color: #fff; padding: 10px 16px; border-radius: 99px; font-size: 13.5px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .2s; }
+#toast.on { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { #toast { transition: none; } }
+</style>
+</head>
+<body>
+<header>
+  <small>Prueba de Ondora · datos de ejemplo</small>
+  <h1>Partidas a WhatsApp</h1>
+  <p>En el club, esta lista se rellena sola desde Playtomic cada minuto. Aquí los jugadores son inventados. El envío lo hace una persona con un toque: WhatsApp se abre con el texto escrito y se elige el grupo.</p>
+</header>
+<main>
+  <div class="tabs" role="group" aria-label="Vista">
+    <button id="t-una" aria-pressed="true">Partida a partida</button>
+    <button id="t-res" aria-pressed="false">Resumen por grupo</button>
+  </div>
+  <p class="note" id="nota"></p>
+  <div id="lista"></div>
+  <div class="how">
+    <b>Cómo probarlo en el móvil</b>
+    <ol>
+      <li>Pulsa «Compartir en WhatsApp».</li>
+      <li>WhatsApp se abre y pide a quién enviarlo. Para la prueba, elige tu propio chat, no un grupo del club.</li>
+      <li>El mensaje llega ya escrito, con negritas y enlace. Pulsa enviar.</li>
+    </ol>
+  </div>
+</main>
+<div id="toast" role="status" aria-live="polite"></div>
+<script>
+const CLUB = 'PÁDEL INDOOR OARSO';
+const DIAS = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+const p2 = (n) => String(n).padStart(2, '0');
+const en = (dias, h, m) => { const d = new Date(); d.setDate(d.getDate() + dias); d.setHours(h, m, 0, 0); return d; };
+const RESERVA = ['Ane L.', 'Mikel A.', 'Jon E.', 'Irati G.', 'Unai B.', 'Maite S.'].map((n, i) => ({ n, lv: [1.84, 2.31, 1.12, 2.67, 0.88, 1.56][i] }));
+// Misma forma que da la API oficial de Playtomic: pista, inicio, duración, apuntados con su nivel, identificador de la partida
+const P = [
+  { id: 'ejemplo-0001', pista: 'Pista 3', ini: en(0, 19, 0), min: 90, jug: [{ n: 'Sara R.', lv: 2.02 }, { n: 'Asier T.', lv: 1.2 }, { n: 'Leire G.', lv: 2.54 }] },
+  { id: 'ejemplo-0002', pista: 'Pista 4', ini: en(1, 9, 30), min: 90, jug: [{ n: 'Jose R.', lv: 0.76 }, { n: 'Unax G.', lv: 1.06 }] },
+  { id: 'ejemplo-0003', pista: 'Pista 5', ini: en(1, 18, 30), min: 90, jug: [{ n: 'Nerea F.', lv: 1.7 }] },
+  { id: 'ejemplo-0004', pista: 'Pista 1', ini: en(2, 10, 30), min: 90, jug: [{ n: 'Iker Z.', lv: 2.41 }, { n: 'Oihana M.', lv: 2.9 }, { n: 'Beñat U.', lv: 2.2 }, { n: 'Aitor S.', lv: 2.75 }] }
+];
+const GRUPOS = [[0, 1.5, 'PIO NIVEL 0 - 1.5'], [1.5, 2, 'PIO NIVEL 1.5 - 2'], [2, 3, 'PIO NIVEL 2 - 3'], [3, 8, 'PIO NIVEL 3+']];
+const media = (p) => p.jug.reduce((a, j) => a + j.lv, 0) / p.jug.length;
+const grupoDe = (p) => (GRUPOS.find(([a, b]) => media(p) >= a && media(p) < b) || GRUPOS[0])[2];
+const fecha = (d) => `${DIAS[d.getDay()]}, ${p2(d.getDate())}/${p2(d.getMonth() + 1)}/${d.getFullYear()} ${p2(d.getHours())}:${p2(d.getMinutes())}`;
+const enlace = (p) => `https://app.playtomic.io/matches/${p.id}`;
+function mensaje(p) {
+  const libres = 4 - p.jug.length;
+  const t = libres === 0 ? `*PARTIDO CERRADO EN ${CLUB} 🔒🔒*` : libres === 1 ? `*Última plaza en PARTIDO EN ${CLUB} 🔥🔥🔥*` : libres === 2 ? `*Últimas 2 plazas en PARTIDO EN ${CLUB} 🎾🎾*` : `*Quién se anima PARTIDO EN ${CLUB} 💪*`;
+  const lv = p.jug.map((j) => j.lv); const l = [t, `📅 ${fecha(p.ini)} ${p.min}(min)`, '📍 Pádel Indoor Oarso', `🏟 ${p.pista}`];
+  if (lv.length > 1) l.push(`📊 Nivel de los apuntados: ${Math.min(...lv).toFixed(2)} - ${Math.max(...lv).toFixed(2)}`);
+  p.jug.forEach((j) => l.push(`✅ ${j.n} (${j.lv.toFixed(2)})`));
+  for (let i = 0; i < libres; i++) l.push('⚪ ??');
+  l.push(enlace(p)); return l.join('\n');
+}
+function resumen(nombre, lista) {
+  const l = [`*PARTIDAS ABIERTAS · ${nombre} 🎾*`, ''];
+  lista.forEach((p) => { const libres = 4 - p.jug.length; l.push(`📅 ${fecha(p.ini)} · ${p.pista}`, `${libres === 1 ? '🔥 Última plaza' : `⚪ Faltan ${libres}`} · ${p.jug.map((j) => `${j.n} (${j.lv.toFixed(2)})`).join(', ')}`, enlace(p), ''); });
+  return l.join('\n').trim();
+}
+const esc = (s) => s.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+const burbuja = (t) => esc(t).replace(/\*([^*\n]+)\*/g, '<b>$1</b>').replace(/(https:\/\/\S+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+const wa = (t) => 'https://wa.me/?text=' + encodeURIComponent(t);
+let vista = 'una'; const textos = [];
+function tarjeta(grupo, estado, texto, extra) {
+  const i = textos.push(texto) - 1;
+  return `<article class="card"><div class="top"><span class="grp">Para el grupo «${grupo}»</span><span class="st">${estado}</span></div><div class="bub">${burbuja(texto)}</div><div class="acts"><a class="btn wa" href="${wa(texto)}" target="_blank" rel="noopener">Compartir en WhatsApp</a><button class="btn" data-copy="${i}">Copiar texto</button>${extra || ''}</div></article>`;
+}
+function pintar() {
+  textos.length = 0; const orden = [...P].sort((a, b) => a.ini - b.ini);
+  document.getElementById('t-una').setAttribute('aria-pressed', vista === 'una'); document.getElementById('t-res').setAttribute('aria-pressed', vista === 'res');
+  if (vista === 'una') {
+    document.getElementById('nota').textContent = 'Un mensaje por cambio, como hoy: partida nueva, últimas plazas, cerrada. Pulsa «Se apunta alguien» para ver cómo cambia solo el texto.';
+    document.getElementById('lista').innerHTML = orden.map((p) => tarjeta(grupoDe(p), `${p.jug.length} de 4 apuntados`, mensaje(p), p.jug.length < 4 ? `<button class="btn sim" data-add="${p.id}">Se apunta alguien</button>` : '')).join('');
+  } else {
+    document.getElementById('nota').textContent = 'Un solo mensaje por grupo con todas sus partidas abiertas. Dos o tres envíos al día por grupo en lugar de uno por cambio.';
+    const abiertas = orden.filter((p) => p.jug.length < 4);
+    document.getElementById('lista').innerHTML = GRUPOS.map(([, , n]) => [n, abiertas.filter((p) => grupoDe(p) === n)]).filter(([, l]) => l.length).map(([n, l]) => tarjeta(n, `${l.length} ${l.length === 1 ? 'partida abierta' : 'partidas abiertas'}`, resumen(n, l))).join('') || '<p class="note">No hay partidas abiertas.</p>';
+  }
+}
+function aviso(t) { const el = document.getElementById('toast'); el.textContent = t; el.classList.add('on'); clearTimeout(aviso.t); aviso.t = setTimeout(() => el.classList.remove('on'), 1800); }
+document.addEventListener('click', async (e) => {
+  const c = e.target.closest('[data-copy]'), a = e.target.closest('[data-add]');
+  if (c) { try { await navigator.clipboard.writeText(textos[+c.dataset.copy]); aviso('Texto copiado'); } catch (err) { aviso('No se pudo copiar en este navegador'); } }
+  if (a) { const p = P.find((x) => x.id === a.dataset.add); const libre = RESERVA.find((r) => !P.some((x) => x.jug.some((j) => j.n === r.n))); if (p && libre && p.jug.length < 4) { p.jug.push(libre); pintar(); aviso(`${libre.n} se ha apuntado`); } }
+  if (e.target.id === 't-una') { vista = 'una'; pintar(); }
+  if (e.target.id === 't-res') { vista = 'res'; pintar(); }
+});
+pintar();
+</script>
+</body>
+</html>
